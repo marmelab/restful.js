@@ -1,0 +1,29 @@
+{
+  "name": "restify",
+  "version": "1.0.0",
+  "homepage": "https://github.com/marmelab/restify",
+  "authors": [
+    "Robin Bressan <robin@buddey.net>"
+  ],
+  "description": "Javascript librairy to query easily rest api",
+  "main": "restify.min.js",
+  "keywords": [
+    "rest"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules",
+    "test",
+    "src",
+    "build",
+    "package.json"
+  ],
+  "dependencies": {
+    "axios": "~0.4.2"
+  },
+  "devDependencies": {
+    "almond": "~0.2.9"
+  }
+}
