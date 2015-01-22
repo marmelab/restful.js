@@ -9,11 +9,12 @@ var configurator = require('./model/configurator'),
 function restful(baseUrl, port) {
     var model = {},
         config = configurator({
-            baseUrl: baseUrl,
-            port: port || 80,
-            protocol: 'http',
-            prefixUrl: '',
             _httpBackend: axios,
+            baseUrl: baseUrl,
+            headers: {},
+            port: port || 80,
+            prefixUrl: '',
+            protocol: 'http',
             requestInterceptors: [],
             responseInterceptors: []
         }, model);

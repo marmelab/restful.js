@@ -33,6 +33,7 @@ If you wish to add a prefix to all calls like a version you can configure it:
 ```javascript
 var resource = restful('api.example.com')
     .config()
+    .headers({ AuthToken: 'test' }) // set global headers
     .prefixUrl('v1')
     .protocol('https')
     .port(8080)
@@ -111,7 +112,7 @@ There are methods to deal with collections, members and entities. The name are c
 * **one ( name, id )**: Target a member in a collection `name`.
 * **all ( name )**: Target a collection `name`.
 * **requestInterceptor ( callback )**: Add a request interceptor.
-* **responseInterceptor ( callback )**: Add a response interceptor
+* **responseInterceptor ( callback )**: Add a response interceptor.
 
 ```javascript
 resource.one('articles', 1).one('comments', 2).all('authors');
@@ -122,7 +123,7 @@ resource.responseInterceptor(function(res) {
     res.title = 'Intercepted';
 
     return res;
-})
+});
 ```
 
 ### Collection methods

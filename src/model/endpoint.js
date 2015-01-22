@@ -21,13 +21,28 @@ function transformerFactory(transformers) {
     }
 };
 
+function merge(master, slave) {
+    var merged = {};
+
+    for (var i in slave) {
+        merged[i] = slave[i];
+    }
+
+    for (var i in master) {
+        merged[i] = master[i];
+    }
+
+    return merged;
+}
+
 function endpoint(name, id, referrer) {
     var model = {},
         config = configurator({
-            name: name,
-            id: id !== undefined ? id : null,
-            _parent: null,
             _httpBackend: null,
+            _parent: null,
+            headers: {},
+            id: id !== undefined ? id : null,
+            name: name,
             requestInterceptors: [],
             responseInterceptors: []
         }, referrer);
@@ -47,11 +62,13 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawGet = function(id, params, headers) {
+        headers = headers ? merge(headers, config.headers()) : config.headers();
+
         return config._httpBackend().get(
             model.url(config.id() || id),
             {
                 params: params || {},
-                headers: headers || {},
+                headers: headers,
                 transformResponse: [transformerFactory(config.responseInterceptors())]
             }
         );
@@ -76,11 +93,13 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawPost = function(data, headers) {
+        headers = headers ? merge(headers, config.headers()) : config.headers();
+
         return config._httpBackend().post(
             model.url(),
             data,
             {
-                headers: headers || {},
+                headers: headers,
                 transformRequest: [transformerFactory(config.requestInterceptors())],
                 transformResponse: [transformerFactory(config.responseInterceptors())]
             }
@@ -94,11 +113,13 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawPut = function(id, data, headers) {
+        headers = headers ? merge(headers, config.headers()) : config.headers();
+
         return config._httpBackend().put(
             model.url(config.id() || id),
             data,
             {
-                headers: headers || {},
+                headers: headers,
                 transformRequest: [transformerFactory(config.requestInterceptors())],
                 transformResponse: [transformerFactory(config.responseInterceptors())]
             }
@@ -112,10 +133,12 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawDelete = function(id, headers) {
+        headers = headers ? merge(headers, config.headers()) : config.headers();
+
         return config._httpBackend().delete(
             model.url(config.id() || id),
             {
-                headers: headers || {},
+                headers: headers,
                 transformResponse: [transformerFactory(config.responseInterceptors())]
             }
         );
