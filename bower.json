@@ -1,14 +1,16 @@
 {
-  "name": "restify",
+  "name": "restful",
   "version": "1.0.0",
-  "homepage": "https://github.com/marmelab/restify",
+  "homepage": "https://github.com/marmelab/restful.js",
   "authors": [
     "Robin Bressan <robin@buddey.net>"
   ],
-  "description": "Javascript librairy to query easily rest api",
-  "main": "restify.min.js",
+  "description": "A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.",
+  "main": "dist/restful.min.js",
   "keywords": [
-    "rest"
+    "rest",
+    "restful",
+    "api"
   ],
   "license": "MIT",
   "ignore": [
@@ -17,13 +19,6 @@
     "node_modules",
     "test",
     "src",
-    "build",
     "package.json"
-  ],
-  "dependencies": {
-    "axios": "~0.4.2"
-  },
-  "devDependencies": {
-    "almond": "~0.2.9"
-  }
+  ]
 }

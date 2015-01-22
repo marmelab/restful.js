@@ -1,72 +1,73 @@
-define(function(require) {
-    'use strict';
+'use strict';
 
-    var configurator = require('model/configurator'),
-        collection = require('model/collection'),
-        member = require('model/member');
+var configurator = require('./model/configurator'),
+    collection = require('./model/collection'),
+    member = require('./model/member'),
+    axios = require('axios');
 
-    return function restful(baseUrl, port) {
-        var model = {},
-            config = configurator({
-                baseUrl: baseUrl,
-                port: port || 80,
-                protocol: 'http',
-                prefixUrl: '',
-                httpBackend: window.axios,
-                requestInterceptors: [],
-                responseInterceptors: []
-            }, model);
+function restful(baseUrl, port) {
+    var model = {},
+        config = configurator({
+            baseUrl: baseUrl,
+            port: port || 80,
+            protocol: 'http',
+            prefixUrl: '',
+            httpBackend: axios,
+            requestInterceptors: [],
+            responseInterceptors: []
+        }, model);
 
-        model.config = function() {
-            return config;
-        };
+    model.config = function() {
+        return config;
+    };
 
-        model.url = function() {
-            var url = config.protocol() + '://' + config.baseUrl();
+    model.url = function() {
+        var url = config.protocol() + '://' + config.baseUrl();
 
-            if (config.port() !== 80) {
-                url += ':' + config.port();
-            }
-
-            if (config.prefixUrl() !== '') {
-                url += '/' + config.prefixUrl();
-            }
-
-            return url;
+        if (config.port() !== 80) {
+            url += ':' + config.port();
         }
 
-        model.one = function(name, id) {
-            return member(name, id)
-                    .config()
-                    .parent(model)
-                    .httpBackend(config.httpBackend())
-                    .responseInterceptors(config.responseInterceptors())
-                    .requestInterceptors(config.responseInterceptors())
-                    .end();
-        };
+        if (config.prefixUrl() !== '') {
+            url += '/' + config.prefixUrl();
+        }
 
-        model.all = function(name) {
-            return collection(name)
-                    .config()
-                    .parent(model)
-                    .httpBackend(config.httpBackend())
-                    .responseInterceptors(config.responseInterceptors())
-                    .requestInterceptors(config.responseInterceptors())
-                    .end();
-        };
+        return url;
+    }
 
-        model.requestInterceptor = function(interceptor) {
-            config.requestInterceptors().push(interceptor);
+    model.one = function(name, id) {
+        return member(name, id)
+                .config()
+                .parent(model)
+                .httpBackend(config.httpBackend())
+                .responseInterceptors(config.responseInterceptors())
+                .requestInterceptors(config.responseInterceptors())
+                .end();
+    };
 
-            return model;
-        };
+    model.all = function(name) {
+        return collection(name)
+                .config()
+                .parent(model)
+                .httpBackend(config.httpBackend())
+                .responseInterceptors(config.responseInterceptors())
+                .requestInterceptors(config.responseInterceptors())
+                .end();
+    };
 
-        model.responseInterceptor = function(interceptor) {
-            config.responseInterceptors().push(interceptor);
-
-            return model;
-        };
+    model.requestInterceptor = function(interceptor) {
+        config.requestInterceptors().push(interceptor);
 
         return model;
     };
-});
+
+    model.responseInterceptor = function(interceptor) {
+        config.responseInterceptors().push(interceptor);
+
+        return model;
+    };
+
+    return model;
+};
+
+module.exports = restful;

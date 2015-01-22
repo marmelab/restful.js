@@ -1,17 +1,21 @@
 {
-  "name": "rest-client",
+  "name": "restful.js",
   "version": "1.0.0",
+  "repository": "https://github.com/marmelab/restful.js",
   "description": "A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.",
   "scripts": {
     "test": "make test"
   },
   "author": "Robin Bressan <robin@buddey.net>",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
+    "axios": "^0.4.2",
     "karma": "0.12.14",
     "karma-chrome-launcher": "0.1.3",
     "karma-jasmine": "0.1.5",
     "karma-phantomjs-launcher": "0.1.4",
-    "requirejs": "^2.1.14"
+    "browserify": "^8.1.1",
+    "uglify-js": "^2.4.16",
+    "watchify": "^2.2.1"
   }
 }

@@ -1,6 +1,6 @@
 # restful.js
 
-restful.js is a JavaScript library to easily query a REST API.
+A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
 ## Installation
 
@@ -13,11 +13,10 @@ bower install restful.js
 Then add the retrieved files to your HTML layout:
 
 ```html
-<script type="text/javascript" src="/path/to/bower_components/axios/dist/axios.min.js"></script>
-<script type="text/javascript" src="/path/to/bower_components/restful.js/restful.min.js"></script>
+<script type="text/javascript" src="/path/to/bower_components/restful.js/dist/restful.min.js"></script>
 ```
 
-You can also use it with [RequireJS](http://requirejs.org/)  as an AMD module.
+You can also use it with [RequireJS](http://requirejs.org/) as an AMD module or with [Browserify](http://browserify.org/).
 
 ## Usage
 
@@ -203,16 +202,23 @@ commentResource
     });
 ```
 
-## Build
+## Development
 
-To rebuild the minified JavaScript you must run: `make build`.
-
-## Tests
-
-Install dependencies and run the unit tests:
+Install dependencies:
 
 ```
 make install
+```
+
+### Build
+
+To rebuild the minified JavaScript you must run: `make build`.
+
+During development you can run `make watch` to trigger a build at each change.
+
+### Tests
+
+```
 make test
 ```
 
@@ -222,4 +228,4 @@ All contributions are welcome and must pass the tests. If you add a new feature,
 
 ## License
 
-This application is available under the MIT License, courtesy of [marmelab](http://marmelab.com).
+This application is available under the [MIT License](https://github.com/marmelab/restful.js/blob/master/LICENSE), courtesy of [marmelab](http://marmelab.com).

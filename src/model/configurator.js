@@ -1,17 +1,17 @@
-define(function(require) {
-    'use strict';
+'use strict';
 
-    var configurable = require('util/configurable');
+var configurable = require('../util/configurable');
 
-    return function configurator(values, referrer) {
-        var model = {
-            end: function() {
-                return referrer;
-            }
-        };
-
-        configurable(model, values);
-
-        return model;
+function configurator(values, referrer) {
+    var model = {
+        end: function() {
+            return referrer;
+        }
     };
-});
+
+    configurable(model, values);
+
+    return model;
+};
+
+module.exports = configurator;

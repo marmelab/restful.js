@@ -1,146 +1,145 @@
-define(function(require) {
-    'use strict';
+'use strict';
 
-    var configurator = require('model/configurator'),
-        entity = require('model/entity');
+var configurator = require('./configurator'),
+    entity = require('./entity');
 
-    function transformerFactory(transformers) {
-        return function(data) {
-            data = JSON.parse(data);
+function transformerFactory(transformers) {
+    return function(data) {
+        data = JSON.parse(data);
 
-            for (var i in transformers) {
-                data = transformers[i](data);
-            }
-
-            return data;
+        for (var i in transformers) {
+            data = transformers[i](data);
         }
+
+        return data;
+    }
+};
+
+function endpoint(name, id, referrer) {
+    var model = {},
+        config = configurator({
+            name: name,
+            id: id !== undefined ? id : null,
+            parent: null,
+            httpBackend: null,
+            requestInterceptors: [],
+            responseInterceptors: []
+        }, referrer);
+
+    model.config = function() {
+        return config;
     };
 
-    return function endpoint(name, id, referrer) {
-        var model = {},
-            self = endpoint,
-            config = configurator({
-                name: name,
-                id: id !== undefined ? id : null,
-                parent: null,
-                httpBackend: null,
-                requestInterceptors: [],
-                responseInterceptors: []
-            }, referrer);
+    model.url = function(id) {
+        var url = config.parent().url() + '/' + config.name();
 
-        model.config = function() {
-            return config;
-        };
+        if (~~id === id) {
+            url += '/' + id;
+        }
 
-        model.url = function(id) {
-            var url = config.parent().url() + '/' + config.name();
+        return url;
+    };
 
-            if (~~id === id) {
-                url += '/' + id;
+    model.rawGet = function(id, params, headers) {
+        return config.httpBackend().get(
+            model.url(config.id() || id),
+            {
+                params: params || {},
+                headers: headers || {},
+                transformResponse: [transformerFactory(config.responseInterceptors())]
             }
+        );
+    };
 
-            return url;
-        };
+    model.get = function(id, params, headers) {
+        return model.rawGet(id, params, headers).then(function(response) {
+            return entity(id, response.data, config.parent().one(config.name(), id));
+        });
+    };
 
-        model.rawGet = function(id, params, headers) {
-            return config.httpBackend().get(
-                model.url(config.id() || id),
-                {
-                    params: params || {},
-                    headers: headers || {},
-                    transformResponse: [transformerFactory(config.responseInterceptors())]
-                }
-            );
-        };
+    model.rawGetAll = function(params, headers) {
+        return model.rawGet(null, params, headers);
+    };
 
-        model.get = function(id, params, headers) {
-            return model.rawGet(id, params, headers).then(function(response) {
-                return entity(id, response.data, config.parent().one(config.name(), id));
+    model.getAll = function(params, headers) {
+        return model.rawGet(null, params, headers).then(function(responses) {
+            return responses.data.map(function(data) {
+                return entity(data.id, data, config.parent().one(config.name(), data.id));
             });
-        };
+        });
+    };
 
-        model.rawGetAll = function(params, headers) {
-            return model.rawGet(null, params, headers);
-        };
-
-        model.getAll = function(params, headers) {
-            return model.rawGet(null, params, headers).then(function(responses) {
-                return responses.data.map(function(data) {
-                    return entity(data.id, data, config.parent().one(config.name(), data.id));
-                });
-            });
-        };
-
-        model.rawPost = function(data, headers) {
-            return config.httpBackend().post(
-                model.url(),
-                data,
-                {
-                    headers: headers || {},
-                    transformRequest: [transformerFactory(config.requestInterceptors())],
-                    transformResponse: [transformerFactory(config.responseInterceptors())]
-                }
-            );
-        };
-
-        model.post = function(data, headers) {
-            return model.rawPost(data, headers).then(function(response) {
-                return response.data;
-            });
-        };
-
-        model.rawPut = function(id, data, headers) {
-            return config.httpBackend().put(
-                model.url(config.id() || id),
-                data,
-                {
-                    headers: headers || {},
-                    transformRequest: [transformerFactory(config.requestInterceptors())],
-                    transformResponse: [transformerFactory(config.responseInterceptors())]
-                }
-            );
-        };
-
-        model.put = function(id, data, headers) {
-            if (typeof(id) === 'object') {console.log(id);
-                headers = data;
-                data = id;
-                id = null;
+    model.rawPost = function(data, headers) {
+        return config.httpBackend().post(
+            model.url(),
+            data,
+            {
+                headers: headers || {},
+                transformRequest: [transformerFactory(config.requestInterceptors())],
+                transformResponse: [transformerFactory(config.responseInterceptors())]
             }
+        );
+    };
 
-            return model.rawPut(id, data, headers).then(function(response) {
-                return response.data;
-            });
-        };
+    model.post = function(data, headers) {
+        return model.rawPost(data, headers).then(function(response) {
+            return response.data;
+        });
+    };
 
-        model.rawDelete = function(id, headers) {
-            return config.httpBackend().delete(
-                model.url(config.id() || id),
-                {
-                    headers: headers || {},
-                    transformResponse: [transformerFactory(config.responseInterceptors())]
-                }
-            );
-        };
+    model.rawPut = function(id, data, headers) {
+        return config.httpBackend().put(
+            model.url(config.id() || id),
+            data,
+            {
+                headers: headers || {},
+                transformRequest: [transformerFactory(config.requestInterceptors())],
+                transformResponse: [transformerFactory(config.responseInterceptors())]
+            }
+        );
+    };
 
-        model.delete = function(id, headers) {
-            return model.rawDelete(id, headers).then(function(response) {
-                return response.data;
-            });
-        };
+    model.put = function(id, data, headers) {
+        if (typeof(id) === 'object') {console.log(id);
+            headers = data;
+            data = id;
+            id = null;
+        }
 
-        model.requestInterceptor = function(interceptor) {
-            config.requestInterceptors().push(interceptor);
+        return model.rawPut(id, data, headers).then(function(response) {
+            return response.data;
+        });
+    };
 
-            return model;
-        };
+    model.rawDelete = function(id, headers) {
+        return config.httpBackend().delete(
+            model.url(config.id() || id),
+            {
+                headers: headers || {},
+                transformResponse: [transformerFactory(config.responseInterceptors())]
+            }
+        );
+    };
 
-        model.responseInterceptor = function(interceptor) {
-            config.responseInterceptors().push(interceptor);
+    model.delete = function(id, headers) {
+        return model.rawDelete(id, headers).then(function(response) {
+            return response.data;
+        });
+    };
 
-            return model;
-        };
+    model.requestInterceptor = function(interceptor) {
+        config.requestInterceptors().push(interceptor);
 
         return model;
     };
-});
+
+    model.responseInterceptor = function(interceptor) {
+        config.responseInterceptors().push(interceptor);
+
+        return model;
+    };
+
+    return model;
+};
+
+module.exports = endpoint;
