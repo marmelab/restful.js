@@ -106,12 +106,6 @@ function endpoint(name, id, referrer) {
     };
 
     model.put = function(id, data, headers) {
-        if (typeof(id) === 'object') {console.log(id);
-            headers = data;
-            data = id;
-            id = null;
-        }
-
         return model.rawPut(id, data, headers).then(function(response) {
             return response.data;
         });
