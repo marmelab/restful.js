@@ -5,13 +5,19 @@ var configurator = require('./configurator'),
 
 function transformerFactory(transformers) {
     return function(data) {
-        data = JSON.parse(data);
+        var parsedData;
 
-        for (var i in transformers) {
-            data = transformers[i](data);
+        try {
+            parsedData = JSON.parse(data);
+        } catch (e) {
+            parsedData = data;
         }
 
-        return data;
+        for (var i in transformers) {
+            parsedData = transformers[i](parsedData);
+        }
+
+        return parsedData;
     }
 };
 
