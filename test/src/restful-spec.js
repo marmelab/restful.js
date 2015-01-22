@@ -119,6 +119,42 @@
                         // `config` is the config that was provided to `axios` for the request
                         config: {}
                     });
+                },
+
+                patch: function(url, data, headers) {
+                    return q({
+                        // `data` is the response that was provided by the server
+                        data: {
+                            result: 4
+                        },
+
+                        // `status` is the HTTP status code from the server response
+                        status: 200,
+
+                        // `headers` the headers that the server responded with
+                        headers: {},
+
+                        // `config` is the config that was provided to `axios` for the request
+                        config: {}
+                    });
+                },
+
+                head: function(url, data, headers) {
+                    return q({
+                        // `data` is the response that was provided by the server
+                        data: {
+                            result: 5
+                        },
+
+                        // `status` is the HTTP status code from the server response
+                        status: 200,
+
+                        // `headers` the headers that the server responded with
+                        headers: {},
+
+                        // `config` is the config that was provided to `axios` for the request
+                        config: {}
+                    });
                 }
             };
 
@@ -342,6 +378,101 @@
                 {
                     headers: { foo: 'bar' },
                     transformResponse: [jasmine.any(Function)]
+                }
+            );
+        });
+
+        it('should call http.head with correct parameters when head is called on a member', function() {
+            var article = resource.one('articles', 3),
+                comment = article.one('comments', 5);
+
+            spyOn(http, 'head').andCallThrough();
+
+            comment.head({ bar: 'foo' }).then(function(response) {
+                // As we use a promesse mock, this is always called synchronously
+                expect(response).toEqual({
+                    // `data` is the response that was provided by the server
+                    data: {
+                        result: 5
+                    },
+
+                    // `status` is the HTTP status code from the server response
+                    status: 200,
+
+                    // `headers` the headers that the server responded with
+                    headers: {},
+
+                    // `config` is the config that was provided to `axios` for the request
+                    config: {}
+                });
+            });
+
+            expect(http.head).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+                headers: { bar: 'foo' },
+                transformResponse: [jasmine.any(Function)]
+            });
+        });
+
+        it('should call http.patch with correct parameters when patch is called on member', function() {
+            var article = resource.one('articles', 3),
+                comment = article.one('comments', 2);
+
+            spyOn(http, 'patch').andCallThrough();
+
+            comment.patch({ body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
+                // As we use a promesse mock, this is always called synchronously
+                expect(response).toEqual({
+                    result: 4
+                });
+            });
+
+            expect(http.patch).toHaveBeenCalledWith(
+                'https://localhost:3000/v1/articles/3/comments/2',
+                {
+                    body: 'I am a new comment'
+                },
+                {
+                    headers: { foo: 'bar' },
+                    transformResponse: [jasmine.any(Function)],
+                    transformRequest: [jasmine.any(Function)]
+                }
+            );
+        });
+
+        it('should call http.patch with correct parameters when rawPatch is called on member', function() {
+            var article = resource.one('articles', 3),
+                comment = article.one('comments', 2);
+
+            spyOn(http, 'patch').andCallThrough();
+
+            comment.rawPatch({ body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
+                // As we use a promesse mock, this is always called synchronously
+                expect(response).toEqual({
+                    // `data` is the response that was provided by the server
+                    data: {
+                        result: 4
+                    },
+
+                    // `status` is the HTTP status code from the server response
+                    status: 200,
+
+                    // `headers` the headers that the server responded with
+                    headers: {},
+
+                    // `config` is the config that was provided to `axios` for the request
+                    config: {}
+                });
+            });
+
+            expect(http.patch).toHaveBeenCalledWith(
+                'https://localhost:3000/v1/articles/3/comments/2',
+                {
+                    body: 'I am a new comment'
+                },
+                {
+                    headers: { foo: 'bar' },
+                    transformResponse: [jasmine.any(Function)],
+                    transformRequest: [jasmine.any(Function)]
                 }
             );
         });
@@ -753,6 +884,101 @@
                 {
                     headers: { foo: 'bar' },
                     transformResponse: [jasmine.any(Function)]
+                }
+            );
+        });
+
+        it('should call http.head with correct parameters when head is called on a collection', function() {
+            var article = resource.one('articles', 3),
+                comments = article.all('comments');
+
+            spyOn(http, 'head').andCallThrough();
+
+            comments.head(5, { bar: 'foo' }).then(function(response) {
+                // As we use a promesse mock, this is always called synchronously
+                expect(response).toEqual({
+                    // `data` is the response that was provided by the server
+                    data: {
+                        result: 5
+                    },
+
+                    // `status` is the HTTP status code from the server response
+                    status: 200,
+
+                    // `headers` the headers that the server responded with
+                    headers: {},
+
+                    // `config` is the config that was provided to `axios` for the request
+                    config: {}
+                });
+            });
+
+            expect(http.head).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+                headers: { bar: 'foo' },
+                transformResponse: [jasmine.any(Function)]
+            });
+        });
+
+        it('should call http.patch with correct parameters when patch is called on collection', function() {
+            var article = resource.one('articles', 3),
+                comments = article.all('comments');
+
+            spyOn(http, 'patch').andCallThrough();
+
+            comments.patch(2, { body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
+                // As we use a promesse mock, this is always called synchronously
+                expect(response).toEqual({
+                    result: 4
+                });
+            });
+
+            expect(http.patch).toHaveBeenCalledWith(
+                'https://localhost:3000/v1/articles/3/comments/2',
+                {
+                    body: 'I am a new comment'
+                },
+                {
+                    headers: { foo: 'bar' },
+                    transformResponse: [jasmine.any(Function)],
+                    transformRequest: [jasmine.any(Function)]
+                }
+            );
+        });
+
+        it('should call http.patch with correct parameters when rawPatch is called on collection', function() {
+            var article = resource.one('articles', 3),
+                comments = article.all('comments');
+
+            spyOn(http, 'patch').andCallThrough();
+
+            comments.rawPatch(2, { body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
+                // As we use a promesse mock, this is always called synchronously
+                expect(response).toEqual({
+                    // `data` is the response that was provided by the server
+                    data: {
+                        result: 4
+                    },
+
+                    // `status` is the HTTP status code from the server response
+                    status: 200,
+
+                    // `headers` the headers that the server responded with
+                    headers: {},
+
+                    // `config` is the config that was provided to `axios` for the request
+                    config: {}
+                });
+            });
+
+            expect(http.patch).toHaveBeenCalledWith(
+                'https://localhost:3000/v1/articles/3/comments/2',
+                {
+                    body: 'I am a new comment'
+                },
+                {
+                    headers: { foo: 'bar' },
+                    transformResponse: [jasmine.any(Function)],
+                    transformRequest: [jasmine.any(Function)]
                 }
             );
         });

@@ -42,6 +42,18 @@ function collection(name) {
         return refEndpoint.put(id, data, headers);
     };
 
+    model.rawPatch = function(id, data, headers) {
+        return refEndpoint.rawPatch(id, data, headers);
+    };
+
+    model.patch = function(id, data, headers) {
+        return refEndpoint.patch(id, data, headers);
+    };
+
+    model.head = function(id, data, headers) {
+        return refEndpoint.head(id, data, headers);
+    };
+
     model.rawDelete = function(id, headers) {
         return refEndpoint.rawDelete(id, headers);
     };

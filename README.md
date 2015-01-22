@@ -155,6 +155,9 @@ resource.responseInterceptor(function(res) {
 * **rawPut ( id, data [, headers ] )**: Update a member in a collection. Returns a promise with a raw response.
 * **delete ( id [, headers ] )**: Delete a member in a collection. Returns a promise with the data of the response.
 * **rawDelete ( id [, headers ] )**: Delete a member in a collection. Returns a promise with a raw response.
+* **patch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with the data of the response.
+* **rawPatch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with a raw response.
+* **head ( id, [, headers ] )**: Perform a HEAD request on a member in a collection. Returns a promise with the raw response.
 
 ```javascript
 var authorsResource = resource.one('articles', 1).one('comments', 2).all('authors');
@@ -176,6 +179,9 @@ authorsResource.get(1).then(function(author) {
 * **rawPut ( data [, headers ] )**: Update a member. Returns a promise with a raw response.
 * **delete ( [ headers ] )**: Delete a member. Returns a promise with the data of the response.
 * **rawDelete ( [ headers ] )**: Delete a member. Returns a promise with a raw response.
+* **patch ( data [, headers ] )**: Patch a member. Returns a promise with the data of the response.
+* **rawPatch ( data [, headers ] )**: Patch a member. Returns a promise with a raw response.
+* **head ( [ headers ] )**: Perform a HEAD request on a member. Returns a promise with the raw response.
 
 ```javascript
 var commentResource = resource.one('articles', 1).one('comments', 2);

@@ -145,6 +145,26 @@ function endpoint(name, id, referrer) {
         });
     };
 
+    model.rawPatch = function(id, data, headers) {
+        headers = headers ? merge(headers, config.headers()) : config.headers();
+
+        return config._httpBackend().patch(
+            model.url(config.id() || id),
+            data,
+            {
+                headers: headers,
+                transformRequest: [transformerFactory(config.requestInterceptors())],
+                transformResponse: [transformerFactory(config.responseInterceptors())]
+            }
+        );
+    };
+
+    model.patch = function(id, data, headers) {
+        return model.rawPatch(id, data, headers).then(function(response) {
+            return response.data;
+        });
+    };
+
     model.rawDelete = function(id, headers) {
         headers = headers ? merge(headers, config.headers()) : config.headers();
 
@@ -161,6 +181,18 @@ function endpoint(name, id, referrer) {
         return model.rawDelete(id, headers).then(function(response) {
             return response.data;
         });
+    };
+
+    model.head = function(id, headers) {
+        headers = headers ? merge(headers, config.headers()) : config.headers();
+
+        return config._httpBackend().head(
+            model.url(config.id() || id),
+            {
+                headers: headers,
+                transformResponse: [transformerFactory(config.responseInterceptors())]
+            }
+        );
     };
 
     model.requestInterceptor = function(interceptor) {

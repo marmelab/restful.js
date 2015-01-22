@@ -28,6 +28,18 @@ function member(name, id) {
         return refEndpoint.put(id, data, headers);
     };
 
+    model.rawPatch = function(data, headers) {
+        return refEndpoint.rawPatch(id, data, headers);
+    };
+
+    model.patch = function(data, headers) {
+        return refEndpoint.patch(id, data, headers);
+    };
+
+    model.head = function(data, headers) {
+        return refEndpoint.head(id, data, headers);
+    };
+
     model.rawDelete = function(data, headers) {
         return refEndpoint.rawDelete(id, data, headers);
     };
