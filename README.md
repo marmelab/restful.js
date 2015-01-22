@@ -173,8 +173,8 @@ commentResource.delete().then(function(data) {
 
 ### Entity methods
 
-* **entity.save(headers)**: Update the member link to the entity. Returns a promise with the data of the response.
-* **entity.remove(headers)**: Delete the member link to the entity. Returns a promise with the data of the response.
+* **entity.save([headers])**: Update the member link to the entity. Returns a promise with the data of the response.
+* **entity.remove([headers])**: Delete the member link to the entity. Returns a promise with the data of the response.
 
 ```javascript
 var commentResource = resource.one('articles', 1).one('comments', 2);
