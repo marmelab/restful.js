@@ -1,15 +1,22 @@
 'use strict';
 
 function inherit(source, dest) {
-    var sourceConfig = source.config();
+    var sourceConfig = source.config(),
+        headers;
+
+    try {
+        headers = JSON.parse(JSON.stringify(sourceConfig.headers()));
+    } catch (e) {
+        headers = {};
+    }
 
     return dest
         .config()
         ._parent(source)
         ._httpBackend(sourceConfig._httpBackend())
-        .headers(sourceConfig.headers())
-        .responseInterceptors(sourceConfig.responseInterceptors())
-        .requestInterceptors(sourceConfig.responseInterceptors())
+        .headers(headers)
+        .responseInterceptors([].slice.apply(sourceConfig.responseInterceptors()))
+        .requestInterceptors([].slice.apply(sourceConfig.responseInterceptors()))
         .end();
 }
 

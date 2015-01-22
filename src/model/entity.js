@@ -62,6 +62,10 @@ function entity(id, data, endpoint) {
         return endpoint.delete(headers);
     };
 
+    model.url = function() {
+        return endpoint.url();
+    };
+
     configurable(model, data);
 
     return model;

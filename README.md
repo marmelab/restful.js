@@ -103,6 +103,23 @@ comments.get(3).then(function(comment) {
 });
 ```
 
+An inheritance pattern is used when collections or members are chained. That means you must configure your `resource` before calling any methods on it if you want global configuration:
+
+```javascript
+resource
+    .config()
+    .headers({ AuthToken: 'test' });
+
+var articles = resource.all('articles');
+articles.get(); // will received the `AuthToken` header
+
+articles
+    .config()
+    .headers({ foo: 'bar' });
+
+articles.one('comments', 1).get(); // will received `foo` header
+```
+
 ## Methods description
 
 There are methods to deal with collections, members and entities. The name are consistent and the arguments depend on the context.

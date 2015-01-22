@@ -1,7 +1,8 @@
 'use strict';
 
 var configurator = require('./configurator'),
-    entity = require('./entity');
+    entity = require('./entity'),
+    inherit = require('../util/inherit');
 
 function transformerFactory(transformers) {
     return function(data) {
@@ -33,6 +34,18 @@ function merge(master, slave) {
     }
 
     return merged;
+}
+
+function createEntity(id, data, model) {
+    var config = model.config(),
+        entityEnpoint = inherit(model, config._parent().one(config.name(), id));
+
+    // Reset the real parent
+    entityEnpoint
+        .config()
+        ._parent(config._parent());
+
+    return entity(id, data, entityEnpoint);
 }
 
 function endpoint(name, id, referrer) {
@@ -76,7 +89,7 @@ function endpoint(name, id, referrer) {
 
     model.get = function(id, params, headers) {
         return model.rawGet(id, params, headers).then(function(response) {
-            return entity(id, response.data, config._parent().one(config.name(), id));
+            return createEntity(id, response.data, model);
         });
     };
 
@@ -87,7 +100,7 @@ function endpoint(name, id, referrer) {
     model.getAll = function(params, headers) {
         return model.rawGet(null, params, headers).then(function(responses) {
             return responses.data.map(function(data) {
-                return entity(data.id, data, config._parent().one(config.name(), data.id));
+                return createEntity(data.id, data, model);
             });
         });
     };

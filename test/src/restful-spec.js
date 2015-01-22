@@ -18,16 +18,17 @@
             };
 
             http = {
-                get: function(url, params, headers) {
+                get: function(url, config) {
+
                     if (url.substr(url.length - 1) !== 's') {
                         return q({
                             // `data` is the response that was provided by the server
-                            data: {
+                            data: config.transformResponse[0]({
                                 id: 1,
                                 title: 'test',
                                 body: 'Hello, I am a test',
                                 published_at: '2015-01-03'
-                            },
+                            }),
 
                             // `status` is the HTTP status code from the server response
                             status: 200,
@@ -754,6 +755,73 @@
                     transformResponse: [jasmine.any(Function)]
                 }
             );
+        });
+
+        it('should merge global headers with headers argument', function() {
+            resource
+                .config()
+                .headers({ foo2: 'bar2' });
+
+            var article = resource.one('articles', 3),
+                comments = article.all('comments');
+
+            spyOn(http, 'get').andCallThrough();
+
+            comments.get(2, null, { foo: 'bar' });
+
+            expect(http.get).toHaveBeenCalledWith(
+                'https://localhost:3000/v1/articles/3/comments/2',
+                {
+                    params: {},
+                    headers: { foo: 'bar', foo2: 'bar2' },
+                    transformResponse: [jasmine.any(Function)]
+                }
+            );
+
+            http.get.reset();
+
+            comments.get(2, null, { foo2: 'bar' });
+
+            expect(http.get).toHaveBeenCalledWith(
+                'https://localhost:3000/v1/articles/3/comments/2',
+                {
+                    params: {},
+                    headers: { foo2: 'bar' },
+                    transformResponse: [jasmine.any(Function)]
+                }
+            );
+
+            comments
+                .config()
+                    .headers({ foo3: 'bar3' })
+                    .end()
+                .responseInterceptor(function(res) {
+                    res.title = 'Intercepted :)';
+
+                    return res;
+                });
+
+            comments.get(1).then(function(comment) {
+                http.get.reset();
+
+                expect(comment.title()).toBe('Intercepted :)');
+
+                // test inheritance pattern
+                resource.one('articles', 1).get().then(function(article) {
+                    expect(article.title()).toBe('test');
+                });
+
+                comment.one('authors', 1).get();
+
+                expect(http.get).toHaveBeenCalledWith(
+                    'https://localhost:3000/v1/articles/3/comments/1/authors/1',
+                    {
+                        params: {},
+                        headers: { foo3: 'bar3' },
+                        transformResponse: [jasmine.any(Function)]
+                    }
+                );
+            });
         });
 
         it('should call response interceptors on get response', function() {
