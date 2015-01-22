@@ -10,6 +10,6 @@
         module.exports = factory();
     } else {
          // Browser globals (root is window)
-        root.restClient = factory();
+        root.restful = factory();
     }
 }(this, function() {

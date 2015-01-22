@@ -5,7 +5,7 @@ module.exports = function (config) {
         basePath: '../',
         browsers: [process.env.CI ? 'PhantomJS' : 'Chrome'],
         files: [
-            {pattern: 'restClient.min.js', included: true},
+            {pattern: 'restful.min.js', included: true},
 
             // test files
             {pattern: 'test/src/**/*.js', included: true},

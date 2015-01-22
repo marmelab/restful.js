@@ -5,7 +5,7 @@ define(function(require) {
         collection = require('model/collection'),
         member = require('model/member');
 
-    return function restClient(baseUrl, port) {
+    return function restful(baseUrl, port) {
         var model = {},
             config = configurator({
                 baseUrl: baseUrl,

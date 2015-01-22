@@ -7,7 +7,7 @@
         resource,
         q;
 
-    describe('restClient', function() {
+    describe('restful', function() {
         beforeEach(function() {
             q = function q(result) {
                 return {
@@ -121,7 +121,7 @@
                 }
             };
 
-            resource = restClient('localhost')
+            resource = restful('localhost')
                         .config()
                         .port(3000)
                         .prefixUrl('v1')

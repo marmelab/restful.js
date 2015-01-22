@@ -1,2 +1,2 @@
-    return require('restClient');
+    return require('restful');
 }));

@@ -1,11 +1,11 @@
 ({
     baseUrl: "../src",
     name: "../bower_components/almond/almond.js",
-    include: ['restClient'],
-    insertRequire: ['restClient'],
+    include: ['restful'],
+    insertRequire: ['restful'],
     wrap: {
         startFile: '../build/start.frag',
         endFile: '../build/end.frag'
     },
-    out: '../restClient.min.js'
+    out: '../restful.min.js'
 })

@@ -1,20 +1,20 @@
-# RestClient.js
+# restful.js
 
-RestClient.js is a JavaScript library to easily query a REST API.
+restful.js is a JavaScript library to easily query a REST API.
 
 ## Installation
 
 It is available with bower:
 
 ```
-bower install RestClient.js
+bower install restful.js
 ```
 
 Then add the retrieved files to your HTML layout:
 
 ```html
 <script type="text/javascript" src="/path/to/bower_components/axios/dist/axios.min.js"></script>
-<script type="text/javascript" src="/path/to/bower_components/RestClient.js/restClient.min.js"></script>
+<script type="text/javascript" src="/path/to/bower_components/restful.js/restful.min.js"></script>
 ```
 
 You can also use it with [RequireJS](http://requirejs.org/)  as an AMD module.
@@ -24,15 +24,15 @@ You can also use it with [RequireJS](http://requirejs.org/)  as an AMD module.
 ### Create a resource targeting your API
 
 ```javascript
-var resource = restClient('api.example.com');
+var resource = restful('api.example.com');
 
 // You can also provide a port
-var resource = restClient('api.example.com', 8080);
+var resource = restful('api.example.com', 8080);
 ```
 
 If you wish to add a prefix to all calls like a version you can configure it:
 ```javascript
-var resource = restClient('api.example.com')
+var resource = restful('api.example.com')
     .config()
     .prefixUrl('v1')
     .protocol('https')
