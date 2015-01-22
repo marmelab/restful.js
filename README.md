@@ -36,7 +36,7 @@ var resource = restful('api.example.com')
     .prefixUrl('v1')
     .protocol('https')
     .port(8080)
-    .end(); // end return the configured object, resource in our case
+    .end(); // end returns the configured object, resource in our case
 
 // resource now targets `https://api.example.com:8080/v1`
 ```
@@ -54,8 +54,8 @@ articles.get(1).then(function(article) {
     // that means, that if the server response was { id: 1, title: 'test', body: 'hello' }
     // you can do the following
 
-    article.title(); // return `test`
-    article.body(); // return `hello`
+    article.title(); // returns `test`
+    article.body(); // returns `hello`
 
     // You can also edit it
     article.title('test2');
@@ -77,8 +77,8 @@ articles.get().then(function(article) {
     // that means, that if the server response was { id: 1, title: 'test', body: 'hello' }
     // you can do the following
 
-    article.title(); // return `test`
-    article.body(); // return `hello`
+    article.title(); // returns `test`
+    article.body(); // returns `hello`
 
     // You can also edit it
     article.title('test2');
@@ -127,16 +127,16 @@ resource.responseInterceptor(function(res) {
 
 ### Collection methods
 
-* **getAll(params, headers)**: Get a full collection. Returns a promise with an array of entities.
-* **rawGetAll(params, headers)**: Get a full collection. Returns a promise with an array of raw responses
-* **get(id, params, headers)**: Get a member in a collection. Returns a promise with an entity.
-* **rawGet(id, params, headers)**: Get a member in a collection. Returns a promise with a raw response.
-* **post(data, headers)**: Create a member in a collection. Returns a promise with the data of the response.
-* **rawPost(data, headers)**: Create a member in a collection. Returns a promise with a raw response.
-* **put(id, data, headers)**: Update a member in a collection. Returns a promise with the data of the response.
-* **rawPut(id, data, headers)**: Update a member in a collection. Returns a promise with a raw response.
-* **delete(id, headers)**: Delete a member in a collection. Returns a promise with the data of the response.
-* **rawDelete(id, headers)**: Delete a member in a collection. Returns a promise with a raw response.
+* **getAll([params [, headers]])**: Get a full collection. Returns a promise with an array of entities.
+* **rawGetAll([params [, headers]])**: Get a full collection. Returns a promise with an array of raw responses
+* **get(id [, params [, headers]])**: Get a member in a collection. Returns a promise with an entity.
+* **rawGet(id [, params [, headers]])**: Get a member in a collection. Returns a promise with a raw response.
+* **post(data [, headers])**: Create a member in a collection. Returns a promise with the data of the response.
+* **rawPost(data [, headers])**: Create a member in a collection. Returns a promise with a raw response.
+* **put(id, data [, headers])**: Update a member in a collection. Returns a promise with the data of the response.
+* **rawPut(id, data [, headers])**: Update a member in a collection. Returns a promise with a raw response.
+* **delete(id [, headers])**: Delete a member in a collection. Returns a promise with the data of the response.
+* **rawDelete(id [, headers])**: Delete a member in a collection. Returns a promise with a raw response.
 
 ```javascript
 var authorsResource = resource.one('articles', 1).one('comments', 2).all('authors');
@@ -152,12 +152,12 @@ authorsResource.get(1).then(function(author) {
 
 ### Member methods
 
-* **get(params, headers)**: Get a member. Returns a promise with an entity.
-* **rawGet(params, headers)**: Get a member. Returns a promise with a raw response.
-* **put(data, headers)**: Update a member. Returns a promise with the data of the response.
-* **rawPut(data, headers)**: Update a member. Returns a promise with a raw response.
-* **delete(headers)**: Delete a member. Returns a promise with the data of the response.
-* **rawDelete(headers)**: Delete a member. Returns a promise with a raw response.
+* **get([params [, headers]])**: Get a member. Returns a promise with an entity.
+* **rawGet([params [, headers]])**: Get a member. Returns a promise with a raw response.
+* **put(data [, headers])**: Update a member. Returns a promise with the data of the response.
+* **rawPut(data [, headers])**: Update a member. Returns a promise with a raw response.
+* **delete([headers])**: Delete a member. Returns a promise with the data of the response.
+* **rawDelete([headers])**: Delete a member. Returns a promise with a raw response.
 
 ```javascript
 var commentResource = resource.one('articles', 1).one('comments', 2);
