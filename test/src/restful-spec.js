@@ -126,7 +126,7 @@
                         .port(3000)
                         .prefixUrl('v1')
                         .protocol('https')
-                        .httpBackend(http)
+                        ._httpBackend(http)
                         .end();
         });
 
@@ -137,7 +137,7 @@
             expect(config.port()).toBe(3000);
             expect(config.prefixUrl()).toBe('v1');
             expect(config.protocol()).toBe('https');
-            expect(config.httpBackend()).toBe(http);
+            expect(config._httpBackend()).toBe(http);
 
             expect(resource.url()).toBe('https://localhost:3000/v1');
         });
@@ -146,7 +146,7 @@
             var articles = resource.all('articles');
 
             expect(articles.url()).toBe('https://localhost:3000/v1/articles');
-            expect(articles.config().parent()).toBe(resource);
+            expect(articles.config()._parent()).toBe(resource);
         });
 
         it('should provide a configured collection/member when calls are chained', function() {
@@ -154,7 +154,7 @@
                 comment = article.one('comments', 5);
 
             expect(comment.url()).toBe('https://localhost:3000/v1/articles/3/comments/5');
-            expect(comment.config().parent()).toBe(article);
+            expect(comment.config()._parent()).toBe(article);
 
             var comments = article.all('comments');
 

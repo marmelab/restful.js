@@ -26,8 +26,8 @@ function endpoint(name, id, referrer) {
         config = configurator({
             name: name,
             id: id !== undefined ? id : null,
-            parent: null,
-            httpBackend: null,
+            _parent: null,
+            _httpBackend: null,
             requestInterceptors: [],
             responseInterceptors: []
         }, referrer);
@@ -37,7 +37,7 @@ function endpoint(name, id, referrer) {
     };
 
     model.url = function(id) {
-        var url = config.parent().url() + '/' + config.name();
+        var url = config._parent().url() + '/' + config.name();
 
         if (~~id === id) {
             url += '/' + id;
@@ -47,7 +47,7 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawGet = function(id, params, headers) {
-        return config.httpBackend().get(
+        return config._httpBackend().get(
             model.url(config.id() || id),
             {
                 params: params || {},
@@ -59,7 +59,7 @@ function endpoint(name, id, referrer) {
 
     model.get = function(id, params, headers) {
         return model.rawGet(id, params, headers).then(function(response) {
-            return entity(id, response.data, config.parent().one(config.name(), id));
+            return entity(id, response.data, config._parent().one(config.name(), id));
         });
     };
 
@@ -70,13 +70,13 @@ function endpoint(name, id, referrer) {
     model.getAll = function(params, headers) {
         return model.rawGet(null, params, headers).then(function(responses) {
             return responses.data.map(function(data) {
-                return entity(data.id, data, config.parent().one(config.name(), data.id));
+                return entity(data.id, data, config._parent().one(config.name(), data.id));
             });
         });
     };
 
     model.rawPost = function(data, headers) {
-        return config.httpBackend().post(
+        return config._httpBackend().post(
             model.url(),
             data,
             {
@@ -94,7 +94,7 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawPut = function(id, data, headers) {
-        return config.httpBackend().put(
+        return config._httpBackend().put(
             model.url(config.id() || id),
             data,
             {
@@ -112,7 +112,7 @@ function endpoint(name, id, referrer) {
     };
 
     model.rawDelete = function(id, headers) {
-        return config.httpBackend().delete(
+        return config._httpBackend().delete(
             model.url(config.id() || id),
             {
                 headers: headers || {},

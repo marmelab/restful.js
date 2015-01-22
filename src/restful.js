@@ -3,6 +3,7 @@
 var configurator = require('./model/configurator'),
     collection = require('./model/collection'),
     member = require('./model/member'),
+    inherit = require('./util/inherit'),
     axios = require('axios');
 
 function restful(baseUrl, port) {
@@ -12,7 +13,7 @@ function restful(baseUrl, port) {
             port: port || 80,
             protocol: 'http',
             prefixUrl: '',
-            httpBackend: axios,
+            _httpBackend: axios,
             requestInterceptors: [],
             responseInterceptors: []
         }, model);
@@ -36,23 +37,11 @@ function restful(baseUrl, port) {
     }
 
     model.one = function(name, id) {
-        return member(name, id)
-                .config()
-                .parent(model)
-                .httpBackend(config.httpBackend())
-                .responseInterceptors(config.responseInterceptors())
-                .requestInterceptors(config.responseInterceptors())
-                .end();
+        return inherit(model, member(name, id));
     };
 
     model.all = function(name) {
-        return collection(name)
-                .config()
-                .parent(model)
-                .httpBackend(config.httpBackend())
-                .responseInterceptors(config.responseInterceptors())
-                .requestInterceptors(config.responseInterceptors())
-                .end();
+        return inherit(model, collection(name));
     };
 
     model.requestInterceptor = function(interceptor) {

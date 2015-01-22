@@ -1,7 +1,8 @@
 'use strict';
 
 var endpoint = require('./endpoint'),
-    collection = require('./collection');
+    collection = require('./collection'),
+    inherit = require('../util/inherit');
 
 function member(name, id) {
     var model = {},
@@ -36,23 +37,11 @@ function member(name, id) {
     };
 
     model.one = function(name, id) {
-        return member(name, id)
-                .config()
-                .parent(model)
-                .httpBackend(refEndpoint.config().httpBackend())
-                .responseInterceptors(refEndpoint.config().responseInterceptors())
-                .requestInterceptors(refEndpoint.config().responseInterceptors())
-                .end();
+        return inherit(model, member(name, id));
     };
 
     model.all = function(name) {
-        return collection(name)
-                .config()
-                .parent(model)
-                .httpBackend(refEndpoint.config().httpBackend())
-                .responseInterceptors(refEndpoint.config().responseInterceptors())
-                .requestInterceptors(refEndpoint.config().responseInterceptors())
-                .end();
+        return inherit(model, collection(name));
     };
 
     model.url = function() {
