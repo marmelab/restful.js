@@ -108,6 +108,14 @@ function endpoint(name, id, referrer) {
     model.rawPost = function(data, headers) {
         headers = headers ? merge(headers, config.headers()) : config.headers();
 
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'json';
+        }
+
+        try {
+            data = JSON.stringify(data);
+        } catch (e) {}
+
         return config._httpBackend().post(
             model.url(),
             data,

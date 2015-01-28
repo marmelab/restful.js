@@ -723,11 +723,9 @@
 
             expect(http.post).toHaveBeenCalledWith(
                 'https://localhost:3000/v1/articles/3/comments',
+                '{"body":"I am a new comment"}',
                 {
-                    body: 'I am a new comment'
-                },
-                {
-                    headers: { foo: 'bar' },
+                    headers: { 'Content-Type': 'json', foo: 'bar' },
                     transformResponse: [jasmine.any(Function)],
                     transformRequest: [jasmine.any(Function)]
                 }
@@ -761,11 +759,9 @@
 
             expect(http.post).toHaveBeenCalledWith(
                 'https://localhost:3000/v1/articles/3/comments',
+                '{"body":"I am a new comment"}',
                 {
-                    body: 'I am a new comment'
-                },
-                {
-                    headers: { foo: 'bar' },
+                    headers: { 'Content-Type': 'json', foo: 'bar' },
                     transformResponse: [jasmine.any(Function)],
                     transformRequest: [jasmine.any(Function)]
                 }
