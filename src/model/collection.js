@@ -1,14 +1,12 @@
 'use strict';
 
 var endpoint = require('./endpoint'),
-    entity = require('./entity');
+    entity = require('./entity'),
+    resource = require('./resource');
 
 function collection(name, parent) {
-    var refEndpoint = endpoint(name, null, parent());
-
-    function model() {
-        return refEndpoint;
-    }
+    var refEndpoint = endpoint(name, null, parent()),
+        model = resource(refEndpoint);
 
     model.get = function(id, params, headers) {
         var member = parent.factory(name, id, parent); // We use this way to avoid circular dependencies
@@ -77,14 +75,6 @@ function collection(name, parent) {
 
     model.url = function() {
         return refEndpoint.url();
-    };
-
-    model.requestInterceptor = function(interceptor) {
-        return refEndpoint.requestInterceptor(interceptor);
-    };
-
-    model.responseInterceptor = function(interceptor) {
-        return refEndpoint.responseInterceptor(interceptor);
     };
 
     return model;

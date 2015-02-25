@@ -2,6 +2,7 @@
 
 var configurable = require('./util/configurable'),
     collection = require('./model/collection'),
+    resource = require('./model/resource'),
     member = require('./model/member'),
     http = require('./service/http');
 
@@ -36,30 +37,11 @@ function restful(baseUrl, port) {
         }
 
         return model;
-    }());
-
-    function model() {
-        return fakeEndpoint;
-    };
+    }()),
+    model = resource(fakeEndpoint);
 
     model.url = function() {
         return fakeEndpoint.url();
-    };
-
-    model.requestInterceptor = function(requestInterceptor) {
-        fakeEndpoint.requestInterceptors().push(requestInterceptor);
-
-        return model;
-    };
-
-    model.responseInterceptor = function(responseInterceptor) {
-        fakeEndpoint.responseInterceptors().push(responseInterceptor);
-
-        return model;
-    };
-
-    model.header = function(name, value) {
-        fakeEndpoint.headers()[name] = value;
     };
 
     model.one = function(name, id) {

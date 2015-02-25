@@ -2,10 +2,12 @@
 
 var endpoint = require('./endpoint'),
     entity = require('./entity'),
-    collection = require('./collection');
+    collection = require('./collection'),
+    resource = require('./resource');
 
 function member(name, id, parent) {
-    var refEndpoint = endpoint(name, id, parent());
+    var refEndpoint = endpoint(name, id, parent()),
+        model = resource(refEndpoint);
 
     function model() {
         return refEndpoint;
@@ -49,14 +51,6 @@ function member(name, id, parent) {
 
     model.url = function() {
         return refEndpoint.url(id);
-    };
-
-    model.requestInterceptor = function(interceptor) {
-        return refEndpoint.requestInterceptor().push(interceptor);
-    };
-
-    model.responseInterceptor = function(interceptor) {
-        return refEndpoint.responseInterceptor().push(interceptor);
     };
 
     model.factory = member;
