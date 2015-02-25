@@ -6,19 +6,22 @@ var configurable = require('./util/configurable'),
     http = require('./service/http');
 
 function restful(baseUrl, port) {
-    var config = {
-            _http: http,
-            baseUrl: baseUrl,
-            headers: {},
-            port: port || 80,
-            prefixUrl: '',
-            protocol: 'http',
-            requestInterceptors: [],
-            responseInterceptors: []
-        };
+    var fakeEndpoint = (function() {
+        var model = {},
+            config = {
+                baseUrl: baseUrl,
+                port: port || 80,
+                prefixUrl: '',
+                protocol: 'http',
+                _http: http,
+                headers: {},
+                requestInterceptors: [],
+                responseInterceptors: []
+            };
 
-    var fakeEndpoint = {
-        url: function() {
+        configurable(model, config);
+
+        model.url = function() {
             var url = config.protocol + '://' + config.baseUrl;
 
             if (config.port !== 80) {
@@ -30,35 +33,33 @@ function restful(baseUrl, port) {
             }
 
             return url;
-        },
-
-        _http: function() {
-            return config._http;
-        },
-
-        headers: function() {
-            return config.headers;
-        },
-
-        requestInterceptors: function() {
-            return config.requestInterceptors;
-        },
-
-        responseInterceptors: function() {
-            return config.responseInterceptors;
         }
-    };
+
+        return model;
+    }());
 
     function model() {
         return fakeEndpoint;
     };
 
-    configurable(model, config);
-
-    model.factory = member;
-
     model.url = function() {
         return fakeEndpoint.url();
+    };
+
+    model.requestInterceptor = function(requestInterceptor) {
+        fakeEndpoint.requestInterceptors().push(requestInterceptor);
+
+        return model;
+    };
+
+    model.responseInterceptor = function(responseInterceptor) {
+        fakeEndpoint.responseInterceptors().push(responseInterceptor);
+
+        return model;
+    };
+
+    model.header = function(name, value) {
+        fakeEndpoint.headers()[name] = value;
     };
 
     model.one = function(name, id) {
@@ -68,6 +69,8 @@ function restful(baseUrl, port) {
     model.all = function(name) {
         return collection(name, model);
     };
+
+    model.factory = member;
 
     return model;
 };

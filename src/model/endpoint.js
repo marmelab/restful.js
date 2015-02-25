@@ -10,12 +10,51 @@ function endpoint(name, id, parent) {
             _parent: parent,
             _name: name,
             _id: id !== undefined ? id : null,
-            headers: parent ? JSON.parse(JSON.stringify(parent.headers())) : {},
-            requestInterceptors: parent ? [].slice.apply(parent.requestInterceptors()) : [],
-            responseInterceptors: parent ? [].slice.apply(parent.responseInterceptors()) : []
+            headers: {},
+            requestInterceptors: [],
+            responseInterceptors:[]
         };
 
     configurable(model, config);
+
+    function _getRequestInterceptors() {
+        var current = model,
+            requestInterceptors = [];
+
+        while (current) {
+            requestInterceptors = requestInterceptors.concat(current.requestInterceptors());
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return requestInterceptors;
+    };
+
+    function _getResponseInterceptors() {
+        var current = model,
+            responseInterceptors = [];
+
+        while (current) {
+            responseInterceptors = responseInterceptors.concat(current.responseInterceptors());
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return responseInterceptors;
+    };
+
+    function _getHeaders() {
+        var current = model,
+            headers = {};
+
+        while (current) {
+            headers = merge(current.headers(), headers);
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return headers;
+    };
 
     model._http = function() {
         return config._parent._http();
@@ -38,14 +77,14 @@ function endpoint(name, id, parent) {
     };
 
     model.get = function(id, params, headers) {
-        headers = headers ? merge(headers, config.headers) : config.headers;
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().get(
             model.url(id),
             {
                 params: params || {},
                 headers: headers,
-                responseInterceptors: config.responseInterceptors
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
@@ -55,7 +94,7 @@ function endpoint(name, id, parent) {
     };
 
     model.post = function(data, headers) {
-        headers = headers ? merge(headers, config.headers) : config.headers;
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         if (!headers['Content-Type']) {
             headers['Content-Type'] = 'json';
@@ -70,60 +109,60 @@ function endpoint(name, id, parent) {
             data,
             {
                 headers: headers,
-                requestInterceptors: config.requestInterceptors,
-                responseInterceptors: config.responseInterceptors
+                requestInterceptors: _getRequestInterceptors(),
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.put = function(id, data, headers) {
-        headers = headers ? merge(headers, config.headers) : config.headers;
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().put(
             model.url(id),
             data,
             {
                 headers: headers,
-                requestInterceptors: config.requestInterceptors,
-                responseInterceptors: config.responseInterceptors
+                requestInterceptors: _getRequestInterceptors(),
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.patch = function(id, data, headers) {
-        headers = headers ? merge(headers, config.headers) : config.headers;
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().patch(
             model.url(id),
             data,
             {
                 headers: headers,
-                requestInterceptors: config.requestInterceptors,
-                responseInterceptors: config.responseInterceptors
+                requestInterceptors: _getRequestInterceptors(),
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.delete = function(id, headers) {
-        headers = headers ? merge(headers, config.headers) : config.headers;
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().delete(
             model.url(id),
             {
                 headers: headers,
-                responseInterceptors: config.responseInterceptors
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.head = function(id, headers) {
-        headers = headers ? merge(headers, config.headers) : config.headers;
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().head(
             model.url(id),
             {
                 headers: headers,
-                responseInterceptors: config.responseInterceptors
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };

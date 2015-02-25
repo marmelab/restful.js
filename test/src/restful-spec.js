@@ -163,19 +163,21 @@
                 }
             };
 
-            resource = restful('localhost')
-                        .port(3000)
-                        .prefixUrl('v1')
-                        .protocol('https')
-                        ._http(http);
+            resource = restful('localhost');
+
+            resource()
+                .port(3000)
+                .prefixUrl('v1')
+                .protocol('https')
+                ._http(http);
         });
 
         it('should provide a configured resource', function() {
-            expect(resource.baseUrl()).toBe('localhost');
-            expect(resource.port()).toBe(3000);
-            expect(resource.prefixUrl()).toBe('v1');
-            expect(resource.protocol()).toBe('https');
-            expect(resource._http()).toBe(http);
+            expect(resource().baseUrl()).toBe('localhost');
+            expect(resource().port()).toBe(3000);
+            expect(resource().prefixUrl()).toBe('v1');
+            expect(resource().protocol()).toBe('https');
+            expect(resource()._http()).toBe(http);
 
             expect(resource.url()).toBe('https://localhost:3000/v1');
         });
@@ -688,11 +690,11 @@
         });
 
         it('should merge global headers with headers argument', function() {
-            resource
-                .headers({ foo2: 'bar2' });
-
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
+
+            // we define headers after calling one and all to ensure the propagation of configuration
+            resource().headers({ foo2: 'bar2' });
 
             spyOn(http, 'get').andCallThrough();
 
@@ -744,7 +746,7 @@
                     'https://localhost:3000/v1/articles/3/comments/1/authors/1',
                     {
                         params: {},
-                        headers: { foo3: 'bar3' },
+                        headers: { foo3: 'bar3', foo2: 'bar2' },
                         responseInterceptors: [jasmine.any(Function)]
                     }
                 );
