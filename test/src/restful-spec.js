@@ -163,20 +163,20 @@
                 }
             };
 
-            resource = restful('localhost');
-
-            resource()
+            resource = restful('localhost')
                 .port(3000)
                 .prefixUrl('v1')
-                .protocol('https')
+                .protocol('https');
+
+            resource()
                 ._http(http);
         });
 
         it('should provide a configured resource', function() {
-            expect(resource().baseUrl()).toBe('localhost');
-            expect(resource().port()).toBe(3000);
-            expect(resource().prefixUrl()).toBe('v1');
-            expect(resource().protocol()).toBe('https');
+            expect(resource.baseUrl()).toBe('localhost');
+            expect(resource.port()).toBe(3000);
+            expect(resource.prefixUrl()).toBe('v1');
+            expect(resource.protocol()).toBe('https');
             expect(resource()._http()).toBe(http);
 
             expect(resource.url()).toBe('https://localhost:3000/v1');
@@ -694,7 +694,7 @@
                 comments = article.all('comments');
 
             // we define headers after calling one and all to ensure the propagation of configuration
-            resource().headers({ foo2: 'bar2' });
+            resource.header('foo2', 'bar2');
 
             spyOn(http, 'get').andCallThrough();
 
@@ -722,9 +722,9 @@
                 }
             );
 
-            comments()
-                .headers({ foo3: 'bar3' })
-                .responseInterceptors().push(function(res) {
+            comments
+                .header('foo3', 'bar3')
+                .responseInterceptor(function(res) {
                     res.title = 'Intercepted :)';
 
                     return res;
@@ -761,7 +761,7 @@
                 published_at: '2015-01-03'
             });
 
-            resource().responseInterceptors().push(interceptor1);
+            resource.responseInterceptor(interceptor1);
 
             var getArgs;
 

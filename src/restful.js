@@ -7,20 +7,23 @@ var configurable = require('./util/configurable'),
     http = require('./service/http');
 
 function restful(baseUrl, port) {
+    var config = {
+        baseUrl: baseUrl,
+        port: port || 80,
+        prefixUrl: '',
+        protocol: 'http',
+    };
+
     var fakeEndpoint = (function() {
         var model = {},
-            config = {
-                baseUrl: baseUrl,
-                port: port || 80,
-                prefixUrl: '',
-                protocol: 'http',
+            _config = {
                 _http: http,
                 headers: {},
                 requestInterceptors: [],
                 responseInterceptors: []
             };
 
-        configurable(model, config);
+        configurable(model, _config);
 
         model.url = function() {
             var url = config.protocol + '://' + config.baseUrl;
@@ -39,6 +42,8 @@ function restful(baseUrl, port) {
         return model;
     }()),
     model = resource(fakeEndpoint);
+
+    configurable(model, config);
 
     model.url = function() {
         return fakeEndpoint.url();

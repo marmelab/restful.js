@@ -29,13 +29,10 @@ var resource = restful('api.example.com');
 var resource = restful('api.example.com', 8080);
 ```
 
-If you wish to add a prefix to all calls like a version you can configure its endpoint by calling it:
+If you wish to add a prefix to all calls like a version you can configure it:
 ```javascript
-var resource = restful('api.example.com');
-
-// we call it to retrieve the paired endpoint to configure it
-resource()
-    .headers({ AuthToken: 'test' }) // set global headers
+var resource = restful('api.example.com')
+    .header('AuthToken', 'test') // set global headers
     .prefixUrl('v1')
     .protocol('https')
     .port(8080);
@@ -115,19 +112,17 @@ comments.get(3).then(function(comment) {
 });
 ```
 
-An inheritance pattern is used when collections or members are chained. That means you must configure your `resource` before calling any methods on it if you want global configuration:
+An inheritance pattern is used when collections or members are chained. That means when you configure a collection or a member it will configure it and all its children.
 
 ```javascript
-// we call it to retrieve the paired endpoint to configure it
-resource()
-    .headers({ AuthToken: 'test' });
+// we configure it
+resource.header('AuthToken', 'test');
 
 var articles = resource.all('articles');
 articles.get(); // will received the `AuthToken` header
 
-// we call it to retrieve the paired endpoint to configure it
-articles()
-    .headers({ foo: 'bar' });
+// we can configure it too. It will have both the AuthToken and foo headers
+articles.header('foo', 'bar');
 
 articles
     .one('comments', 1) // will received `foo` header
@@ -148,6 +143,9 @@ There are methods to deal with collections, members and entities. The name are c
 * **patch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with the response.
 * **head ( id, [, headers ] )**: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * **url ()**: Get the collection url.
+* **responseInterceptor ( interceptor )**: Add a response interceptor.
+* **requestInterceptor ( interceptor )**: Add a request interceptor.
+* **header ( name, value )**: Add a header.
 
 ```javascript
 var authorsResource = resource.one('articles', 1).one('comments', 2).all('authors');
@@ -171,6 +169,9 @@ authorsResource.get(1).then(function(author) {
 * **one ( name, id )**: Target a child member in a collection `name`.
 * **all ( name )**: Target a child collection `name`.
 * **url ()**: Get the member url.
+* **responseInterceptor ( interceptor )**: Add a response interceptor.
+* **requestInterceptor ( interceptor )**: Add a request interceptor.
+* **header ( name, value )**: Add a header.
 
 ```javascript
 var commentResource = resource.one('articles', 1).one('comments', 2);
@@ -197,25 +198,6 @@ commentResource.get().then(function(comment) {
     comment.remove();
 });
 ```
-
-### Endpoint methods
-
-Each collection or member is paired with an endpoint. To retrieve it in order to configure it, you must execute your collection/member.
-
-* **resquestInterceptors ()**: Get the array of the request interceptors.
-* **responseInterceptors ()**: Get the array of the response interceptors.
-* **headers ()**: Get the array of the headers.
-
-```javascript
-var articles = resource.all('articles');
-
-articles()
-    .requestInterceptors().push(function(req) { })
-    .responseInterceptors().push(function(req) { })
-    .headers({ foo: 'bar' })
-
-```
-
 
 ### Catch errors
 

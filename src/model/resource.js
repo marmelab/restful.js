@@ -6,22 +6,34 @@ function resource(refEndpoint) {
     }
 
     model.requestInterceptor = function(interceptor) {
-        return refEndpoint.requestInterceptors().push(interceptor);
+        refEndpoint.requestInterceptors().push(interceptor);
+
+        return model;
     };
 
-    model.requestInterceptors = refEndpoint.requestInterceptors;
+    model.requestInterceptors = function() {
+        return refEndpoint.requestInterceptors()
+    };
 
     model.responseInterceptor = function(interceptor) {
-        return refEndpoint.responseInterceptors().push(interceptor);
+        refEndpoint.responseInterceptors().push(interceptor);
+
+        return model;
     };
 
-    model.responseInterceptors = refEndpoint.responseInterceptors;
+    model.responseInterceptors = function() {
+        return refEndpoint.responseInterceptors;
+    };
 
     model.header = function(name, value) {
         refEndpoint.headers()[name] = value;
+
+        return model
     };
 
-    model.headers = refEndpoint.headers;
+    model.headers = function() {
+        return refEndpoint.headers();
+    };
 
     return model;
 }
