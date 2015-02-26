@@ -5,7 +5,7 @@ function resource(refEndpoint) {
         return refEndpoint;
     }
 
-    model.requestInterceptor = function(interceptor) {
+    model.addRequestInterceptor = function(interceptor) {
         refEndpoint.requestInterceptors().push(interceptor);
 
         return model;
@@ -15,7 +15,7 @@ function resource(refEndpoint) {
         return refEndpoint.requestInterceptors()
     };
 
-    model.responseInterceptor = function(interceptor) {
+    model.addResponseInterceptor = function(interceptor) {
         refEndpoint.responseInterceptors().push(interceptor);
 
         return model;

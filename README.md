@@ -143,8 +143,8 @@ There are methods to deal with collections, members and entities. The name are c
 * **patch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with the response.
 * **head ( id, [, headers ] )**: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * **url ()**: Get the collection url.
-* **responseInterceptor ( interceptor )**: Add a response interceptor.
-* **requestInterceptor ( interceptor )**: Add a request interceptor.
+* **addResponseInterceptor ( interceptor )**: Add a response interceptor.
+* **addRequestInterceptor ( interceptor )**: Add a request interceptor.
 * **header ( name, value )**: Add a header.
 
 ```javascript
@@ -169,8 +169,8 @@ authorsResource.get(1).then(function(author) {
 * **one ( name, id )**: Target a child member in a collection `name`.
 * **all ( name )**: Target a child collection `name`.
 * **url ()**: Get the member url.
-* **responseInterceptor ( interceptor )**: Add a response interceptor.
-* **requestInterceptor ( interceptor )**: Add a request interceptor.
+* **addResponseInterceptor ( interceptor )**: Add a response interceptor.
+* **addRequestInterceptor ( interceptor )**: Add a request interceptor.
 * **header ( name, value )**: Add a header.
 
 ```javascript

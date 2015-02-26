@@ -97,12 +97,8 @@ function endpoint(name, id, parent) {
         headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         if (!headers['Content-Type']) {
-            headers['Content-Type'] = 'json';
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
         }
-
-        try {
-            data = JSON.stringify(data);
-        } catch (e) {}
 
         return model._http().post(
             model.url(),
@@ -118,6 +114,10 @@ function endpoint(name, id, parent) {
     model.put = function(id, data, headers) {
         headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
+        }
+
         return model._http().put(
             model.url(id),
             data,
@@ -131,6 +131,10 @@ function endpoint(name, id, parent) {
 
     model.patch = function(id, data, headers) {
         headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
+
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
+        }
 
         return model._http().patch(
             model.url(id),

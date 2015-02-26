@@ -258,7 +258,9 @@
                     body: 'I am a new comment'
                 },
                 {
-                    headers: {},
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -354,7 +356,10 @@
                     body: 'I am a new comment'
                 },
                 {
-                    headers: { foo: 'bar' },
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        foo: 'bar'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -394,7 +399,9 @@
                     published_at: '2015-01-06'
                 },
                 {
-                    headers: {},
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -416,7 +423,10 @@
                     published_at: '2015-01-03'
                 },
                 {
-                    headers: { foo: 'bar' },
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        foo: 'bar'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -539,9 +549,14 @@
 
             expect(http.post).toHaveBeenCalledWith(
                 'https://localhost:3000/v1/articles/3/comments',
-                '{"body":"I am a new comment"}',
                 {
-                    headers: { 'Content-Type': 'json', foo: 'bar' },
+                    body: 'I am a new comment'
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        foo: 'bar'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -579,7 +594,10 @@
                     body: 'I am a new comment'
                 },
                 {
-                    headers: { foo: 'bar' },
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        foo: 'bar'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -682,7 +700,10 @@
                     body: 'I am a new comment'
                 },
                 {
-                    headers: { foo: 'bar' },
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        foo: 'bar'
+                    },
                     responseInterceptors: [],
                     requestInterceptors: []
                 }
@@ -724,7 +745,7 @@
 
             comments
                 .header('foo3', 'bar3')
-                .responseInterceptor(function(res) {
+                .addResponseInterceptor(function(res) {
                     res.title = 'Intercepted :)';
 
                     return res;
@@ -761,7 +782,7 @@
                 published_at: '2015-01-03'
             });
 
-            resource.responseInterceptor(interceptor1);
+            resource.addResponseInterceptor(interceptor1);
 
             var getArgs;
 

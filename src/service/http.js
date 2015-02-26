@@ -1,18 +1,28 @@
-function interceptorCallback(interceptors) {
-    return function(data) {
-        var parsedData;
+'use strict';
 
-        try {
-            parsedData = JSON.parse(data);
-        } catch (e) {
-            parsedData = data;
+var merge = require('../util/merge');
+
+function interceptorCallback(interceptors, response) {
+    response = response !== undefined ? !!response : false;
+
+    return function(data) {
+        if (response) {
+            try {
+                data = JSON.parse(data);
+            } catch (e) {}
         }
 
         for (var i in interceptors) {
-            parsedData = interceptors[i](parsedData);
+            data = interceptors[i](data);
         }
 
-        return parsedData;
+        if (!response) {
+            try {
+                data = JSON.stringify(data);
+            } catch (e) {}
+        }
+
+        return data;
     }
 };
 
@@ -23,22 +33,21 @@ function http(httpBackend) {
     }
 
     model.request = function(method, url, data, config) {
-        if (config.requestInterceptors) {
-            config.transformRequest = [interceptorCallback(config.requestInterceptors)];
-            delete config.responseInterceptors;
+        if (['post', 'put', 'patch'].indexOf(method) !== -1) {
+            config.transformRequest = [interceptorCallback(config.requestInterceptors || [])];
+            delete config.requestInterceptors;
         }
 
-        if (config.responseInterceptors) {
-            config.responseInterceptors = [interceptorCallback(config.responseInterceptors)];
-            delete config.responseInterceptors;
-        }
+        config.transformResponse = [interceptorCallback(config.responseInterceptors || [], true)];
+        delete config.responseInterceptors;
 
-        return httpBackend({
+        config = merge({
             method: method,
             url: url,
-            data: data,
-            config: config
-        });
+            data: data
+        }, config)
+
+        return httpBackend(config);
     };
 
     model.get = function(url, config) {
