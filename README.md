@@ -32,63 +32,18 @@ var resource = restful('api.example.com', 8080);
 If you wish to add a prefix to all calls like a version you can configure it:
 ```javascript
 var resource = restful('api.example.com')
-    .config()
-    .headers({ AuthToken: 'test' }) // set global headers
+    .header('AuthToken', 'test') // set global headers
     .prefixUrl('v1')
     .protocol('https')
-    .port(8080)
-    .end(); // end returns the configured object, resource in our case
+    .port(8080);
 
 // resource now targets `https://api.example.com:8080/v1`
 ```
 
 ### Query collections and members
 
-To get a collection you must use the `all` method on your resource or already existing member. Therefore you can use `get`, `put`, `post`, `delete` on it to make requests on your API:
-
-```javascript
-var articles = resource.all('articles');  // https://api.example.com:8080/v1/articles
-
-// https://api.example.com:8080/v1/articles/1
-articles.get(1).then(function(article) {
-    // article is an entity
-    // that means, that if the server response was { id: 1, title: 'test', body: 'hello' }
-    // you can do the following
-
-    article.title(); // returns `test`
-    article.body(); // returns `hello`
-
-    // You can also edit it
-    article.title('test2');
-
-    // Finally you can easily update it or delete it
-    article.save(); // will perform a PUT request
-    article.remove(); // will perform a DELETE request
-});
-```
-
-You can also use the `one` method to directly get a member:
-
-```javascript
-var articles = resource.one('articles', 1);  // https://api.example.com:8080/v1/articles/1
-
-// https://api.example.com:8080/v1/articles/1
-articles.get().then(function(article) {
-    // article is an entity
-    // that means, that if the server response was { id: 1, title: 'test', body: 'hello' }
-    // you can do the following
-
-    article.title(); // returns `test`
-    article.body(); // returns `hello`
-
-    // You can also edit it
-    article.title('test2');
-
-    // Finally you can easily update it or delete it
-    article.save(); // will perform a PUT request
-    article.remove(); // will perform a DELETE request
-});
-```
+* **one ( name, id )**: Target a member in a collection `name`.
+* **all ( name )**: Target a collection `name`.
 
 You can chain them to target the wanted collection or member:
 
@@ -103,61 +58,94 @@ comments.get(3).then(function(comment) {
 });
 ```
 
-An inheritance pattern is used when collections or members are chained. That means you must configure your `resource` before calling any methods on it if you want global configuration:
+#### Entities
+
+When you retrieve a collection or a member from your API, you get an **entity**. An entity exposes you several method to chain calls on it:
+
+* **entity.one( name, id )**: Query a member child of the entity.
+* **entity.all( name )**: Query a collection child of the entity.
+* **entity.url()**: Get the entity url.
+* **entity.save()**: Save the entity modifications by performing a POST request.
+* **entity.remove()**: Remove the entity by performing a DELETE request.
+* **entity.id()**: Get the id of the entity.
+
+To access to the data of the entity, execute it. It will return the response and the entity will be under the `data` key.
 
 ```javascript
-resource
-    .config()
-    .headers({ AuthToken: 'test' });
+var articles = resource.all('articles');  // https://api.example.com:8080/v1/articles
+
+// https://api.example.com:8080/v1/articles/1
+articles.get(1).then(function(article) {
+    // article is an entity
+    // that means, that if the server response was { id: 1, title: 'test', body: 'hello' }
+    // you can do the following
+
+    var data = article().data;
+    data.title; // returns `test`
+    data.body; // returns `hello`
+
+    // You can also edit it
+    data.title = 'test2';
+
+    // Finally you can easily update it or delete it
+    article.save(); // will perform a PUT request
+    article.remove(); // will perform a DELETE request
+});
+
+// You could also do:
+var article = resource.one('articles', 1);  // https://api.example.com:8080/v1/articles/1
+
+// https://api.example.com:8080/v1/articles/1
+article.get();
+```
+
+You can chain them to target the wanted collection or member:
+
+```javascript
+var article = resource.one('articles', 1);  // https://api.example.com:8080/v1/articles/1
+var comments = article.all('comments');  // https://api.example.com:8080/v1/articles/1/comments
+
+// https://api.example.com:8080/v1/articles/1/comments/3
+comments.get(3).then(function(comment) {
+    // You can also call `all` and `one` on an entity
+    return comment.all('authors').getAll(); // https://api.example.com:8080/v1/articles/1/comments/3/authors
+});
+```
+
+An inheritance pattern is used when collections or members are chained. That means when you configure a collection or a member it will configure it and all its children.
+
+```javascript
+// we configure it
+resource.header('AuthToken', 'test');
 
 var articles = resource.all('articles');
 articles.get(); // will received the `AuthToken` header
 
-articles
-    .config()
-    .headers({ foo: 'bar' });
+// we can configure it too. It will have both the AuthToken and foo headers
+articles.header('foo', 'bar');
 
-articles.one('comments', 1).get(); // will received `foo` header
+articles
+    .one('comments', 1) // will received `foo` header
+    .get();
 ```
 
 ## Methods description
 
 There are methods to deal with collections, members and entities. The name are consistent and the arguments depend on the context.
 
-### Global methods
-
-* **one ( name, id )**: Target a member in a collection `name`.
-* **all ( name )**: Target a collection `name`.
-* **requestInterceptor ( callback )**: Add a request interceptor.
-* **responseInterceptor ( callback )**: Add a response interceptor.
-
-```javascript
-resource.one('articles', 1).one('comments', 2).all('authors');
-```
-
-```javascript
-resource.responseInterceptor(function(res) {
-    res.title = 'Intercepted';
-
-    return res;
-});
-```
-
 ### Collection methods
 
 * **getAll ( [ params [, headers ]] )**: Get a full collection. Returns a promise with an array of entities.
-* **rawGetAll ( [params [, headers ]] )**: Get a full collection. Returns a promise with an array of raw responses
 * **get ( id [, params [, headers ]] )**: Get a member in a collection. Returns a promise with an entity.
-* **rawGet ( id [, params [, headers ]] )**: Get a member in a collection. Returns a promise with a raw response.
-* **post ( data [, headers ] )**: Create a member in a collection. Returns a promise with the data of the response.
-* **rawPost ( data [, headers ] )**: Create a member in a collection. Returns a promise with a raw response.
-* **put ( id, data [, headers ] )**: Update a member in a collection. Returns a promise with the data of the response.
-* **rawPut ( id, data [, headers ] )**: Update a member in a collection. Returns a promise with a raw response.
-* **delete ( id [, headers ] )**: Delete a member in a collection. Returns a promise with the data of the response.
-* **rawDelete ( id [, headers ] )**: Delete a member in a collection. Returns a promise with a raw response.
-* **patch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with the data of the response.
-* **rawPatch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with a raw response.
-* **head ( id, [, headers ] )**: Perform a HEAD request on a member in a collection. Returns a promise with the raw response.
+* **post ( data [, headers ] )**: Create a member in a collection. Returns a promise with the response.
+* **put ( id, data [, headers ] )**: Update a member in a collection. Returns a promise with the response.
+* **delete ( id [, headers ] )**: Delete a member in a collection. Returns a promise with the response.
+* **patch ( id, data [, headers ] )**: Patch a member in a collection. Returns a promise with the response.
+* **head ( id, [, headers ] )**: Perform a HEAD request on a member in a collection. Returns a promise with the response.
+* **url ()**: Get the collection url.
+* **addResponseInterceptor ( interceptor )**: Add a response interceptor.
+* **addRequestInterceptor ( interceptor )**: Add a request interceptor.
+* **header ( name, value )**: Add a header.
 
 ```javascript
 var authorsResource = resource.one('articles', 1).one('comments', 2).all('authors');
@@ -174,14 +162,16 @@ authorsResource.get(1).then(function(author) {
 ### Member methods
 
 * **get ( [ params [, headers ]] )**: Get a member. Returns a promise with an entity.
-* **rawGet ( [ params [, headers ]] )**: Get a member. Returns a promise with a raw response.
-* **put ( data [, headers ] )**: Update a member. Returns a promise with the data of the response.
-* **rawPut ( data [, headers ] )**: Update a member. Returns a promise with a raw response.
-* **delete ( [ headers ] )**: Delete a member. Returns a promise with the data of the response.
-* **rawDelete ( [ headers ] )**: Delete a member. Returns a promise with a raw response.
-* **patch ( data [, headers ] )**: Patch a member. Returns a promise with the data of the response.
-* **rawPatch ( data [, headers ] )**: Patch a member. Returns a promise with a raw response.
-* **head ( [ headers ] )**: Perform a HEAD request on a member. Returns a promise with the raw response.
+* **put ( data [, headers ] )**: Update a member. Returns a promise with the response.
+* **delete ( [ headers ] )**: Delete a member. Returns a promise with the response.
+* **patch ( data [, headers ] )**: Patch a member. Returns a promise with the response.
+* **head ( [ headers ] )**: Perform a HEAD request on a member. Returns a promise with the response.
+* **one ( name, id )**: Target a child member in a collection `name`.
+* **all ( name )**: Target a child collection `name`.
+* **url ()**: Get the member url.
+* **addResponseInterceptor ( interceptor )**: Add a response interceptor.
+* **addRequestInterceptor ( interceptor )**: Add a request interceptor.
+* **header ( name, value )**: Add a header.
 
 ```javascript
 var commentResource = resource.one('articles', 1).one('comments', 2);

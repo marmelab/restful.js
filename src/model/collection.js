@@ -1,49 +1,64 @@
 'use strict';
 
-var endpoint = require('./endpoint');
+var endpoint = require('./endpoint'),
+    entity = require('./entity'),
+    resource = require('./resource');
 
-function collection(name) {
-    var model = {},
-        refEndpoint = endpoint(name, null, model);
-
-    model.config = function() {
-        return refEndpoint.config();
-    };
-
-    model.rawGet = function(id, params, headers) {
-        return refEndpoint.rawGet(id, params, headers);
-    };
+function collection(name, parent) {
+    var refEndpoint = endpoint(name, null, parent()),
+        model = resource(refEndpoint);
 
     model.get = function(id, params, headers) {
-        return refEndpoint.get(id, params, headers);
-    };
+        var member = parent.factory(name, id, parent); // We use this way to avoid circular dependencies
 
-    model.rawGetAll = function(params, headers) {
-        return refEndpoint.rawGetAll(params, headers);
+        // Configure the endpoint
+        member()
+            .headers(refEndpoint.headers())
+            .responseInterceptors(refEndpoint.responseInterceptors())
+            .requestInterceptors(refEndpoint.requestInterceptors());
+
+        return refEndpoint
+            .get(id, params, headers)
+            .then(function(response) {
+                return entity(
+                    id,
+                    response,
+                    member
+                );
+            });
     };
 
     model.getAll = function(params, headers) {
-        return refEndpoint.getAll(params, headers);
-    };
+        return refEndpoint
+            .getAll(params, headers)
+            .then(function(response) {
+                return response.data.map(function(data) {
+                    response = JSON.parse(JSON.stringify(response));
+                    response.data = data;
 
-    model.rawPost = function(data, headers) {
-        return refEndpoint.rawPost(data, headers);
+                    var member = parent.factory(name, data.id, parent); // We use this way to avoid circular dependencies
+
+                    // Configure the endpoint
+                    member()
+                        .headers(refEndpoint.headers())
+                        .responseInterceptors(refEndpoint.responseInterceptors())
+                        .requestInterceptors(refEndpoint.requestInterceptors());
+
+                    return entity(
+                        data.id,
+                        response,
+                        member
+                    );
+                });
+            });
     };
 
     model.post = function(data, headers) {
         return refEndpoint.post(data, headers);
     };
 
-    model.rawPut = function(id, data, headers) {
-        return refEndpoint.rawPut(id, data, headers);
-    };
-
     model.put = function(id, data, headers) {
         return refEndpoint.put(id, data, headers);
-    };
-
-    model.rawPatch = function(id, data, headers) {
-        return refEndpoint.rawPatch(id, data, headers);
     };
 
     model.patch = function(id, data, headers) {
@@ -54,24 +69,12 @@ function collection(name) {
         return refEndpoint.head(id, data, headers);
     };
 
-    model.rawDelete = function(id, headers) {
-        return refEndpoint.rawDelete(id, headers);
-    };
-
     model.delete = function(id, headers) {
         return refEndpoint.delete(id, headers);
     };
 
     model.url = function() {
         return refEndpoint.url();
-    };
-
-    model.requestInterceptor = function(interceptor) {
-        return refEndpoint.requestInterceptor(interceptor);
-    };
-
-    model.responseInterceptor = function(interceptor) {
-        return refEndpoint.responseInterceptor(interceptor);
     };
 
     return model;

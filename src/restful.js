@@ -1,61 +1,63 @@
 'use strict';
 
-var configurator = require('./model/configurator'),
+var configurable = require('./util/configurable'),
     collection = require('./model/collection'),
+    resource = require('./model/resource'),
     member = require('./model/member'),
-    inherit = require('./util/inherit'),
-    axios = require('axios');
+    http = require('./service/http');
 
 function restful(baseUrl, port) {
-    var model = {},
-        config = configurator({
-            _httpBackend: axios,
-            baseUrl: baseUrl,
-            headers: {},
-            port: port || 80,
-            prefixUrl: '',
-            protocol: 'http',
-            requestInterceptors: [],
-            responseInterceptors: []
-        }, model);
-
-    model.config = function() {
-        return config;
+    var config = {
+        baseUrl: baseUrl,
+        port: port || 80,
+        prefixUrl: '',
+        protocol: 'http',
     };
 
+    var fakeEndpoint = (function() {
+        var model = {},
+            _config = {
+                _http: http,
+                headers: {},
+                requestInterceptors: [],
+                responseInterceptors: []
+            };
+
+        configurable(model, _config);
+
+        model.url = function() {
+            var url = config.protocol + '://' + config.baseUrl;
+
+            if (config.port !== 80) {
+                url += ':' + config.port;
+            }
+
+            if (config.prefixUrl !== '') {
+                url += '/' + config.prefixUrl;
+            }
+
+            return url;
+        }
+
+        return model;
+    }()),
+    model = resource(fakeEndpoint);
+
+    configurable(model, config);
+
     model.url = function() {
-        var url = config.protocol() + '://' + config.baseUrl();
-
-        if (config.port() !== 80) {
-            url += ':' + config.port();
-        }
-
-        if (config.prefixUrl() !== '') {
-            url += '/' + config.prefixUrl();
-        }
-
-        return url;
-    }
+        return fakeEndpoint.url();
+    };
 
     model.one = function(name, id) {
-        return inherit(model, member(name, id));
+        return member(name, id, model);
     };
 
     model.all = function(name) {
-        return inherit(model, collection(name));
+        return collection(name, model);
     };
 
-    model.requestInterceptor = function(interceptor) {
-        config.requestInterceptors().push(interceptor);
-
-        return model;
-    };
-
-    model.responseInterceptor = function(interceptor) {
-        config.responseInterceptors().push(interceptor);
-
-        return model;
-    };
+    model.factory = member;
 
     return model;
 };

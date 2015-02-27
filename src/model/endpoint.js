@@ -1,71 +1,73 @@
 'use strict';
 
-var configurator = require('./configurator'),
+var configurable = require('../util/configurable'),
     entity = require('./entity'),
-    inherit = require('../util/inherit');
+    merge = require('../util/merge');
 
-function transformerFactory(transformers) {
-    return function(data) {
-        var parsedData;
-
-        try {
-            parsedData = JSON.parse(data);
-        } catch (e) {
-            parsedData = data;
-        }
-
-        for (var i in transformers) {
-            parsedData = transformers[i](parsedData);
-        }
-
-        return parsedData;
-    }
-};
-
-function merge(master, slave) {
-    var merged = {};
-
-    for (var i in slave) {
-        merged[i] = slave[i];
-    }
-
-    for (var i in master) {
-        merged[i] = master[i];
-    }
-
-    return merged;
-}
-
-function createEntity(id, data, model) {
-    var config = model.config(),
-        entityEnpoint = inherit(model, config._parent().one(config.name(), id));
-
-    // Reset the real parent
-    entityEnpoint
-        .config()
-        ._parent(config._parent());
-
-    return entity(id, data, entityEnpoint);
-}
-
-function endpoint(name, id, referrer) {
+function endpoint(name, id, parent) {
     var model = {},
-        config = configurator({
-            _httpBackend: null,
-            _parent: null,
+        config = {
+            _parent: parent,
+            _name: name,
+            _id: id !== undefined ? id : null,
             headers: {},
-            id: id !== undefined ? id : null,
-            name: name,
             requestInterceptors: [],
-            responseInterceptors: []
-        }, referrer);
+            responseInterceptors:[]
+        };
 
-    model.config = function() {
-        return config;
+    configurable(model, config);
+
+    function _getRequestInterceptors() {
+        var current = model,
+            requestInterceptors = [];
+
+        while (current) {
+            requestInterceptors = requestInterceptors.concat(current.requestInterceptors());
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return requestInterceptors;
+    };
+
+    function _getResponseInterceptors() {
+        var current = model,
+            responseInterceptors = [];
+
+        while (current) {
+            responseInterceptors = responseInterceptors.concat(current.responseInterceptors());
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return responseInterceptors;
+    };
+
+    function _getHeaders() {
+        var current = model,
+            headers = {};
+
+        while (current) {
+            headers = merge(current.headers(), headers);
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return headers;
+    };
+
+    model._http = function() {
+        return config._parent._http();
     };
 
     model.url = function(id) {
-        var url = config._parent().url() + '/' + config.name();
+        id = id || config._id;
+
+        var url = config._parent.url();
+
+        if (config._name) {
+            url += '/' + config._name;
+        }
 
         if (~~id === id) {
             url += '/' + id;
@@ -74,145 +76,99 @@ function endpoint(name, id, referrer) {
         return url;
     };
 
-    model.rawGet = function(id, params, headers) {
-        headers = headers ? merge(headers, config.headers()) : config.headers();
+    model.get = function(id, params, headers) {
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
-        return config._httpBackend().get(
-            model.url(config.id() || id),
+        return model._http().get(
+            model.url(id),
             {
                 params: params || {},
                 headers: headers,
-                transformResponse: [transformerFactory(config.responseInterceptors())]
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
-    model.get = function(id, params, headers) {
-        return model.rawGet(id, params, headers).then(function(response) {
-            return createEntity(id, response.data, model);
-        });
-    };
-
-    model.rawGetAll = function(params, headers) {
-        return model.rawGet(null, params, headers);
-    };
-
     model.getAll = function(params, headers) {
-        return model.rawGet(null, params, headers).then(function(responses) {
-            return responses.data.map(function(data) {
-                return createEntity(data.id, data, model);
-            });
-        });
+        return model.get(null, params, headers);
     };
 
-    model.rawPost = function(data, headers) {
-        headers = headers ? merge(headers, config.headers()) : config.headers();
+    model.post = function(data, headers) {
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         if (!headers['Content-Type']) {
-            headers['Content-Type'] = 'json';
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
         }
 
-        try {
-            data = JSON.stringify(data);
-        } catch (e) {}
-
-        return config._httpBackend().post(
+        return model._http().post(
             model.url(),
             data,
             {
                 headers: headers,
-                transformRequest: [transformerFactory(config.requestInterceptors())],
-                transformResponse: [transformerFactory(config.responseInterceptors())]
-            }
-        );
-    };
-
-    model.post = function(data, headers) {
-        return model.rawPost(data, headers).then(function(response) {
-            return response.data;
-        });
-    };
-
-    model.rawPut = function(id, data, headers) {
-        headers = headers ? merge(headers, config.headers()) : config.headers();
-
-        return config._httpBackend().put(
-            model.url(config.id() || id),
-            data,
-            {
-                headers: headers,
-                transformRequest: [transformerFactory(config.requestInterceptors())],
-                transformResponse: [transformerFactory(config.responseInterceptors())]
+                requestInterceptors: _getRequestInterceptors(),
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.put = function(id, data, headers) {
-        return model.rawPut(id, data, headers).then(function(response) {
-            return response.data;
-        });
-    };
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
-    model.rawPatch = function(id, data, headers) {
-        headers = headers ? merge(headers, config.headers()) : config.headers();
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
+        }
 
-        return config._httpBackend().patch(
-            model.url(config.id() || id),
+        return model._http().put(
+            model.url(id),
             data,
             {
                 headers: headers,
-                transformRequest: [transformerFactory(config.requestInterceptors())],
-                transformResponse: [transformerFactory(config.responseInterceptors())]
+                requestInterceptors: _getRequestInterceptors(),
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.patch = function(id, data, headers) {
-        return model.rawPatch(id, data, headers).then(function(response) {
-            return response.data;
-        });
-    };
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
-    model.rawDelete = function(id, headers) {
-        headers = headers ? merge(headers, config.headers()) : config.headers();
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
+        }
 
-        return config._httpBackend().delete(
-            model.url(config.id() || id),
+        return model._http().patch(
+            model.url(id),
+            data,
             {
                 headers: headers,
-                transformResponse: [transformerFactory(config.responseInterceptors())]
+                requestInterceptors: _getRequestInterceptors(),
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
     model.delete = function(id, headers) {
-        return model.rawDelete(id, headers).then(function(response) {
-            return response.data;
-        });
-    };
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
-    model.head = function(id, headers) {
-        headers = headers ? merge(headers, config.headers()) : config.headers();
-
-        return config._httpBackend().head(
-            model.url(config.id() || id),
+        return model._http().delete(
+            model.url(id),
             {
                 headers: headers,
-                transformResponse: [transformerFactory(config.responseInterceptors())]
+                responseInterceptors: _getResponseInterceptors()
             }
         );
     };
 
-    model.requestInterceptor = function(interceptor) {
-        config.requestInterceptors().push(interceptor);
+    model.head = function(id, headers) {
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
-        return model;
-    };
-
-    model.responseInterceptor = function(interceptor) {
-        config.responseInterceptors().push(interceptor);
-
-        return model;
+        return model._http().head(
+            model.url(id),
+            {
+                headers: headers,
+                responseInterceptors: _getResponseInterceptors()
+            }
+        );
     };
 
     return model;
