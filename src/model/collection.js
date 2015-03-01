@@ -12,6 +12,7 @@ function collection(name, parent) {
         var member = parent.factory(name, id, parent); // We use this way to avoid circular dependencies
 
         // Configure the endpoint
+        // We do it this way because the entity must have a member which inherits from this collection config
         member()
             .headers(refEndpoint.headers())
             .responseInterceptors(refEndpoint.responseInterceptors())
@@ -39,6 +40,7 @@ function collection(name, parent) {
                     var member = parent.factory(name, data.id, parent); // We use this way to avoid circular dependencies
 
                     // Configure the endpoint
+                    // We do it this way because the entity must have a member which inherits from this collection config
                     member()
                         .headers(refEndpoint.headers())
                         .responseInterceptors(refEndpoint.responseInterceptors())
