@@ -22,7 +22,7 @@ function entity(id, response, member) {
     };
 
     model.url = function() {
-        return member.url(id);
+        return member.url();
     };
 
     model.id = function() {

@@ -4,12 +4,10 @@ var configurable = require('../util/configurable'),
     entity = require('./entity'),
     merge = require('../util/merge');
 
-function endpoint(name, id, parent) {
+function endpoint(url, parent) {
     var model = {},
         config = {
             _parent: parent,
-            _name: name,
-            _id: id !== undefined ? id : null,
             headers: {},
             requestInterceptors: [],
             responseInterceptors:[]
@@ -17,6 +15,11 @@ function endpoint(name, id, parent) {
 
     configurable(model, config);
 
+    /**
+     * Merge the local request interceptors and the parent's ones
+     * @private
+     * @return {array} request interceptors
+     */
     function _getRequestInterceptors() {
         var current = model,
             requestInterceptors = [];
@@ -30,6 +33,11 @@ function endpoint(name, id, parent) {
         return requestInterceptors;
     };
 
+    /**
+     * Merge the local response interceptors and the parent's ones
+     * @private
+     * @return {array} response interceptors
+     */
     function _getResponseInterceptors() {
         var current = model,
             responseInterceptors = [];
@@ -43,6 +51,11 @@ function endpoint(name, id, parent) {
         return responseInterceptors;
     };
 
+    /**
+     * Merge the local headers and the parent's ones
+     * @private
+     * @return {array} headers
+     */
     function _getHeaders() {
         var current = model,
             headers = {};
@@ -56,31 +69,20 @@ function endpoint(name, id, parent) {
         return headers;
     };
 
+    /**
+     * Return the http layer. We ask it to the parent endpoint. This way it is defined in src/restful.js
+     * @private
+     * @return {object} http layer
+     */
     model._http = function() {
         return config._parent._http();
-    };
-
-    model.url = function(id) {
-        id = id || config._id;
-
-        var url = config._parent.url();
-
-        if (config._name) {
-            url += '/' + config._name;
-        }
-
-        if (~~id === id) {
-            url += '/' + id;
-        }
-
-        return url;
     };
 
     model.get = function(id, params, headers) {
         headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().get(
-            model.url(id),
+            url + '/' + id,
             {
                 params: params || {},
                 headers: headers,
@@ -90,7 +92,16 @@ function endpoint(name, id, parent) {
     };
 
     model.getAll = function(params, headers) {
-        return model.get(null, params, headers);
+        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
+
+        return model._http().get(
+            url,
+            {
+                params: params || {},
+                headers: headers,
+                responseInterceptors: _getResponseInterceptors()
+            }
+        );
     };
 
     model.post = function(data, headers) {
@@ -101,7 +112,7 @@ function endpoint(name, id, parent) {
         }
 
         return model._http().post(
-            model.url(),
+            url,
             data,
             {
                 headers: headers,
@@ -119,7 +130,7 @@ function endpoint(name, id, parent) {
         }
 
         return model._http().put(
-            model.url(id),
+            url + '/' + id,
             data,
             {
                 headers: headers,
@@ -137,7 +148,7 @@ function endpoint(name, id, parent) {
         }
 
         return model._http().patch(
-            model.url(id),
+            url + '/' + id,
             data,
             {
                 headers: headers,
@@ -151,7 +162,7 @@ function endpoint(name, id, parent) {
         headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().delete(
-            model.url(id),
+            url + '/' + id,
             {
                 headers: headers,
                 responseInterceptors: _getResponseInterceptors()
@@ -163,7 +174,7 @@ function endpoint(name, id, parent) {
         headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
 
         return model._http().head(
-            model.url(id),
+            url + '/' + id,
             {
                 headers: headers,
                 responseInterceptors: _getResponseInterceptors()

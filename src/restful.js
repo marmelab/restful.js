@@ -4,7 +4,7 @@ var configurable = require('./util/configurable'),
     collection = require('./model/collection'),
     resource = require('./model/resource'),
     member = require('./model/member'),
-    http = require('./service/http');
+    http = require('./service/http')(require('axios'));
 
 function restful(baseUrl, port) {
     var config = {

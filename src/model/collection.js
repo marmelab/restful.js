@@ -5,7 +5,7 @@ var endpoint = require('./endpoint'),
     resource = require('./resource');
 
 function collection(name, parent) {
-    var refEndpoint = endpoint(name, null, parent()),
+    var refEndpoint = endpoint([parent.url(), name].join('/'), parent()),
         model = resource(refEndpoint);
 
     model.get = function(id, params, headers) {
@@ -74,7 +74,7 @@ function collection(name, parent) {
     };
 
     model.url = function() {
-        return refEndpoint.url();
+        return [parent.url(), name].join('/');
     };
 
     return model;
