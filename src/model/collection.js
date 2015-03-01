@@ -5,13 +5,14 @@ var endpoint = require('./endpoint'),
     resource = require('./resource');
 
 function collection(name, parent) {
-    var refEndpoint = endpoint(name, null, parent()),
+    var refEndpoint = endpoint([parent.url(), name].join('/'), parent()),
         model = resource(refEndpoint);
 
     model.get = function(id, params, headers) {
         var member = parent.factory(name, id, parent); // We use this way to avoid circular dependencies
 
         // Configure the endpoint
+        // We do it this way because the entity must have a member which inherits from this collection config
         member()
             .headers(refEndpoint.headers())
             .responseInterceptors(refEndpoint.responseInterceptors())
@@ -39,6 +40,7 @@ function collection(name, parent) {
                     var member = parent.factory(name, data.id, parent); // We use this way to avoid circular dependencies
 
                     // Configure the endpoint
+                    // We do it this way because the entity must have a member which inherits from this collection config
                     member()
                         .headers(refEndpoint.headers())
                         .responseInterceptors(refEndpoint.responseInterceptors())
@@ -74,7 +76,7 @@ function collection(name, parent) {
     };
 
     model.url = function() {
-        return refEndpoint.url();
+        return [parent.url(), name].join('/');
     };
 
     return model;

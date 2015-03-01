@@ -32,7 +32,7 @@ function http(httpBackend) {
         return httpBackend;
     }
 
-    model.request = function(method, url, data, config) {
+    function request(method, url, data, config) {
         if (['post', 'put', 'patch'].indexOf(method) !== -1) {
             config.transformRequest = [interceptorCallback(config.requestInterceptors || [])];
             delete config.requestInterceptors;
@@ -51,30 +51,30 @@ function http(httpBackend) {
     };
 
     model.get = function(url, config) {
-        return model.request('get', url, null, config);
+        return request('get', url, null, config);
     };
 
     model.post = function(url, data, config) {
-        return model.request('post', url, data, config);
+        return request('post', url, data, config);
     };
 
     model.put = function(url, data, config) {
-        return model.request('put', url, data, config);
+        return request('put', url, data, config);
     };
 
     model.patch = function(url, data, config) {
-        return model.request('patch', url, data, config);
+        return request('patch', url, data, config);
     };
 
     model.delete = function(url, config) {
-        return model.request('delete', url, null, config);
+        return request('delete', url, null, config);
     };
 
     model.head = function(url, config) {
-        return model.request('head', url, null, config);
+        return request('head', url, null, config);
     };
 
     return model;
 }
 
-module.exports = http(require('axios'));
+module.exports = http;

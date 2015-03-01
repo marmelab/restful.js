@@ -6,8 +6,9 @@ var endpoint = require('./endpoint'),
     resource = require('./resource');
 
 function member(name, id, parent) {
-    var refEndpoint = endpoint(name, id, parent()),
-        model = resource(refEndpoint);
+    var refEndpoint = endpoint([parent.url(), name].join('/'), parent());
+
+    var model = resource(refEndpoint);
 
     function model() {
         return refEndpoint;
@@ -50,7 +51,7 @@ function member(name, id, parent) {
     };
 
     model.url = function() {
-        return refEndpoint.url(id);
+        return [parent.url(), name, id].join('/')
     };
 
     model.factory = member;
