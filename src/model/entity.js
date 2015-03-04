@@ -1,35 +1,31 @@
-'use strict';
+export default function entity(id, response, member) {
+    var model = {
+        one(name, id) {
+            return member.one(name, id);
+        },
 
-function entity(id, response, member) {
-    function model() {
+        all(name) {
+            return member.all(name);
+        },
+
+        save(headers) {
+            return member.put(response.data, headers);
+        },
+
+        remove(headers) {
+            return member.delete(headers);
+        },
+
+        url() {
+            return member.url();
+        },
+
+        id() {
+            return id;
+        },
+    };
+
+    return Object.assign(function () {
         return response;
-    }
-
-    model.one = function(name, id) {
-        return member.one(name, id);
-    };
-
-    model.all = function(name) {
-        return member.all(name);
-    };
-
-    model.save = function(headers) {
-        return member.put(response.data, headers);
-    };
-
-    model.remove = function(headers) {
-        return member.delete(headers);
-    };
-
-    model.url = function() {
-        return member.url();
-    };
-
-    model.id = function() {
-        return id;
-    };
-
-    return model;
+    }, model);
 };
-
-module.exports = entity;

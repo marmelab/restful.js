@@ -34,7 +34,7 @@
  * @param {Function} targetFunction - The functions to make configurable
  * @param {Object} config - The configuration object with the default config values
  */
-function configurable(targetFunction, config) {
+export default function configurable(targetFunction, config) {
     for (var item in config) {
         if (config.hasOwnProperty(item)) {
             (function(item) {
@@ -49,5 +49,3 @@ function configurable(targetFunction, config) {
         }
     }
 }
-
-module.exports = configurable;

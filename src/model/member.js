@@ -1,62 +1,56 @@
-'use strict';
+import collection from 'model/collection';
+import endpoint from 'model/endpoint';
+import entity from 'model/entity';
+import resource from 'model/resource';
 
-var endpoint = require('./endpoint'),
-    entity = require('./entity'),
-    collection = require('./collection'),
-    resource = require('./resource');
-
-function member(name, id, parent) {
+export default function member(name, id, parent) {
     var refEndpoint = endpoint([parent.url(), name].join('/'), parent());
 
-    var model = resource(refEndpoint);
+    var model = {
 
-    function model() {
-        return refEndpoint;
+        get(params, headers) {
+            return refEndpoint
+                .get(id, params, headers)
+                .then(function(response) {
+                    return entity(
+                        id,
+                        response,
+                        model
+                    );
+                });
+        },
+
+        put(data, headers) {
+            return refEndpoint.put(id, data, headers);
+        },
+
+        patch(data, headers) {
+            return refEndpoint.patch(id, data, headers);
+        },
+
+        head(data, headers) {
+            return refEndpoint.head(id, data, headers);
+        },
+
+        delete(headers) {
+            return refEndpoint.delete(id, headers);
+        },
+
+        one(name, id) {
+            return member(name, id, model);
+        },
+
+        all(name) {
+            return collection(name, model);
+        },
+
+        url() {
+            return [parent.url(), name, id].join('/')
+        },
     };
 
-    model.get = function(params, headers) {
-        return refEndpoint
-            .get(id, params, headers)
-            .then(function(response) {
-                return entity(
-                    id,
-                    response,
-                    model
-                );
-            });
-    };
-
-    model.put = function(data, headers) {
-        return refEndpoint.put(id, data, headers);
-    };
-
-    model.patch = function(data, headers) {
-        return refEndpoint.patch(id, data, headers);
-    };
-
-    model.head = function(data, headers) {
-        return refEndpoint.head(id, data, headers);
-    };
-
-    model.delete = function(headers) {
-        return refEndpoint.delete(id, headers);
-    };
-
-    model.one = function(name, id) {
-        return member(name, id, model);
-    };
-
-    model.all = function(name) {
-        return collection(name, model);
-    };
-
-    model.url = function() {
-        return [parent.url(), name, id].join('/')
-    };
-
-    model.factory = member;
+    // We override model because one and all need it as a closure
+    model = Object.assign(resource(refEndpoint), model);
 
     return model;
 };
-
-module.exports = member;

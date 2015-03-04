@@ -3,7 +3,8 @@
 (function() {
     'use strict';
 
-    var http,
+    var httpBackend,
+        http,
         resource,
         q;
 
@@ -17,10 +18,10 @@
                 };
             };
 
-            http = {
-                get: function(url, config) {
+            httpBackend = {
+                get: function(config) {
 
-                    if (url.substr(url.length - 1) !== 's') {
+                    if (config.url.substr(config.url.length - 1) !== 's') {
                         return q({
                             // `data` is the response that was provided by the server
                             data: config.responseInterceptors[0] ? config.responseInterceptors[0]({
@@ -72,7 +73,7 @@
                     }
                 },
 
-                put: function(url, data, headers) {
+                put: function(config) {
                     return q({
                         // `data` is the response that was provided by the server
                         data: {
@@ -90,7 +91,7 @@
                     });
                 },
 
-                delete: function(url, data, headers) {
+                delete: function(config) {
                     return q({
                         // `data` is the response that was provided by the server
                         data: {
@@ -108,7 +109,7 @@
                     });
                 },
 
-                post: function(url, data, headers) {
+                post: function(config) {
                     return q({
                         // `data` is the response that was provided by the server
                         data: {
@@ -126,7 +127,7 @@
                     });
                 },
 
-                patch: function(url, data, headers) {
+                patch: function(config) {
                     return q({
                         // `data` is the response that was provided by the server
                         data: {
@@ -144,7 +145,7 @@
                     });
                 },
 
-                head: function(url, data, headers) {
+                head: function(config) {
                     return q({
                         // `data` is the response that was provided by the server
                         data: {
@@ -168,8 +169,13 @@
                 .prefixUrl('v1')
                 .protocol('https');
 
-            resource()
-                ._http(http);
+            http = {
+                request: function(method, config) {
+                    return httpBackend[method](config);
+                }
+            };
+
+            resource()._http(http);
         });
 
         it('should provide a configured resource', function() {
@@ -177,7 +183,7 @@
             expect(resource.port()).toBe(3000);
             expect(resource.prefixUrl()).toBe('v1');
             expect(resource.protocol()).toBe('https');
-            expect(resource()._http()).toBe(http);
+            expect(resource()()).toBe(http);
 
             expect(resource.url()).toBe('https://localhost:3000/v1');
         });
@@ -205,7 +211,7 @@
             var article = resource.one('articles', 3),
                 comment = article.one('comments', 5);
 
-            spyOn(http, 'get').andCallThrough();
+            spyOn(httpBackend, 'get').andCallThrough();
 
             comment.get().then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
@@ -213,13 +219,14 @@
                 expect(entity().data.body).toBe('Hello, I am a test');
             });
 
-            expect(http.get).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
                 responseInterceptors: []
             });
 
-            http.get.reset();
+            httpBackend.get.reset();
 
             comment.get({ test: 'test3' }, { bar: 'foo' }).then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
@@ -227,7 +234,8 @@
                 expect(entity().data.body).toBe('Hello, I am a test');
             });
 
-            expect(http.get).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: { test: 'test3' },
                 headers: { bar: 'foo' },
                 responseInterceptors: []
@@ -238,7 +246,7 @@
             var article = resource.one('articles', 3),
                 comment = article.one('comments', 2);
 
-            spyOn(http, 'put').andCallThrough();
+            spyOn(httpBackend, 'put').andCallThrough();
 
             comment.put({ body: 'I am a new comment' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -252,26 +260,25 @@
                 });
             });
 
-            expect(http.put).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
+            expect(httpBackend.put).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                data: {
                     body: 'I am a new comment'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
         });
 
         it('should call http.delete with correct parameters when delete is called on member', function() {
             var article = resource.one('articles', 3),
                 comment = article.one('comments', 2);
 
-            spyOn(http, 'delete').andCallThrough();
+            spyOn(httpBackend, 'delete').andCallThrough();
 
             comment.delete({ foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -285,20 +292,19 @@
                 });
             });
 
-            expect(http.delete).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
-                    headers: { foo: 'bar' },
-                    responseInterceptors: []
-                }
-            );
+            expect(httpBackend.delete).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                headers: { foo: 'bar' },
+                responseInterceptors: []
+            });
         });
 
         it('should call http.head with correct parameters when head is called on a member', function() {
             var article = resource.one('articles', 3),
                 comment = article.one('comments', 5);
 
-            spyOn(http, 'head').andCallThrough();
+            spyOn(httpBackend, 'head').andCallThrough();
 
             comment.head({ bar: 'foo' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -319,7 +325,9 @@
                 });
             });
 
-            expect(http.head).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.head).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
+                params: {},
                 headers: { bar: 'foo' },
                 responseInterceptors: []
             });
@@ -329,7 +337,7 @@
             var article = resource.one('articles', 3),
                 comment = article.one('comments', 2);
 
-            spyOn(http, 'patch').andCallThrough();
+            spyOn(httpBackend, 'patch').andCallThrough();
 
             comment.patch({ body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -350,28 +358,27 @@
                 });
             });
 
-            expect(http.patch).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
+            expect(httpBackend.patch).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                data: {
                     body: 'I am a new comment'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8',
-                        foo: 'bar'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    foo: 'bar'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
         });
 
         it('should call http.put with correct parameters when save is called on an entity', function() {
             var articles = resource.one('articles', 3),
                 comment = articles.one('comments', 5);
 
-            spyOn(http, 'get').andCallThrough();
-            spyOn(http, 'put').andCallThrough();
+            spyOn(httpBackend, 'get').andCallThrough();
+            spyOn(httpBackend, 'put').andCallThrough();
 
             comment.get().then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
@@ -384,61 +391,60 @@
                 entity.save();
             });
 
-            expect(http.get).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
                 responseInterceptors: []
             });
 
-            expect(http.put).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/5',
-                {
+            expect(httpBackend.put).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
+                params: {},
+                data: {
                     id: 1,
                     title: 'test',
                     body: 'Overriden',
                     published_at: '2015-01-06'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
 
-            http.put.reset();
+            httpBackend.put.reset();
 
             comment.get().then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
                 entity.save({ foo: 'bar' });
             });
 
-            expect(http.put).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/5',
-                {
+            expect(httpBackend.put).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
+                params: {},
+                data: {
                     id: 1,
                     title: 'test',
                     body: 'Hello, I am a test',
                     published_at: '2015-01-03'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8',
-                        foo: 'bar'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    foo: 'bar'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
         });
 
         it('should call http.delete with correct parameters when remove is called on an entity', function() {
             var article = resource.one('articles', 3),
                 comment = article.one('comments', 5);
 
-            spyOn(http, 'get').andCallThrough();
-            spyOn(http, 'delete').andCallThrough();
+            spyOn(httpBackend, 'get').andCallThrough();
+            spyOn(httpBackend, 'delete').andCallThrough();
 
             comment.get().then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
@@ -448,25 +454,30 @@
                 entity.remove()
             });
 
-            expect(http.get).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
                 responseInterceptors: []
             });
 
-            expect(http.delete).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.delete).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
+                params: {},
                 headers: {},
                 responseInterceptors: []
             });
 
-            http.delete.reset();
+            httpBackend.delete.reset();
 
             comment.get().then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
                 entity.remove({ foo: 'bar' });
             });
 
-            expect(http.delete).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.delete).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
+                params: {},
                 headers: { foo: 'bar' },
                 responseInterceptors: []
             });
@@ -476,7 +487,7 @@
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'get').andCallThrough();
+            spyOn(httpBackend, 'get').andCallThrough();
 
             comments.get(1, { page: 1 }, { foo: 'bar' }).then(function(entity) {
                 // As we use a promesse mock, this is always called synchronously
@@ -485,21 +496,19 @@
                 expect(entity().data.body).toBe('Hello, I am a test');
             });
 
-            expect(http.get).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/1',
-                {
-                    params: { page: 1 },
-                    headers: { foo: 'bar' },
-                    responseInterceptors: []
-                }
-            );
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/1',
+                params: { page: 1 },
+                headers: { foo: 'bar' },
+                responseInterceptors: []
+            });
         });
 
         it('should call http.get with correct parameters when getAll is called on collection', function() {
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'get').andCallThrough();
+            spyOn(httpBackend, 'get').andCallThrough();
 
             comments.getAll({ page: 1 }, { foo: 'bar' }).then(function(entities) {
                 // As we use a promesse mock, this is always called synchronously
@@ -512,21 +521,19 @@
                 expect(entities[1]().data.body).toBe('Hello, I am a test2');
             });
 
-            expect(http.get).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments',
-                {
-                    params: { page: 1 },
-                    headers: { foo: 'bar' },
-                    responseInterceptors: []
-                }
-            );
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments',
+                params: { page: 1 },
+                headers: { foo: 'bar' },
+                responseInterceptors: []
+            });
         });
 
         it('should call http.post with correct parameters when post is called on collection', function() {
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'post').andCallThrough();
+            spyOn(httpBackend, 'post').andCallThrough();
 
             comments.post({ body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -547,27 +554,26 @@
                 });
             });
 
-            expect(http.post).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments',
-                {
+            expect(httpBackend.post).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments',
+                params: {},
+                data: {
                     body: 'I am a new comment'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8',
-                        foo: 'bar'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    foo: 'bar'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
         });
 
         it('should call http.put with correct parameters when put is called on collection', function() {
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'put').andCallThrough();
+            spyOn(httpBackend, 'put').andCallThrough();
 
             comments.put(2, { body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -588,27 +594,26 @@
                 });
             });
 
-            expect(http.put).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
+            expect(httpBackend.put).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                data: {
                     body: 'I am a new comment'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8',
-                        foo: 'bar'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    foo: 'bar'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
         });
 
         it('should call http.delete with correct parameters when delete is called on collection', function() {
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'delete').andCallThrough();
+            spyOn(httpBackend, 'delete').andCallThrough();
 
             comments.delete(2, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -629,20 +634,19 @@
                 });
             });
 
-            expect(http.delete).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
-                    headers: { foo: 'bar' },
-                    responseInterceptors: []
-                }
-            );
+            expect(httpBackend.delete).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                headers: { foo: 'bar' },
+                responseInterceptors: []
+            });
         });
 
         it('should call http.head with correct parameters when head is called on a collection', function() {
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'head').andCallThrough();
+            spyOn(httpBackend, 'head').andCallThrough();
 
             comments.head(5, { bar: 'foo' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -663,7 +667,9 @@
                 });
             });
 
-            expect(http.head).toHaveBeenCalledWith('https://localhost:3000/v1/articles/3/comments/5', {
+            expect(httpBackend.head).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/5',
+                params: {},
                 headers: { bar: 'foo' },
                 responseInterceptors: []
             });
@@ -673,7 +679,7 @@
             var article = resource.one('articles', 3),
                 comments = article.all('comments');
 
-            spyOn(http, 'patch').andCallThrough();
+            spyOn(httpBackend, 'patch').andCallThrough();
 
             comments.patch(2, { body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
@@ -694,20 +700,19 @@
                 });
             });
 
-            expect(http.patch).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
+            expect(httpBackend.patch).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                data: {
                     body: 'I am a new comment'
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8',
-                        foo: 'bar'
-                    },
-                    responseInterceptors: [],
-                    requestInterceptors: []
-                }
-            );
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    foo: 'bar'
+                },
+                responseInterceptors: [],
+                requestInterceptors: []
+            });
         });
 
         it('should merge global headers with headers argument', function() {
@@ -717,31 +722,27 @@
             // we define headers after calling one and all to ensure the propagation of configuration
             resource.header('foo2', 'bar2');
 
-            spyOn(http, 'get').andCallThrough();
+            spyOn(httpBackend, 'get').andCallThrough();
 
             comments.get(2, null, { foo: 'bar' });
 
-            expect(http.get).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
-                    params: {},
-                    headers: { foo: 'bar', foo2: 'bar2' },
-                    responseInterceptors: []
-                }
-            );
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                headers: { foo2: 'bar2', foo: 'bar' },
+                responseInterceptors: []
+            });
 
-            http.get.reset();
+            httpBackend.get.reset();
 
             comments.get(2, null, { foo2: 'bar' });
 
-            expect(http.get).toHaveBeenCalledWith(
-                'https://localhost:3000/v1/articles/3/comments/2',
-                {
-                    params: {},
-                    headers: { foo2: 'bar' },
-                    responseInterceptors: []
-                }
-            );
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles/3/comments/2',
+                params: {},
+                headers: { foo2: 'bar' },
+                responseInterceptors: []
+            });
 
             comments
                 .header('foo3', 'bar3')
@@ -759,18 +760,16 @@
                     expect(article().data.title).toBe('test');
                 });
 
-                http.get.reset();
+                httpBackend.get.reset();
 
                 comment.one('authors', 1).get();
 
-                expect(http.get).toHaveBeenCalledWith(
-                    'https://localhost:3000/v1/articles/3/comments/1/authors/1',
-                    {
-                        params: {},
-                        headers: { foo3: 'bar3', foo2: 'bar2' },
-                        responseInterceptors: [jasmine.any(Function)]
-                    }
-                );
+                expect(httpBackend.get).toHaveBeenCalledWith({
+                    url: 'https://localhost:3000/v1/articles/3/comments/1/authors/1',
+                    params: {},
+                    headers: { foo3: 'bar3', foo2: 'bar2' },
+                    responseInterceptors: [jasmine.any(Function)]
+                });
             });
         });
 
@@ -786,11 +785,8 @@
 
             var getArgs;
 
-            spyOn(http, 'get').andCallFake(function(url, config) {
-                getArgs = {
-                    url: url,
-                    config: config
-                };
+            spyOn(httpBackend, 'get').andCallFake(function(config) {
+                getArgs = config;
 
                 return q({
                     data: {
@@ -805,14 +801,12 @@
             resource.one('articles', 1).get().then(function(article) {
                 expect(getArgs).toEqual({
                     url: 'https://localhost:3000/v1/articles/1',
-                    config: {
-                        params : {},
-                        headers: {},
-                        responseInterceptors: [interceptor1]
-                    }
+                    params : {},
+                    headers: {},
+                    responseInterceptors: [interceptor1]
                 });
 
-                var transformedData = getArgs.config.responseInterceptors[0](JSON.stringify({
+                var transformedData = getArgs.responseInterceptors[0](JSON.stringify({
                     id: 1,
                     title: 'test',
                     body: 'Hello, I am a test',

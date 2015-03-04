@@ -1,41 +1,37 @@
-'use strict';
+export default function resource(refEndpoint) {
+    var model = {
+        addRequestInterceptor(interceptor) {
+            refEndpoint.requestInterceptors().push(interceptor);
 
-function resource(refEndpoint) {
-    function model() {
+            return model;
+        },
+
+        requestInterceptors() {
+            return refEndpoint.requestInterceptors()
+        },
+
+        addResponseInterceptor(interceptor) {
+            refEndpoint.responseInterceptors().push(interceptor);
+
+            return model;
+        },
+
+        responseInterceptors() {
+            return refEndpoint.responseInterceptors;
+        },
+
+        header(name, value) {
+            refEndpoint.headers()[name] = value;
+
+            return model
+        },
+
+        headers() {
+            return refEndpoint.headers();
+        },
+    };
+
+    return Object.assign(function() {
         return refEndpoint;
-    }
-
-    model.addRequestInterceptor = function(interceptor) {
-        refEndpoint.requestInterceptors().push(interceptor);
-
-        return model;
-    };
-
-    model.requestInterceptors = function() {
-        return refEndpoint.requestInterceptors()
-    };
-
-    model.addResponseInterceptor = function(interceptor) {
-        refEndpoint.responseInterceptors().push(interceptor);
-
-        return model;
-    };
-
-    model.responseInterceptors = function() {
-        return refEndpoint.responseInterceptors;
-    };
-
-    model.header = function(name, value) {
-        refEndpoint.headers()[name] = value;
-
-        return model
-    };
-
-    model.headers = function() {
-        return refEndpoint.headers();
-    };
-
-    return model;
+    }, model);
 }
-
-module.exports = resource;

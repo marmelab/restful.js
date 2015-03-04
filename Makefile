@@ -5,10 +5,10 @@ install:
 	bower install
 
 build:
-	${CURDIR}/node_modules/.bin/browserify --standalone restful src/restful.js | ${CURDIR}/node_modules/.bin/uglifyjs -c > dist/restful.min.js
+	${CURDIR}/node_modules/.bin/webpack --optimize-minimize --output-file=restful.min.js
 
 watch:
-	${CURDIR}/node_modules/.bin/watchify src/restful.js -d --standalone restful -o dist/restful.js -v
+	${CURDIR}/node_modules/.bin/webpack --watch
 
 test: build
 	CHROME_BIN=`which chromium-browser` ${CURDIR}/node_modules/karma/bin/karma start test/karma.conf.js --single-run
