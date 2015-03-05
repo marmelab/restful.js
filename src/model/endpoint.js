@@ -1,19 +1,13 @@
-'use strict';
+import configurable from 'util/configurable';
+import entity from 'model/entity';
 
-var configurable = require('../util/configurable'),
-    entity = require('./entity'),
-    merge = require('../util/merge');
-
-function endpoint(url, parent) {
-    var model = {},
-        config = {
+export default function endpoint(url, parent) {
+    var config = {
             _parent: parent,
             headers: {},
             requestInterceptors: [],
-            responseInterceptors:[]
+            responseInterceptors:[],
         };
-
-    configurable(model, config);
 
     /**
      * Merge the local request interceptors and the parent's ones
@@ -61,7 +55,7 @@ function endpoint(url, parent) {
             headers = {};
 
         while (current) {
-            headers = merge(current.headers(), headers);
+            Object.assign(headers, current.headers())
 
             current = current._parent ? current._parent() : null;
         }
@@ -69,120 +63,97 @@ function endpoint(url, parent) {
         return headers;
     };
 
-    /**
-     * Return the http layer. We ask it to the parent endpoint. This way it is defined in src/restful.js
-     * @private
-     * @return {object} http layer
-     */
-    model._http = function() {
-        return config._parent._http();
-    };
+    function _generateRequestConfig(url, params = {}, headers = {}, data = null) {
+        var config = {
+            url: url,
+            params: params || {},
+            headers: Object.assign({}, _getHeaders(), headers || {}),
+            responseInterceptors: _getResponseInterceptors(),
+        };
 
-    model.get = function(id, params, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
-
-        return model._http().get(
-            url + '/' + id,
-            {
-                params: params || {},
-                headers: headers,
-                responseInterceptors: _getResponseInterceptors()
-            }
-        );
-    };
-
-    model.getAll = function(params, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
-
-        return model._http().get(
-            url,
-            {
-                params: params || {},
-                headers: headers,
-                responseInterceptors: _getResponseInterceptors()
-            }
-        );
-    };
-
-    model.post = function(data, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
-
-        if (!headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json;charset=UTF-8';
+        if (data) {
+            config.data = data;
+            config.requestInterceptors = _getRequestInterceptors();
         }
 
-        return model._http().post(
-            url,
-            data,
-            {
-                headers: headers,
-                requestInterceptors: _getRequestInterceptors(),
-                responseInterceptors: _getResponseInterceptors()
+        return config;
+    }
+
+    var model = {
+        get(id, params, headers) {
+            return config._parent().request(
+                'get',
+                _generateRequestConfig(url + '/' + id, params, headers)
+            );
+        },
+
+        getAll(params, headers) {
+            return config._parent().request(
+                'get',
+                _generateRequestConfig(url, params, headers)
+            );
+        },
+
+        post(data, headers) {
+            headers = headers || {};
+
+            if (!headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json;charset=UTF-8';
             }
-        );
+
+            return config._parent().request(
+                'post',
+                _generateRequestConfig(url, {}, headers, data)
+            );
+        },
+
+        put(id, data, headers) {
+            headers = headers || {};
+
+            if (!headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json;charset=UTF-8';
+            }
+
+            return config._parent().request(
+                'put',
+                _generateRequestConfig(url + '/' + id, {}, headers, data)
+            );
+        },
+
+        patch(id, data, headers) {
+            headers = headers || {};
+
+            if (!headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json;charset=UTF-8';
+            }
+
+            return config._parent().request(
+                'patch',
+                _generateRequestConfig(url + '/' + id, {}, headers, data)
+            );
+        },
+
+        delete(id, headers) {
+            return config._parent().request(
+                'delete',
+                _generateRequestConfig(url + '/' + id, {}, headers)
+            );
+        },
+
+        head(id, headers) {
+            return config._parent().request(
+                'head',
+                _generateRequestConfig(url + '/' + id, {}, headers)
+            );
+        },
+
     };
 
-    model.put = function(id, data, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
+    model = Object.assign(function() {
+        return config._parent();
+    }, model);
 
-        if (!headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json;charset=UTF-8';
-        }
-
-        return model._http().put(
-            url + '/' + id,
-            data,
-            {
-                headers: headers,
-                requestInterceptors: _getRequestInterceptors(),
-                responseInterceptors: _getResponseInterceptors()
-            }
-        );
-    };
-
-    model.patch = function(id, data, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
-
-        if (!headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json;charset=UTF-8';
-        }
-
-        return model._http().patch(
-            url + '/' + id,
-            data,
-            {
-                headers: headers,
-                requestInterceptors: _getRequestInterceptors(),
-                responseInterceptors: _getResponseInterceptors()
-            }
-        );
-    };
-
-    model.delete = function(id, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
-
-        return model._http().delete(
-            url + '/' + id,
-            {
-                headers: headers,
-                responseInterceptors: _getResponseInterceptors()
-            }
-        );
-    };
-
-    model.head = function(id, headers) {
-        headers = headers ? merge(headers, _getHeaders()) : _getHeaders();
-
-        return model._http().head(
-            url + '/' + id,
-            {
-                headers: headers,
-                responseInterceptors: _getResponseInterceptors()
-            }
-        );
-    };
+    configurable(model, config);
 
     return model;
 };
-
-module.exports = endpoint;

@@ -1,12 +1,13 @@
-'use strict';
+import 'babel-core/polyfill';
 
-var configurable = require('./util/configurable'),
-    collection = require('./model/collection'),
-    resource = require('./model/resource'),
-    member = require('./model/member'),
-    http = require('./service/http')(require('axios'));
+import configurable from 'util/configurable';
+import collection from 'model/collection';
+import member from 'model/member';
+import resource from 'model/resource';
+import axios from 'axios';
+import http from 'service/http';
 
-function restful(baseUrl, port) {
+export default function restful(baseUrl, port) {
     var config = {
         baseUrl: baseUrl,
         port: port || 80,
@@ -15,51 +16,54 @@ function restful(baseUrl, port) {
     };
 
     var fakeEndpoint = (function() {
-        var model = {},
-            _config = {
-                _http: http,
-                headers: {},
-                requestInterceptors: [],
-                responseInterceptors: []
-            };
+        var _config = {
+            _http: http(axios),
+            headers: {},
+            requestInterceptors: [],
+            responseInterceptors: [],
+        };
+
+        var model = {
+            url() {
+                var url = config.protocol + '://' + config.baseUrl;
+
+                if (config.port !== 80) {
+                    url += ':' + config.port;
+                }
+
+                if (config.prefixUrl !== '') {
+                    url += '/' + config.prefixUrl;
+                }
+
+                return url;
+            }
+        };
 
         configurable(model, _config);
 
-        model.url = function() {
-            var url = config.protocol + '://' + config.baseUrl;
+        return Object.assign(function() {
+            return _config._http;
+        }, model);
+    }());
 
-            if (config.port !== 80) {
-                url += ':' + config.port;
-            }
+    var model = {
+        url() {
+            return fakeEndpoint.url();
+        },
 
-            if (config.prefixUrl !== '') {
-                url += '/' + config.prefixUrl;
-            }
+        one(name, id) {
+            return member(name, id, model);
+        },
 
-            return url;
+        all(name) {
+            return collection(name, model);
         }
+    };
 
-        return model;
-    }()),
-    model = resource(fakeEndpoint);
+    // We override model because one and all need it as a closure
+    model = Object.assign(resource(fakeEndpoint), model);
 
     configurable(model, config);
 
-    model.url = function() {
-        return fakeEndpoint.url();
-    };
-
-    model.one = function(name, id) {
-        return member(name, id, model);
-    };
-
-    model.all = function(name) {
-        return collection(name, model);
-    };
-
-    model.factory = member;
-
     return model;
 };
-
-module.exports = restful;
