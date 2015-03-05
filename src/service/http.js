@@ -25,6 +25,8 @@ function interceptorCallback(interceptors, isResponseInterceptor) {
 export default function http(httpBackend) {
     var model = {
         request(method, config) {
+            config.method = method;
+
             if (['post', 'put', 'patch'].indexOf(method) !== -1) {
                 config.transformRequest = [interceptorCallback(config.requestInterceptors || [])];
                 delete config.requestInterceptors;
