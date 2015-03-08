@@ -4,10 +4,11 @@ A pure JS client for interacting with server-side RESTful resources. Think Resta
 
 ## Installation
 
-It is available with bower:
+It is available with bower or npm:
 
 ```
 bower install restful.js
+npm install restful.js
 ```
 
 Then add the retrieved files to your HTML layout:
