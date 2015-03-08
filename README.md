@@ -186,6 +186,19 @@ commentResource.delete().then(function(data) {
 });
 ```
 
+### Interceptors
+
+A response or request interceptor is a callback which looks like this:
+
+```javascript
+resource.addRequestInterceptor(function(data, headers) {
+    // to edit the headers, just edit the headers object
+    
+    // You always must return the data object
+    return data;
+});
+```
+
 ### Entity methods
 
 * **entity.save ( [ headers ] )**: Update the member link to the entity. Returns a promise with the data of the response.

@@ -1,7 +1,7 @@
 function interceptorCallback(interceptors, isResponseInterceptor) {
     isResponseInterceptor = isResponseInterceptor !== undefined ? !!isResponseInterceptor : false;
 
-    return function(data) {
+    return function(data, headers) {
         if (isResponseInterceptor) {
             try {
                 data = JSON.parse(data);
@@ -9,7 +9,7 @@ function interceptorCallback(interceptors, isResponseInterceptor) {
         }
 
         for (var i in interceptors) {
-            data = interceptors[i](data);
+            data = interceptors[i](data, headers);
         }
 
         if (!isResponseInterceptor) {
