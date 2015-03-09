@@ -1,4 +1,4 @@
-function interceptorCallback(interceptors, isResponseInterceptor) {
+function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
     isResponseInterceptor = isResponseInterceptor !== undefined ? !!isResponseInterceptor : false;
 
     return function(data, headers) {
@@ -9,7 +9,7 @@ function interceptorCallback(interceptors, isResponseInterceptor) {
         }
 
         for (var i in interceptors) {
-            data = interceptors[i](data, headers);
+            data = interceptors[i](data, headers, method, url);
         }
 
         if (!isResponseInterceptor) {
@@ -28,11 +28,11 @@ export default function http(httpBackend) {
             config.method = method;
 
             if (['post', 'put', 'patch'].indexOf(method) !== -1) {
-                config.transformRequest = [interceptorCallback(config.requestInterceptors || [])];
+                config.transformRequest = [interceptorCallback(config.requestInterceptors || [], config.method, config.url)];
                 delete config.requestInterceptors;
             }
 
-            config.transformResponse = [interceptorCallback(config.responseInterceptors || [], true)];
+            config.transformResponse = [interceptorCallback(config.responseInterceptors || [], config.method, config.url, true)];
             delete config.responseInterceptors;
 
             return httpBackend(config);

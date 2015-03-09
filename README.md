@@ -191,7 +191,7 @@ commentResource.delete().then(function(data) {
 A response or request interceptor is a callback which looks like this:
 
 ```javascript
-resource.addRequestInterceptor(function(data, headers) {
+resource.addRequestInterceptor(function(data, headers, method, url) {
     // to edit the headers, just edit the headers object
     
     // You always must return the data object
