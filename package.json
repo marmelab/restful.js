@@ -1,6 +1,6 @@
 {
   "name": "restful.js",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "repository": "https://github.com/marmelab/restful.js",
   "description": "A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.",
   "scripts": {
