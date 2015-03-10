@@ -157,7 +157,7 @@ Restful.js uses an inheritance pattern when collections or members are chained. 
 api.header('AuthToken', 'test');
 
 var articlesCollection = api.all('articles');
-articlesCollection.get(); // will send the `AuthToken` header
+articlesCollection.get(1); // will send the `AuthToken` header
 // You can configure articlesCollection, too
 articlesCollection.header('foo', 'bar');
 articlesCollection.one('comments', 1).get(); // will send both the AuthToken and foo headers
@@ -224,8 +224,8 @@ resource.addRequestInterceptor(function(data, headers, method, url) {
 
 ### Entity methods
 
-* `entity.save ( [ headers ] )`: Update the member link to the entity. Returns a promise with the data of the response.
-* `entity.remove ( [ headers ] )`: Delete the member link to the entity. Returns a promise with the data of the response.
+* `entity.save ( [ headers ] )`: Update the member link to the entity. Returns a promise with the response.
+* `entity.remove ( [ headers ] )`: Delete the member link to the entity. Returns a promise with the response.
 
 ```js
 // http://api.example.com/articles/1/comments/2
