@@ -1,4 +1,4 @@
-# restful.js
+# restful.js [![Build Status](https://magnum.travis-ci.com/marmelab/restful.js.svg?token=DxaAjqa57mtbLmyaMhJj&branch=master)](https://magnum.travis-ci.com/marmelab/restful.js)
 
 A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
