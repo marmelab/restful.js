@@ -71,19 +71,19 @@ var commentsCollection = articleMember.all('comments');  // http://api.example.c
 
 #### Entities
 
-Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a Promise ([based on the ES6 Promise specification](https://github.com/jakearchibald/es6-promise)).
+Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a Promise ([based on the ES6 Promise specification](https://github.com/jakearchibald/es6-promise)) for an entity or an array of entities.
 
-```javascript
+```js
 var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
 articleMember.get().then(function(articleEntity) {
-    var article = articleEntity().data;
+    var article = articleEntity.data();
     console.log(article.title); // hello, world!
 });
 
 var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
 commentsCollection.getAll().then(function(commentEntities) {
     commentEntities.forEach(function(commentEntity) {
-        var comment = commentEntity().data;
+        var comment = commentEntity.data();
         console.log(comment.body);
     })
 });
@@ -105,17 +105,20 @@ commentsCollection.get(4).then(function(commentEntity) {
 });
 ```
 
-### Entity Methods
+### Entity Data
 
-An en entity is a closure that you can execute to get the response fetched from the endpoint. The entity is mapped under the `data` key.
+An en entity is made from the HTTP response fetched from the endpoint. It exposes `status()`, `headers()`, and `data()` methods:
 
-```javascript
+```js
 var articleCollection = api.all('articles');  // http://api.example.com/articles
 
 // http://api.example.com/articles/1
 api.one('articles', 1).get().then(function(articleEntity) {
+    if (articleEntity.status() !== 200) {
+        throw new Error('Invalid response');
+    }
     // if the server response was { id: 1, title: 'test', body: 'hello' }
-    var article = articleEntity().data;
+    var article = articleEntity.data();
     article.title; // returns `test`
     article.body; // returns `hello`
     // You can also edit it
@@ -126,7 +129,7 @@ api.one('articles', 1).get().then(function(articleEntity) {
 });
 ```
 
-You can also use the entity to continue exploring the API. Entities expose several methods to chain calls:
+You can also use the entity to continue exploring the API. Entities expose several other methods to chain calls:
 
 * `entity.one(name, id)`: Query a member child of the entity.
 * `entity.all(name)`: Query a collection child of the entity.
@@ -135,7 +138,7 @@ You can also use the entity to continue exploring the API. Entities expose sever
 * `entity.remove()`: Remove the entity by performing a DELETE request.
 * `entity.id()`: Get the id of the entity.
 
-```javascript
+```js
 var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
 var commentMember = articleMember.one('comments', 3);  // http://api.example.com/articles/1/comments/3
 commentMember.get()
@@ -144,7 +147,7 @@ commentMember.get()
         return comment.all('authors').getAll(); // http://api.example.com/articles/1/comments/3/authors
     }).then(function(authorEntities) {
         authorEntities.forEach(function(authorEntity) {
-            var author = authorEntity().data;
+            var author = authorEntity.data();
             console.log(author.name);
         });
     });
@@ -152,7 +155,7 @@ commentMember.get()
 
 Restful.js uses an inheritance pattern when collections or members are chained. That means that when you configure a collection or a member, it will configure all the collection an members chained afterwards.
 
-```javascript
+```js
 // configure the api
 api.header('AuthToken', 'test');
 
@@ -224,6 +227,13 @@ resource.addRequestInterceptor(function(data, headers, method, url) {
 
 ### Entity methods
 
+* `entity.status()`: Get the HTTP statuis code of the response
+* `entity.headers()`: Get the HTTP headers of the response
+* `entity.data()` : Get the JS object unserialized from the response body (which must be in JSON)
+* `entity.one(name, id)`: Query a member child of the entity.
+* `entity.all(name)`: Query a collection child of the entity.
+* `entity.url()`: Get the entity url.
+* `entity.id()`: Get the id of the entity.
 * `entity.save ( [ headers ] )`: Update the member link to the entity. Returns a promise with the response.
 * `entity.remove ( [ headers ] )`: Delete the member link to the entity. Returns a promise with the response.
 

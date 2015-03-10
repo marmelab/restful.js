@@ -23,6 +23,18 @@ export default function entity(id, response, member) {
         id() {
             return id;
         },
+
+        status() {
+            return response.status;
+        },
+
+        data() {
+            return response.data;
+        },
+
+        headers() {
+            return response.headers;
+        },
     };
 
     return Object.assign(function () {
