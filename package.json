@@ -6,6 +6,7 @@
   "scripts": {
     "test": "make test"
   },
+  "main": "dist/restful.min.js",
   "author": "Robin Bressan <robin@buddey.net>",
   "license": "MIT",
   "devDependencies": {
