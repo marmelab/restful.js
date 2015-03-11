@@ -823,5 +823,24 @@
                 expect(transformedData.title).toBe('Intercepted');
             });
         });
+
+        it('should correctly chain callback in restful object', function() {
+            expect(resource.header('foo', 'bar')).toBe(resource);
+            expect(resource.header('foo', 'bar').prefixUrl('v1')).toBe(resource);
+
+            var articlesCollection = resource.header('foo', 'bar').prefixUrl('v1').all('articles');
+
+            expect(articlesCollection.header('foo1', 'bar1')).toBe(articlesCollection);
+
+            expect(articlesCollection.header('foo2', 'bar2')
+                .addResponseInterceptor(jasmine.createSpy('interceptor'))).toBe(articlesCollection);
+
+            var commentsMember = resource.one('articles', 2).one('comments', 1);
+
+            expect(commentsMember.header('foo3', 'bar3')).toBe(commentsMember);
+
+            expect(commentsMember.header('foo4', 'bar4')
+                .addResponseInterceptor(jasmine.createSpy('interceptor'))).toBe(commentsMember);
+        });
     });
 })();
