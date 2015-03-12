@@ -1,5 +1,9 @@
 export default function resource(refEndpoint) {
-    var model = {
+    function model() {
+        return refEndpoint;
+    }
+
+    model = Object.assign(model, {
         addRequestInterceptor(interceptor) {
             refEndpoint.requestInterceptors().push(interceptor);
 
@@ -29,9 +33,7 @@ export default function resource(refEndpoint) {
         headers() {
             return refEndpoint.headers();
         },
-    };
+    });
 
-    return Object.assign(function() {
-        return refEndpoint;
-    }, model);
+    return model;
 }
