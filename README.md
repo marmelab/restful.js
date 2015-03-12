@@ -20,7 +20,7 @@ Include `restful.min.js` to the HTML, and the `restful` object is now available 
 Alternately, you can use [RequireJS](http://requirejs.org/) or [Browserify](http://browserify.org/) to avoid global scoping.
 
 ```js
-var restful = require('restful');
+var restful = require('restful.js');
 ```
 
 ## Usage
