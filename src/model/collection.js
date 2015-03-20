@@ -39,23 +39,38 @@ export default function collection(name, parent) {
         },
 
         post(data, headers) {
-            return refEndpoint.post(data, headers);
+            return refEndpoint.post(data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         put(id, data, headers) {
-            return refEndpoint.put(id, data, headers);
+            return refEndpoint.put(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         patch(id, data, headers) {
-            return refEndpoint.patch(id, data, headers);
+            return refEndpoint.patch(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         head(id, data, headers) {
-            return refEndpoint.head(id, data, headers);
+            return refEndpoint.head(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         delete(id, headers) {
-            return refEndpoint.delete(id, headers);
+            return refEndpoint.delete(id, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         url() {

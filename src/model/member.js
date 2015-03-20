@@ -19,19 +19,31 @@ export default function member(name, id, parent) {
         },
 
         put(data, headers) {
-            return refEndpoint.put(id, data, headers);
+            return refEndpoint.put(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         patch(data, headers) {
-            return refEndpoint.patch(id, data, headers);
+            return refEndpoint.patch(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         head(data, headers) {
-            return refEndpoint.head(id, data, headers);
+            return refEndpoint.head(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         delete(headers) {
-            return refEndpoint.delete(id, headers);
+            return refEndpoint.delete(id, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         one(name, id) {

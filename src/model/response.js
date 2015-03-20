@@ -27,6 +27,10 @@ export default function response(serverResponse, memberFactory) {
         headers() {
             return serverResponse.headers;
         },
+
+        config() {
+            return serverResponse.config;
+        }
     };
 
     return Object.assign(function () {

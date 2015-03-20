@@ -251,7 +251,7 @@
 
             comment.put({ body: 'I am a new comment' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     data: {
                         result: 2
                     },
@@ -283,7 +283,7 @@
 
             comment.delete({ foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     data: {
                         result: 1
                     },
@@ -309,7 +309,7 @@
 
             comment.head({ bar: 'foo' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 5
@@ -342,7 +342,7 @@
 
             comment.patch({ body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 4
@@ -551,7 +551,7 @@
 
             comments.post({ body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 0
@@ -591,7 +591,7 @@
 
             comments.put(2, { body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 2
@@ -631,7 +631,7 @@
 
             comments.delete(2, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 1
@@ -664,7 +664,7 @@
 
             comments.head(5, { bar: 'foo' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 5
@@ -697,7 +697,7 @@
 
             comments.patch(2, { body: 'I am a new comment' }, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
-                expect(response).toEqual({
+                expect(response()).toEqual({
                     // `data` is the response that was provided by the server
                     data: {
                         result: 4

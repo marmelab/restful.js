@@ -71,17 +71,21 @@ var commentsCollection = articleMember.all('comments');  // http://api.example.c
 
 #### Entities
 
-Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a Promise ([based on the ES6 Promise specification](https://github.com/jakearchibald/es6-promise)) for an entity or an array of entities.
+Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a Promise ([based on the ES6 Promise specification](https://github.com/jakearchibald/es6-promise)) for response.
 
 ```js
 var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-articleMember.get().then(function(articleEntity) {
+articleMember.get().then(function(response) {
+    var articleEntity = response.body();
+
     var article = articleEntity.data();
     console.log(article.title); // hello, world!
 });
 
 var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
-commentsCollection.getAll().then(function(commentEntities) {
+commentsCollection.getAll().then(function(response) {
+    var commentEntities = response.body();
+
     commentEntities.forEach(function(commentEntity) {
         var comment = commentEntity.data();
         console.log(comment.body);
@@ -95,28 +99,30 @@ commentsCollection.getAll().then(function(commentEntities) {
 // fetch http://api.example.com/articles/1/comments/4
 var articleMember = api.one('articles', 1);
 var commentMember = articleMember.one('comments', 4);
-commentMember.get().then(function(commentEntity) {
+commentMember.get().then(function(response) {
     //
 });
 // equivalent to 
 var commentsCollection = articleMember.all('comments');
-commentsCollection.get(4).then(function(commentEntity) {
+commentsCollection.get(4).then(function(response) {
     //
 });
 ```
 
+### Response
+A response is made from the HTTP response fetched from the endpoint. It exposes `status()`, `headers()`, and `body()` methods. For a `GET` request, the `body` method will return one or a an array of entities. Therefore you can disable this hydration by calling `body(false)`.
+
 ### Entity Data
 
-An en entity is made from the HTTP response fetched from the endpoint. It exposes `status()`, `headers()`, and `data()` methods:
+An entity is made from the HTTP response data fetched from the endpoint. It exposes a `data()` method:
 
 ```js
 var articleCollection = api.all('articles');  // http://api.example.com/articles
 
 // http://api.example.com/articles/1
-api.one('articles', 1).get().then(function(articleEntity) {
-    if (articleEntity.status() !== 200) {
-        throw new Error('Invalid response');
-    }
+api.one('articles', 1).get().then(function(response) {
+    var articleEntity = response.body();
+
     // if the server response was { id: 1, title: 'test', body: 'hello' }
     var article = articleEntity.data();
     article.title; // returns `test`
@@ -126,6 +132,9 @@ api.one('articles', 1).get().then(function(articleEntity) {
     // Finally you can easily update it or delete it
     articleEntity.save(); // will perform a PUT request
     articleEntity.remove(); // will perform a DELETE request
+}, function(response) {
+    // The reponse code is not >= 200 and < 400
+    throw new Error('Invalid response');
 });
 ```
 
@@ -142,10 +151,14 @@ You can also use the entity to continue exploring the API. Entities expose sever
 var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
 var commentMember = articleMember.one('comments', 3);  // http://api.example.com/articles/1/comments/3
 commentMember.get()
-    .then(function(commentEntity) {
+    .then(function(response) {
+        var commentEntity = response.body();
+
         // You can also call `all` and `one` on an entity
         return comment.all('authors').getAll(); // http://api.example.com/articles/1/comments/3/authors
-    }).then(function(authorEntities) {
+    }).then(function(response) {
+        var authorEntities = response.body();
+
         authorEntities.forEach(function(authorEntity) {
             var author = authorEntity.data();
             console.log(author.name);
@@ -225,10 +238,14 @@ resource.addRequestInterceptor(function(data, headers, method, url) {
 });
 ```
 
+### Response methods
+
+* `response.status()`: Get the HTTP status code of the response
+* `response.headers()`: Get the HTTP headers of the response
+* `response.body()`: Get the HTTP body of the response. If it is a `GET` request, it will hydrate some entities. To get the raw body call it with `false` as argument.
+
 ### Entity methods
 
-* `entity.status()`: Get the HTTP statuis code of the response
-* `entity.headers()`: Get the HTTP headers of the response
 * `entity.data()` : Get the JS object unserialized from the response body (which must be in JSON)
 * `entity.one(name, id)`: Query a member child of the entity.
 * `entity.all(name)`: Query a collection child of the entity.
