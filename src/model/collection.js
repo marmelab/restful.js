@@ -1,31 +1,34 @@
 'use strict';
 
 import endpoint from 'model/endpoint';
-import entity from 'model/entity';
+import response from 'model/response';
 import member from 'model/member';
 import resource from 'model/resource';
 
 export default function collection(name, parent) {
     var refEndpoint = endpoint([parent.url(), name].join('/'), parent());
 
+    function memberFactory(id) {
+        var _member = member(name, id, parent);
+
+        // Configure the endpoint
+        // We do it this way because the response must have a member which inherits from this collection config
+        _member()
+            .headers(refEndpoint.headers())
+            .responseInterceptors(refEndpoint.responseInterceptors())
+            .requestInterceptors(refEndpoint.requestInterceptors());
+
+        return _member;
+    }
+
     var model = {
         get(id, params, headers) {
-            var entityMember = member(name, id, parent);
-
-            // Configure the endpoint
-            // We do it this way because the entity must have a member which inherits from this collection config
-            entityMember()
-                .headers(refEndpoint.headers())
-                .responseInterceptors(refEndpoint.responseInterceptors())
-                .requestInterceptors(refEndpoint.requestInterceptors());
-
             return refEndpoint
                 .get(id, params, headers)
-                .then(function(response) {
-                    return entity(
-                        id,
-                        response,
-                        entityMember
+                .then(function(serverResponse) {
+                    return response(
+                        serverResponse,
+                        memberFactory
                     );
                 });
         },
@@ -33,26 +36,11 @@ export default function collection(name, parent) {
         getAll(params, headers) {
             return refEndpoint
                 .getAll(params, headers)
-                .then(function(response) {
-                    return response.data.map(function(data) {
-                        response = JSON.parse(JSON.stringify(response));
-                        response.data = data;
-
-                        var entityMember = member(name, data.id, parent);
-
-                        // Configure the endpoint
-                        // We do it this way because the entity must have a member which inherits from this collection config
-                        entityMember()
-                            .headers(refEndpoint.headers())
-                            .responseInterceptors(refEndpoint.responseInterceptors())
-                            .requestInterceptors(refEndpoint.requestInterceptors());
-
-                        return entity(
-                            data.id,
-                            response,
-                            entityMember
-                        );
-                    });
+                .then(function(serverResponse) {
+                    return response(
+                        serverResponse,
+                        memberFactory
+                    );
                 });
         },
 
