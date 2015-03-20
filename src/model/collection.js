@@ -1,7 +1,7 @@
 'use strict';
 
 import endpoint from 'model/endpoint';
-import response from 'model/response';
+import responseBuilder from 'service/responseBuilder';
 import member from 'model/member';
 import resource from 'model/resource';
 
@@ -26,10 +26,7 @@ export default function collection(name, parent) {
             return refEndpoint
                 .get(id, params, headers)
                 .then(function(serverResponse) {
-                    return response(
-                        serverResponse,
-                        memberFactory
-                    );
+                    return responseBuilder(serverResponse, memberFactory);
                 });
         },
 
@@ -37,10 +34,7 @@ export default function collection(name, parent) {
             return refEndpoint
                 .getAll(params, headers)
                 .then(function(serverResponse) {
-                    return response(
-                        serverResponse,
-                        memberFactory
-                    );
+                    return responseBuilder(serverResponse, memberFactory);
                 });
         },
 

@@ -1,6 +1,6 @@
 import collection from 'model/collection';
 import endpoint from 'model/endpoint';
-import response from 'model/response';
+import responseBuilder from 'service/responseBuilder';
 import resource from 'model/resource';
 
 export default function member(name, id, parent) {
@@ -12,12 +12,9 @@ export default function member(name, id, parent) {
             return refEndpoint
                 .get(id, params, headers)
                 .then(function(serverResponse) {
-                    return response(
-                        serverResponse,
-                        function() {
-                            return model;
-                        }
-                    );
+                    return responseBuilder(serverResponse, function() {
+                        return model;
+                    });
                 });
         },
 

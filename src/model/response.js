@@ -7,7 +7,7 @@ export default function response(serverResponse, memberFactory) {
         },
 
         body(hydrate = true) {
-            if (!hydrate) {
+            if (!hydrate || !memberFactory) {
                 return serverResponse.data;
             }
 

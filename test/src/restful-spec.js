@@ -5,19 +5,16 @@
 
     var httpBackend,
         http,
-        resource,
-        q;
+        resource;
+
+    function q(result) {
+        return new Promise(function(resolve, reject) {
+            resolve(result);
+        });
+    };
 
     describe('restful', function() {
         beforeEach(function() {
-            q = function q(result) {
-                return {
-                    then: function(cb) {
-                        return q(cb(result));
-                    }
-                };
-            };
-
             httpBackend = {
                 get: function(config) {
 
@@ -394,6 +391,7 @@
 
                 entity.data().body = 'Overriden';
                 entity.data()['published_at'] = '2015-01-06';
+
                 entity.save();
             });
 
