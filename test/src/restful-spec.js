@@ -213,10 +213,12 @@
 
             spyOn(httpBackend, 'get').andCallThrough();
 
-            comment.get().then(function(entity) {
+            comment.get().then(function(response) {
+                var entity = response.body();
+
                 // As we use a promesse mock, this is always called synchronously
-                expect(entity().data.title).toBe('test');
-                expect(entity().data.body).toBe('Hello, I am a test');
+                expect(entity.data().title).toBe('test');
+                expect(entity.data().body).toBe('Hello, I am a test');
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
@@ -228,10 +230,12 @@
 
             httpBackend.get.reset();
 
-            comment.get({ test: 'test3' }, { bar: 'foo' }).then(function(entity) {
+            comment.get({ test: 'test3' }, { bar: 'foo' }).then(function(response) {
+                var entity = response.body();
+
                 // As we use a promesse mock, this is always called synchronously
-                expect(entity().data.title).toBe('test');
-                expect(entity().data.body).toBe('Hello, I am a test');
+                expect(entity.data().title).toBe('test');
+                expect(entity.data().body).toBe('Hello, I am a test');
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
@@ -380,14 +384,16 @@
             spyOn(httpBackend, 'get').andCallThrough();
             spyOn(httpBackend, 'put').andCallThrough();
 
-            comment.get().then(function(entity) {
-                // As we use a promesse mock, this is always called synchronously
-                expect(entity().data.title).toBe('test');
-                expect(entity().data.body).toBe('Hello, I am a test');
-                expect(entity().data['published_at']).toBe('2015-01-03');
+            comment.get().then(function(response) {
+                var entity = response.body();
 
-                entity().data.body = 'Overriden';
-                entity().data['published_at'] = '2015-01-06';
+                // As we use a promesse mock, this is always called synchronously
+                expect(entity.data().title).toBe('test');
+                expect(entity.data().body).toBe('Hello, I am a test');
+                expect(entity.data()['published_at']).toBe('2015-01-03');
+
+                entity.data().body = 'Overriden';
+                entity.data()['published_at'] = '2015-01-06';
                 entity.save();
             });
 
@@ -416,7 +422,9 @@
 
             httpBackend.put.reset();
 
-            comment.get().then(function(entity) {
+            comment.get().then(function(response) {
+                var entity = response.body();
+
                 // As we use a promesse mock, this is always called synchronously
                 entity.save({ foo: 'bar' });
             });
@@ -446,10 +454,12 @@
             spyOn(httpBackend, 'get').andCallThrough();
             spyOn(httpBackend, 'delete').andCallThrough();
 
-            comment.get().then(function(entity) {
+            comment.get().then(function(response) {
+                var entity = response.body();
+
                 // As we use a promesse mock, this is always called synchronously
-                expect(entity().data.title).toBe('test');
-                expect(entity().data.body).toBe('Hello, I am a test');
+                expect(entity.data().title).toBe('test');
+                expect(entity.data().body).toBe('Hello, I am a test');
 
                 entity.remove()
             });
@@ -470,7 +480,9 @@
 
             httpBackend.delete.reset();
 
-            comment.get().then(function(entity) {
+            comment.get().then(function(response) {
+                var entity = response.body();
+
                 // As we use a promesse mock, this is always called synchronously
                 entity.remove({ foo: 'bar' });
             });
@@ -489,11 +501,13 @@
 
             spyOn(httpBackend, 'get').andCallThrough();
 
-            comments.get(1, { page: 1 }, { foo: 'bar' }).then(function(entity) {
+            comments.get(1, { page: 1 }, { foo: 'bar' }).then(function(response) {
+                var entity = response.body();
+
                 // As we use a promesse mock, this is always called synchronously
-                expect(entity().data.id).toBe(1);
-                expect(entity().data.title).toBe('test');
-                expect(entity().data.body).toBe('Hello, I am a test');
+                expect(entity.data().id).toBe(1);
+                expect(entity.data().title).toBe('test');
+                expect(entity.data().body).toBe('Hello, I am a test');
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
@@ -510,15 +524,17 @@
 
             spyOn(httpBackend, 'get').andCallThrough();
 
-            comments.getAll({ page: 1 }, { foo: 'bar' }).then(function(entities) {
-                // As we use a promesse mock, this is always called synchronously
-                expect(entities[0]().data.id).toBe(1);
-                expect(entities[0]().data.title).toBe('test');
-                expect(entities[0]().data.body).toBe('Hello, I am a test');
+            comments.getAll({ page: 1 }, { foo: 'bar' }).then(function(response) {
+                var entities = response.body();
 
-                expect(entities[1]().data.id).toBe(2);
-                expect(entities[1]().data.title).toBe('test2');
-                expect(entities[1]().data.body).toBe('Hello, I am a test2');
+                // As we use a promesse mock, this is always called synchronously
+                expect(entities[0].data().id).toBe(1);
+                expect(entities[0].data().title).toBe('test');
+                expect(entities[0].data().body).toBe('Hello, I am a test');
+
+                expect(entities[1].data().id).toBe(2);
+                expect(entities[1].data().title).toBe('test2');
+                expect(entities[1].data().body).toBe('Hello, I am a test2');
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
@@ -752,12 +768,16 @@
                     return res;
                 });
 
-            comments.get(1).then(function(comment) {
-                expect(comment().data.title).toBe('Intercepted :)');
+            comments.get(1).then(function(response) {
+                var comment = response.body();
+
+                expect(comment.data().title).toBe('Intercepted :)');
 
                 // test inheritance pattern
-                resource.one('articles', 1).get().then(function(article) {
-                    expect(article().data.title).toBe('test');
+                resource.one('articles', 1).get().then(function(response) {
+                    var article = response.body();
+
+                    expect(article.data().title).toBe('test');
                 });
 
                 httpBackend.get.reset();
@@ -798,7 +818,9 @@
                 });
             });
 
-            resource.one('articles', 1).get().then(function(article) {
+            resource.one('articles', 1).get().then(function(response) {
+                var article = response.body();
+
                 expect(getArgs).toEqual({
                     url: 'https://localhost:3000/v1/articles/1',
                     params : {},
