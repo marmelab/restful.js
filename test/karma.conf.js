@@ -12,6 +12,7 @@ module.exports = function(config) {
             // test files
             {pattern: 'test/src/**/*.js', included: true},
         ],
+        reporters: ['spec'],
         frameworks: ['jasmine'],
     });
 };
