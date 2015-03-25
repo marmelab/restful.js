@@ -1,6 +1,6 @@
 import collection from 'model/collection';
 import endpoint from 'model/endpoint';
-import entity from 'model/entity';
+import responseBuilder from 'service/responseBuilder';
 import resource from 'model/resource';
 
 export default function member(name, id, parent) {
@@ -11,29 +11,39 @@ export default function member(name, id, parent) {
         get(params, headers) {
             return refEndpoint
                 .get(id, params, headers)
-                .then(function(response) {
-                    return entity(
-                        id,
-                        response,
-                        model
-                    );
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse, function() {
+                        return model;
+                    });
                 });
         },
 
         put(data, headers) {
-            return refEndpoint.put(id, data, headers);
+            return refEndpoint.put(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         patch(data, headers) {
-            return refEndpoint.patch(id, data, headers);
+            return refEndpoint.patch(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         head(data, headers) {
-            return refEndpoint.head(id, data, headers);
+            return refEndpoint.head(id, data, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         delete(headers) {
-            return refEndpoint.delete(id, headers);
+            return refEndpoint.delete(id, headers)
+                .then(function(serverResponse) {
+                    return responseBuilder(serverResponse);
+                });
         },
 
         one(name, id) {

@@ -1,4 +1,4 @@
-export default function entity(id, response, member) {
+export default function entity(id, data, member) {
     var model = {
         one(name, id) {
             return member.one(name, id);
@@ -9,7 +9,7 @@ export default function entity(id, response, member) {
         },
 
         save(headers) {
-            return member.put(response.data, headers);
+            return member.put(data, headers);
         },
 
         remove(headers) {
@@ -24,20 +24,12 @@ export default function entity(id, response, member) {
             return id;
         },
 
-        status() {
-            return response.status;
-        },
-
         data() {
-            return response.data;
-        },
-
-        headers() {
-            return response.headers;
-        },
+            return data;
+        }
     };
 
     return Object.assign(function () {
-        return response;
+        return data;
     }, model);
 };
