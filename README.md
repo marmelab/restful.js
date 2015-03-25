@@ -1,4 +1,4 @@
-# restful.js [![Build Status](https://travis-ci.org/marmelab/restful.js.svg&branch=master)](https://travis-ci.org/marmelab/restful.js)
+# restful.js [![Build Status](https://travis-ci.org/marmelab/restful.js.svg?branch=master)](https://travis-ci.org/marmelab/restful.js)
 
 A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
