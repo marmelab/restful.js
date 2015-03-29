@@ -1,5 +1,4 @@
-'use strict';
-
+import assign from 'object-assign';
 import endpoint from 'model/endpoint';
 import responseBuilder from 'service/responseBuilder';
 import member from 'model/member';
@@ -78,5 +77,5 @@ export default function collection(name, parent) {
         },
     };
 
-    return Object.assign(resource(refEndpoint), model);
+    return assign(resource(refEndpoint), model);
 };

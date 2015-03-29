@@ -1,3 +1,5 @@
+import assign from 'object-assign';
+
 export default function entity(id, data, member) {
     var model = {
         one(name, id) {
@@ -29,7 +31,7 @@ export default function entity(id, data, member) {
         }
     };
 
-    return Object.assign(function () {
+    return assign(function () {
         return data;
     }, model);
 };

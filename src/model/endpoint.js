@@ -1,3 +1,4 @@
+import assign from 'object-assign';
 import configurable from 'util/configurable';
 import entity from 'model/entity';
 
@@ -55,7 +56,7 @@ export default function endpoint(url, parent) {
             headers = {};
 
         while (current) {
-            Object.assign(headers, current.headers())
+            assign(headers, current.headers())
 
             current = current._parent ? current._parent() : null;
         }
@@ -67,7 +68,7 @@ export default function endpoint(url, parent) {
         var config = {
             url: url,
             params: params || {},
-            headers: Object.assign({}, _getHeaders(), headers || {}),
+            headers: assign({}, _getHeaders(), headers || {}),
             responseInterceptors: _getResponseInterceptors(),
         };
 
@@ -149,7 +150,7 @@ export default function endpoint(url, parent) {
 
     };
 
-    model = Object.assign(function() {
+    model = assign(function() {
         return config._parent();
     }, model);
 

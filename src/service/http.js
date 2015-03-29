@@ -1,3 +1,5 @@
+import assign from 'object-assign';
+
 function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
     isResponseInterceptor = isResponseInterceptor !== undefined ? !!isResponseInterceptor : false;
 
@@ -39,7 +41,7 @@ export default function http(httpBackend) {
         }
     };
 
-    return Object.assign(function() {
+    return assign(function() {
         return httpBackend;
     }, model);
 }

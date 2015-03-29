@@ -1,6 +1,6 @@
 {
   "name": "restful.js",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "repository": "https://github.com/marmelab/restful.js",
   "description": "A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "Robin Bressan <robin@buddey.net>",
   "license": "MIT",
   "devDependencies": {
-    "axios": "^0.4.2",
+    "axios": "^0.5.2",
     "babel-core": "^4.6.6",
     "babel-loader": "^4.0.0",
     "karma": "0.12.14",

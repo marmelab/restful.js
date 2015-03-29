@@ -1,3 +1,4 @@
+import assign from 'object-assign';
 import collection from 'model/collection';
 import endpoint from 'model/endpoint';
 import responseBuilder from 'service/responseBuilder';
@@ -60,7 +61,7 @@ export default function member(name, id, parent) {
     };
 
     // We override model because one and all need it as a closure
-    model = Object.assign(resource(refEndpoint), model);
+    model = assign(resource(refEndpoint), model);
 
     return model;
 };

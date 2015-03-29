@@ -1,9 +1,11 @@
+import assign from 'object-assign';
+
 export default function resource(refEndpoint) {
     function model() {
         return refEndpoint;
     }
 
-    model = Object.assign(model, {
+    model = assign(model, {
         addRequestInterceptor(interceptor) {
             refEndpoint.requestInterceptors().push(interceptor);
 

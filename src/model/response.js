@@ -1,3 +1,4 @@
+import assign from 'object-assign';
 import entity from 'model/entity';
 
 export default function response(serverResponse, memberFactory) {
@@ -33,7 +34,7 @@ export default function response(serverResponse, memberFactory) {
         }
     };
 
-    return Object.assign(function () {
+    return assign(function () {
         return serverResponse;
     }, model);
 };

@@ -1,13 +1,10 @@
 import assign from 'object-assign';
-
 import configurable from 'util/configurable';
 import collection from 'model/collection';
 import member from 'model/member';
 import resource from 'model/resource';
 import axios from 'axios';
 import http from 'service/http';
-
-assign(Object.prototype, { assign: assign });
 
 export default function restful(baseUrl, port) {
     var config = {
@@ -43,7 +40,7 @@ export default function restful(baseUrl, port) {
 
         configurable(model, _config);
 
-        return Object.assign(function() {
+        return assign(function() {
             return _config._http;
         }, model);
     }());
@@ -63,7 +60,7 @@ export default function restful(baseUrl, port) {
     };
 
     // We override model because one and all need it as a closure
-    model = Object.assign(resource(fakeEndpoint), model);
+    model = assign(resource(fakeEndpoint), model);
 
     configurable(model, config);
 
