@@ -12,6 +12,7 @@ export default function restful(baseUrl, port) {
         port: port || 80,
         prefixUrl: '',
         protocol: 'http',
+        fullUrl: null,
     };
 
     var fakeEndpoint = (function() {
@@ -24,6 +25,9 @@ export default function restful(baseUrl, port) {
 
         var model = {
             url() {
+                if (config.fullUrl) {
+                    return config.fullUrl;
+                }
                 var url = config.protocol + '://' + config.baseUrl;
 
                 if (config.port !== 80) {

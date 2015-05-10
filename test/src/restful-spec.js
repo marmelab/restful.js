@@ -185,6 +185,11 @@
             expect(resource.url()).toBe('https://localhost:3000/v1');
         });
 
+        it('should be able to configure using fullUrl', function() {
+            var resourceFull = restful().fullUrl('/api');
+            expect(resourceFull.url()).toBe('/api');
+        });
+
         it('should provide a configured collection when resource.all is called', function() {
             var articles = resource.all('articles');
 
