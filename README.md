@@ -69,6 +69,18 @@ var articleMember = api.one('articles', 1);  // http://api.example.com/articles/
 var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
 ```
 
+#### Custom endpoint URL
+
+In case you need to set a custom endpoint URL, you can use `oneUrl` or `allUrl` methods.
+
+```js
+var articleMember = api.oneUrl('articles', 'http://custom.url/article?id=1');  // http://custom.url/article?id=1
+```
+
+```js
+var articlesCollection = api.allUrl('articles', 'http://custom.url/article/list');  // http://custom.url/article/list
+```
+
 #### Entities
 
 Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a Promise ([based on the ES6 Promise specification](https://github.com/jakearchibald/es6-promise)) for response.
