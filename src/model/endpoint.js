@@ -81,10 +81,10 @@ export default function endpoint(url, parent) {
     }
 
     var model = {
-        get(id, params, headers) {
+        get(params, headers) {
             return config._parent().request(
                 'get',
-                _generateRequestConfig(url + '/' + id, params, headers)
+                _generateRequestConfig(url, params, headers)
             );
         },
 
@@ -108,7 +108,7 @@ export default function endpoint(url, parent) {
             );
         },
 
-        put(id, data, headers) {
+        put(data, headers) {
             headers = headers || {};
 
             if (!headers['Content-Type']) {
@@ -117,11 +117,11 @@ export default function endpoint(url, parent) {
 
             return config._parent().request(
                 'put',
-                _generateRequestConfig(url + '/' + id, {}, headers, data)
+                _generateRequestConfig(url, {}, headers, data)
             );
         },
 
-        patch(id, data, headers) {
+        patch(data, headers) {
             headers = headers || {};
 
             if (!headers['Content-Type']) {
@@ -130,21 +130,21 @@ export default function endpoint(url, parent) {
 
             return config._parent().request(
                 'patch',
-                _generateRequestConfig(url + '/' + id, {}, headers, data)
+                _generateRequestConfig(url, {}, headers, data)
             );
         },
 
-        delete(id, headers) {
+        delete(headers) {
             return config._parent().request(
                 'delete',
-                _generateRequestConfig(url + '/' + id, {}, headers)
+                _generateRequestConfig(url, {}, headers)
             );
         },
 
-        head(id, headers) {
+        head(headers) {
             return config._parent().request(
                 'head',
-                _generateRequestConfig(url + '/' + id, {}, headers)
+                _generateRequestConfig(url, {}, headers)
             );
         },
 

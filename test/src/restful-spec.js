@@ -862,5 +862,15 @@
             expect(commentsMember.header('foo4', 'bar4')
                 .addResponseInterceptor(jasmine.createSpy('interceptor'))).toBe(commentsMember);
         });
+
+        it('should allow custom url in restful object', function() {
+            var article = resource.oneUrl('articles', 'http://custom.url/article/1');
+
+            expect(article.url()).toBe('http://custom.url/article/1');
+
+            var articles = resource.allUrl('articles', 'http://custom.url/articles');
+
+            expect(articles.url()).toBe('http://custom.url/articles');
+        });
     });
 })();
