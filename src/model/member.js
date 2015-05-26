@@ -10,6 +10,17 @@ export default function member(name, id, parent) {
     var refEndpoint = endpoint(url, parent());
 
     var model = {
+        _url: null,
+
+        customUrl(url) {
+            if (typeof url === 'undefined') {
+                return this._url;
+            }
+
+            this._url = url;
+
+            return this;
+        },
 
         get(params, headers) {
             return refEndpoint
@@ -53,8 +64,20 @@ export default function member(name, id, parent) {
             return member(name, id, model);
         },
 
+        oneUrl(name, url) {
+            this.customUrl(url);
+
+            return this.one(name, null);
+        },
+
         all(name) {
             return collection(name, model);
+        },
+
+        allUrl(name, url) {
+            this.customUrl(url);
+
+            return this.all(name);
         },
 
         url() {
