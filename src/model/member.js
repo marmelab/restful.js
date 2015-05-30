@@ -5,13 +5,26 @@ import responseBuilder from 'service/responseBuilder';
 import resource from 'model/resource';
 
 export default function member(name, id, parent) {
-    var refEndpoint = endpoint([parent.url(), name].join('/'), parent());
+    var url = parent.customUrl && parent.customUrl() ? parent.customUrl() : [parent.url(), name, id].join('/');
+
+    var refEndpoint = endpoint(url, parent());
 
     var model = {
+        _url: null,
+
+        customUrl(url) {
+            if (typeof url === 'undefined') {
+                return this._url;
+            }
+
+            this._url = url;
+
+            return this;
+        },
 
         get(params, headers) {
             return refEndpoint
-                .get(id, params, headers)
+                .get(params, headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse, function() {
                         return model;
@@ -20,28 +33,28 @@ export default function member(name, id, parent) {
         },
 
         put(data, headers) {
-            return refEndpoint.put(id, data, headers)
+            return refEndpoint.put(data, headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
         },
 
         patch(data, headers) {
-            return refEndpoint.patch(id, data, headers)
+            return refEndpoint.patch(data, headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
         },
 
         head(data, headers) {
-            return refEndpoint.head(id, data, headers)
+            return refEndpoint.head(data, headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
         },
 
         delete(headers) {
-            return refEndpoint.delete(id, headers)
+            return refEndpoint.delete(headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
@@ -51,12 +64,24 @@ export default function member(name, id, parent) {
             return member(name, id, model);
         },
 
+        oneUrl(name, url) {
+            this.customUrl(url);
+
+            return this.one(name, null);
+        },
+
         all(name) {
             return collection(name, model);
         },
 
+        allUrl(name, url) {
+            this.customUrl(url);
+
+            return this.all(name);
+        },
+
         url() {
-            return [parent.url(), name, id].join('/')
+            return url;
         },
     };
 

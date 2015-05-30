@@ -862,5 +862,46 @@
             expect(commentsMember.header('foo4', 'bar4')
                 .addResponseInterceptor(jasmine.createSpy('interceptor'))).toBe(commentsMember);
         });
+
+        it('should allow custom url in restful object', function() {
+            var article = resource.oneUrl('articles', 'http://custom.url/article/1');
+
+            expect(article.url()).toBe('http://custom.url/article/1');
+
+            var articles = resource.allUrl('articles', 'http://custom.url/articles');
+
+            expect(articles.url()).toBe('http://custom.url/articles');
+
+            var comment = article.one('comment', 1);
+
+            expect(comment.url()).toBe('http://custom.url/article/1/comment/1');
+
+            var post = comment.oneUrl('comment', 'http://custom.url/post?article=1&comment=1');
+
+            expect(post.url()).toBe('http://custom.url/post?article=1&comment=1');
+        });
+
+        it('should call http.get with correct url when get is called on collection', function() {
+            var article = resource.one('articles', 3),
+                comments = article.allUrl('comments', 'http://custom.url/comment');
+
+            spyOn(httpBackend, 'get').andCallThrough();
+
+            comments.get(1, { page: 1 }, { foo: 'bar' }).then(function(response) {
+                var entity = response.body();
+
+                // As we use a promesse mock, this is always called synchronously
+                expect(entity.data().id).toBe(1);
+                expect(entity.data().title).toBe('test');
+                expect(entity.data().body).toBe('Hello, I am a test');
+            });
+
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'http://custom.url/comment/1',
+                params: { page: 1 },
+                headers: { foo: 'bar' },
+                responseInterceptors: []
+            });
+        });
     });
 })();

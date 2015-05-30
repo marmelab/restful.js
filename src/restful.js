@@ -46,6 +46,18 @@ export default function restful(baseUrl, port) {
     }());
 
     var model = {
+        _url: null,
+
+        customUrl(url) {
+            if (typeof url === 'undefined') {
+                return this._url;
+            }
+
+            this._url = url;
+
+            return this;
+        },
+
         url() {
             return fakeEndpoint.url();
         },
@@ -54,8 +66,20 @@ export default function restful(baseUrl, port) {
             return member(name, id, model);
         },
 
+        oneUrl(name, url) {
+            this.customUrl(url);
+
+            return this.one(name, null);
+        },
+
         all(name) {
             return collection(name, model);
+        },
+
+        allUrl(name, url) {
+            this.customUrl(url);
+
+            return this.all(name);
         }
     };
 

@@ -23,13 +23,13 @@ export default function resource(refEndpoint) {
         },
 
         responseInterceptors() {
-            return refEndpoint.responseInterceptors;
+            return refEndpoint.responseInterceptors();
         },
 
         header(name, value) {
             refEndpoint.headers()[name] = value;
 
-            return model
+            return model;
         },
 
         headers() {
