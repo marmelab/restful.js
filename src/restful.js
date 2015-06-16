@@ -18,6 +18,7 @@ export default function restful(baseUrl, port) {
         var _config = {
             _http: http(axios),
             headers: {},
+            fullRequestInterceptors: [],
             requestInterceptors: [],
             responseInterceptors: [],
         };
@@ -89,4 +90,4 @@ export default function restful(baseUrl, port) {
     configurable(model, config);
 
     return model;
-};
+}

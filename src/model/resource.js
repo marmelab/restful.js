@@ -6,6 +6,16 @@ export default function resource(refEndpoint) {
     }
 
     var model = assign(modelFunc, {
+        addFullRequestInterceptor(interceptor) {
+            refEndpoint.fullRequestInterceptors().push(interceptor);
+
+            return model;
+        },
+
+        fullRequestInterceptors() {
+            return refEndpoint.fullRequestInterceptors();
+        },
+
         addRequestInterceptor(interceptor) {
             refEndpoint.requestInterceptors().push(interceptor);
 

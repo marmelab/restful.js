@@ -903,5 +903,32 @@
                 responseInterceptors: []
             });
         });
+
+        it('should call full request interceptors on collection getAll request', function() {
+            resource.addFullRequestInterceptor(function (url, params, headers, data) {
+                params._end = params.page * 20;
+                params._start = params._end - 20;
+                delete params.page;
+
+                headers.custom = 'mine';
+
+                return {
+                    params: params,
+                    headers: headers
+                };
+            });
+            var articles = resource.all('articles');
+
+            spyOn(httpBackend, 'get').andCallThrough();
+
+            articles.getAll({ page: 1 }, { foo: 'bar' });
+
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles',
+                params: { _start: 0, _end: 20 },
+                headers: { foo: 'bar', custom: 'mine' },
+                responseInterceptors: []
+            });
+        });
     });
 })();
