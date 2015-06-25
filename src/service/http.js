@@ -49,6 +49,10 @@ export default function http(httpBackend) {
 
             let response = this.backend(config);
 
+            if (!response.result) {
+                return response;
+            }
+
             const interceptors = config.fullResponseInterceptors;
             for (let i in interceptors) {
                 let intercepted = interceptors[i](response.result.data, response.result.headers);
