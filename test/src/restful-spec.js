@@ -8,7 +8,7 @@
         resource;
 
     function q(result) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             resolve(result);
         });
     }
@@ -17,21 +17,15 @@
         beforeEach(function() {
             httpBackend = {
                 get: function(config) {
-
                     if (config.url.substr(config.url.length - 1) !== 's') {
                         return q({
                             // `data` is the response that was provided by the server
-                            data: config.responseInterceptors[0] ? config.responseInterceptors[0]({
+                            data: config.transformResponse[0]({
                                 id: 1,
                                 title: 'test',
                                 body: 'Hello, I am a test',
                                 published_at: '2015-01-03'
-                            }) : {
-                                id: 1,
-                                title: 'test',
-                                body: 'Hello, I am a test',
-                                published_at: '2015-01-03'
-                            },
+                            }),
 
                             // `status` is the HTTP status code from the server response
                             status: 200,
@@ -166,13 +160,9 @@
                 .prefixUrl('v1')
                 .protocol('https');
 
-            http = {
-                request: function(method, config) {
-                    return httpBackend[method](config);
-                }
-            };
-
-            resource()._http(http);
+            resource()._http(resource()._http().setBackend(function (config) {
+                return httpBackend[config.method](config);
+            }));
         });
 
         it('should provide a configured resource', function() {
@@ -180,7 +170,6 @@
             expect(resource.port()).toBe(3000);
             expect(resource.prefixUrl()).toBe('v1');
             expect(resource.protocol()).toBe('https');
-            expect(resource()()).toBe(http);
 
             expect(resource.url()).toBe('https://localhost:3000/v1');
         });
@@ -222,7 +211,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
 
             httpBackend.get.reset();
@@ -239,7 +230,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: { test: 'test3' },
                 headers: { bar: 'foo' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
         });
 
@@ -270,8 +263,10 @@
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'put'
             });
         });
 
@@ -297,7 +292,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'delete'
             });
         });
 
@@ -330,7 +327,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { bar: 'foo' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'head'
             });
         });
 
@@ -369,8 +368,10 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'patch'
             });
         });
 
@@ -399,7 +400,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
 
             expect(httpBackend.put).toHaveBeenCalledWith({
@@ -414,8 +417,10 @@
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'put'
             });
 
             httpBackend.put.reset();
@@ -440,8 +445,10 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'put'
             });
         });
 
@@ -466,14 +473,18 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'delete'
             });
 
             httpBackend.delete.reset();
@@ -489,7 +500,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'delete'
             });
         });
 
@@ -512,7 +525,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/1',
                 params: { page: 1 },
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
         });
 
@@ -539,7 +554,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments',
                 params: { page: 1 },
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
         });
 
@@ -578,8 +595,10 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'post'
             });
         });
 
@@ -618,8 +637,10 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'put'
             });
         });
 
@@ -652,7 +673,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'delete'
             });
         });
 
@@ -685,7 +708,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { bar: 'foo' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'head'
             });
         });
 
@@ -724,8 +749,10 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)],
+                method: 'patch'
             });
         });
 
@@ -744,7 +771,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo2: 'bar2', foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
 
             httpBackend.get.reset();
@@ -755,7 +784,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo2: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
 
             comments
@@ -786,7 +817,9 @@
                     url: 'https://localhost:3000/v1/articles/3/comments/1/authors/1',
                     params: {},
                     headers: { foo3: 'bar3', foo2: 'bar2' },
-                    responseInterceptors: [jasmine.any(Function)]
+                    fullResponseInterceptors: [],
+                    transformResponse: [jasmine.any(Function)],
+                    method: 'get'
                 });
             });
         });
@@ -823,10 +856,13 @@
                     url: 'https://localhost:3000/v1/articles/1',
                     params : {},
                     headers: {},
-                    responseInterceptors: [interceptor1]
+                    //responseInterceptors: [interceptor1],
+                    fullResponseInterceptors: [],
+                    transformResponse: [jasmine.any(Function)],
+                    method: 'patch'
                 });
 
-                var transformedData = getArgs.responseInterceptors[0](JSON.stringify({
+                var transformedData = getArgs.transformResponse[0](JSON.stringify({
                     id: 1,
                     title: 'test',
                     body: 'Hello, I am a test',
@@ -900,7 +936,9 @@
                 url: 'http://custom.url/comment/1',
                 params: { page: 1 },
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
         });
 
@@ -927,7 +965,42 @@
                 url: 'https://localhost:3000/v1/articles',
                 params: { _start: 0, _end: 20 },
                 headers: { foo: 'bar', custom: 'mine' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
+            });
+        });
+
+        it('should call full reponse interceptors on collection getAll response', function() {
+            const interceptor = function interceptor(data, headers) {
+                headers['X-FROM'] = 'my_interceptor';
+
+                return {
+                    headers: headers
+                };
+            };
+            resource.addFullResponseInterceptor(interceptor);
+            var articles = resource.all('articles');
+
+            spyOn(httpBackend, 'get').andCallThrough();
+
+            articles.getAll({ page: 1 }, { foo: 'bar' }).then(function(response) {
+                var entities = response.body();
+
+                // As we use a promesse mock, this is always called synchronously
+                expect(entities[0].data().body).toBe('Hello, I am a test');
+                expect(entities[1].data().body).toBe('Hello, I am a test2');
+
+                expect(response().headers['X-FROM']).toBe('my_interceptor');
+            });
+
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                url: 'https://localhost:3000/v1/articles',
+                params: { page: 1 },
+                headers: { foo: 'bar' },
+                fullResponseInterceptors: [interceptor],
+                transformResponse: [jasmine.any(Function)],
+                method: 'get'
             });
         });
     });

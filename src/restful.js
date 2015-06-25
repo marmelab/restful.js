@@ -19,6 +19,7 @@ export default function restful(baseUrl, port) {
             _http: http(axios),
             headers: {},
             fullRequestInterceptors: [],
+            fullResponseInterceptors: [],
             requestInterceptors: [],
             responseInterceptors: [],
         };

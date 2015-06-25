@@ -16,6 +16,16 @@ export default function resource(refEndpoint) {
             return refEndpoint.fullRequestInterceptors();
         },
 
+        addFullResponseInterceptor(interceptor) {
+            refEndpoint.fullResponseInterceptors().push(interceptor);
+
+            return model;
+        },
+
+        fullResponseInterceptors() {
+            return refEndpoint.fullResponseInterceptors();
+        },
+
         addRequestInterceptor(interceptor) {
             refEndpoint.requestInterceptors().push(interceptor);
 

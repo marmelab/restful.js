@@ -26,6 +26,16 @@ function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
 
 export default function http(httpBackend) {
     var model = {
+        backend: httpBackend,
+
+        setBackend(httpBackend) {
+            this.backend = httpBackend;
+
+            return assign(function() {
+                return httpBackend;
+            }, this);
+        },
+
         request(method, config) {
             config.method = method;
 
@@ -37,7 +47,22 @@ export default function http(httpBackend) {
             config.transformResponse = [interceptorCallback(config.responseInterceptors || [], config.method, config.url, true)];
             delete config.responseInterceptors;
 
-            return httpBackend(config);
+            let response = this.backend(config);
+
+            const interceptors = config.fullResponseInterceptors;
+            for (let i in interceptors) {
+                let intercepted = interceptors[i](response.result.data, response.result.headers);
+
+                if (intercepted.data) {
+                    response.result.data = intercepted.data;
+                }
+
+                if (intercepted.headers) {
+                    response.result.headers = intercepted.headers;
+                }
+            }
+
+            return response;
         }
     };
 

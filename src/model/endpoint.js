@@ -6,6 +6,7 @@ export default function endpoint(url, parent) {
             _parent: parent,
             headers: {},
             fullRequestInterceptors: [],
+            fullResponseInterceptors: [],
             requestInterceptors: [],
             responseInterceptors:[],
         };
@@ -26,6 +27,24 @@ export default function endpoint(url, parent) {
         }
 
         return fullRequestInterceptors;
+    }
+
+    /**
+     * Merge the local full response interceptors and the parent's ones
+     * @private
+     * @return {array} full response interceptors
+     */
+    function _getFullResponseInterceptors() {
+        var current = model,
+            fullResponseInterceptors = [];
+
+        while (current) {
+            fullResponseInterceptors = fullResponseInterceptors.concat(current.fullResponseInterceptors());
+
+            current = current._parent ? current._parent() : null;
+        }
+
+        return fullResponseInterceptors;
     }
 
     /**
@@ -88,6 +107,7 @@ export default function endpoint(url, parent) {
             params: params || {},
             headers: assign({}, _getHeaders(), headers || {}),
             responseInterceptors: _getResponseInterceptors(),
+            fullResponseInterceptors: _getFullResponseInterceptors(),
         };
 
         if (data) {
@@ -112,7 +132,7 @@ export default function endpoint(url, parent) {
             }
 
             if (intercepted.data) {
-                config.params = intercepted.data;
+                config.data = intercepted.data;
             }
         }
 
