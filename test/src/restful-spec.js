@@ -972,7 +972,7 @@
         });
 
         it('should call full reponse interceptors on collection getAll response', function() {
-            const interceptor = function interceptor(data, headers) {
+            var interceptor = function interceptor(data, headers) {
                 headers['X-FROM'] = 'my_interceptor';
 
                 return {
