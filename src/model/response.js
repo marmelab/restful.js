@@ -37,4 +37,4 @@ export default function response(serverResponse, memberFactory) {
     return assign(function () {
         return serverResponse;
     }, model);
-};
+}

@@ -89,4 +89,4 @@ export default function member(name, id, parent) {
     model = assign(resource(refEndpoint), model);
 
     return model;
-};
+}

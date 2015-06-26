@@ -1,6 +1,5 @@
 import assign from 'object-assign';
 import configurable from 'util/configurable';
-import entity from 'model/entity';
 
 export default function endpoint(url, parent) {
     var config = {
@@ -26,7 +25,7 @@ export default function endpoint(url, parent) {
         }
 
         return requestInterceptors;
-    };
+    }
 
     /**
      * Merge the local response interceptors and the parent's ones
@@ -44,7 +43,7 @@ export default function endpoint(url, parent) {
         }
 
         return responseInterceptors;
-    };
+    }
 
     /**
      * Merge the local headers and the parent's ones
@@ -56,13 +55,12 @@ export default function endpoint(url, parent) {
             headers = {};
 
         while (current) {
-            assign(headers, current.headers())
-
+            assign(headers, current.headers());
             current = current._parent ? current._parent() : null;
         }
 
         return headers;
-    };
+    }
 
     function _generateRequestConfig(url, params = {}, headers = {}, data = null) {
         var config = {
@@ -157,4 +155,4 @@ export default function endpoint(url, parent) {
     configurable(model, config);
 
     return model;
-};
+}
