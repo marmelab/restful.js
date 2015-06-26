@@ -1,11 +1,11 @@
 import assign from 'object-assign';
 
 export default function resource(refEndpoint) {
-    function model() {
+    function modelFunc() {
         return refEndpoint;
     }
 
-    model = assign(model, {
+    var model = assign(modelFunc, {
         addRequestInterceptor(interceptor) {
             refEndpoint.requestInterceptors().push(interceptor);
 
@@ -13,7 +13,7 @@ export default function resource(refEndpoint) {
         },
 
         requestInterceptors() {
-            return refEndpoint.requestInterceptors()
+            return refEndpoint.requestInterceptors();
         },
 
         addResponseInterceptor(interceptor) {
@@ -34,7 +34,7 @@ export default function resource(refEndpoint) {
 
         headers() {
             return refEndpoint.headers();
-        },
+        }
     });
 
     return model;

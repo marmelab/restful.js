@@ -98,4 +98,4 @@ export default function collection(name, parent) {
     };
 
     return assign(resource(refEndpoint), model);
-};
+}

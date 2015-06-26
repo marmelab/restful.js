@@ -1,4 +1,4 @@
-/*global describe,it,expect,beforeEach,jasmine*/
+/*global describe,it,expect,beforeEach,jasmine,restful,spyOn */
 
 (function() {
     'use strict';
@@ -11,7 +11,7 @@
         return new Promise(function(resolve, reject) {
             resolve(result);
         });
-    };
+    }
 
     describe('restful', function() {
         beforeEach(function() {
@@ -387,10 +387,10 @@
                 // As we use a promesse mock, this is always called synchronously
                 expect(entity.data().title).toBe('test');
                 expect(entity.data().body).toBe('Hello, I am a test');
-                expect(entity.data()['published_at']).toBe('2015-01-03');
+                expect(entity.data().published_at).toBe('2015-01-03');
 
                 entity.data().body = 'Overriden';
-                entity.data()['published_at'] = '2015-01-06';
+                entity.data().published_at = '2015-01-06';
 
                 entity.save();
             });
@@ -459,7 +459,7 @@
                 expect(entity.data().title).toBe('test');
                 expect(entity.data().body).toBe('Hello, I am a test');
 
-                entity.remove()
+                entity.remove();
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({

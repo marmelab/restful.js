@@ -58,4 +58,4 @@ export default function entity(id, data, member) {
     return assign(function () {
         return data;
     }, model);
-};
+}

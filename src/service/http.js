@@ -21,8 +21,8 @@ function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
         }
 
         return data;
-    }
-};
+    };
+}
 
 export default function http(httpBackend) {
     var model = {

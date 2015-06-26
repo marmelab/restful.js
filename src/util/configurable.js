@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Make a function configurable
  *
@@ -35,17 +33,22 @@
  * @param {Object} config - The configuration object with the default config values
  */
 export default function configurable(targetFunction, config) {
+    'use strict';
+
+    function configure(item) {
+        targetFunction[item] = function(value) {
+            if (!arguments.length) {
+                return config[item];
+            }
+            config[item] = value;
+            return targetFunction;
+        };
+    }
+
     for (var item in config) {
-        if (config.hasOwnProperty(item)) {
-            (function(item) {
-                targetFunction[item] = function(value) {
-                    if (!arguments.length) {
-                        return config[item];
-                    }
-                    config[item] = value;
-                    return targetFunction;
-                };
-            })(item); // for doesn't create a closure, forcing it
+        if (!config.hasOwnProperty(item)) {
+            continue;
         }
+        configure(item);
     }
 }
