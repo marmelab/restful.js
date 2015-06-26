@@ -205,10 +205,10 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 * `patch ( id, data [, headers ] )`: Patch a member in a collection. Returns a promise with the response.
 * `head ( id, [, headers ] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `url ()`: Get the collection url.
-* `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can only alter data.
-* `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can only alter data.
-* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data, url, params and headers.
-* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter data, url, params and headers.
+* `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can only alter data and headers.
+* `addRequestInterceptor ( interceptor )`: Add a request interceptor.
+* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data and headers.
+* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter params, headers, data, method and url.
 * `header ( name, value )`: Add a header.
 
 ```js
@@ -229,7 +229,9 @@ authorsCollection.get(1).then(function(authorEntity) { /*  */ });
 * `all ( name )`: Target a child collection `name`.
 * `url ()`: Get the member url.
 * `addResponseInterceptor ( interceptor )`: Add a response interceptor.
-* `addRequestInterceptor ( interceptor )`: Add a request interceptor.
+* `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can only alter data and headers.
+* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data and headers.
+* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter params, headers, data, method and url.
 * `header ( name, value )`: Add a header.
 
 ```js
