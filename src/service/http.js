@@ -47,26 +47,24 @@ export default function http(httpBackend) {
             config.transformResponse = [interceptorCallback(config.responseInterceptors || [], config.method, config.url, true)];
             delete config.responseInterceptors;
 
-            let response = this.backend(config);
+            return this.backend(config).then(function (response) {
+                console.log('restful response', response);
 
-            if (!response.result) {
+                const interceptors = config.fullResponseInterceptors;
+                    for (let i in interceptors) {
+                        let intercepted = interceptors[i](response.data, response.headers);
+
+                        if (intercepted.data) {
+                            response.data = intercepted.data;
+                        }
+
+                        if (intercepted.headers) {
+                            response.headers = intercepted.headers;
+                        }
+                    }
+
                 return response;
-            }
-
-            const interceptors = config.fullResponseInterceptors;
-            for (let i in interceptors) {
-                let intercepted = interceptors[i](response.result.data, response.result.headers);
-
-                if (intercepted.data) {
-                    response.result.data = intercepted.data;
-                }
-
-                if (intercepted.headers) {
-                    response.result.headers = intercepted.headers;
-                }
-            }
-
-            return response;
+            });
         }
     };
 
