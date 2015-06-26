@@ -205,8 +205,10 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 * `patch ( id, data [, headers ] )`: Patch a member in a collection. Returns a promise with the response.
 * `head ( id, [, headers ] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `url ()`: Get the collection url.
-* `addResponseInterceptor ( interceptor )`: Add a response interceptor.
+* `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can only alter data and headers.
 * `addRequestInterceptor ( interceptor )`: Add a request interceptor.
+* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data and headers.
+* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter params, headers, data, method and url.
 * `header ( name, value )`: Add a header.
 
 ```js
@@ -227,7 +229,9 @@ authorsCollection.get(1).then(function(authorEntity) { /*  */ });
 * `all ( name )`: Target a child collection `name`.
 * `url ()`: Get the member url.
 * `addResponseInterceptor ( interceptor )`: Add a response interceptor.
-* `addRequestInterceptor ( interceptor )`: Add a request interceptor.
+* `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can only alter data and headers.
+* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data and headers.
+* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter params, headers, data, method and url.
 * `header ( name, value )`: Add a header.
 
 ```js
@@ -244,9 +248,49 @@ A response or request interceptor is a callback which looks like this:
 ```js
 resource.addRequestInterceptor(function(data, headers, method, url) {
     // to edit the headers, just edit the headers object
-    
+
     // You always must return the data object
     return data;
+});
+```
+
+A full request interceptor is a callback which looks like this:
+
+```js
+resource.addFullRequestInterceptor(function(params, headers, data, method, url) {
+    //...
+
+    // all args had been modified
+    return {
+        params: params,
+        headers: headers,
+        data: data,
+        method: method,
+        url: url
+    };
+
+    // just return modified arguments
+    return {
+        headers: headers,
+        data: data
+    };
+});
+```
+
+A full response interceptor is a callback which looks like this:
+
+```js
+resource.addFullResponseInterceptor(function(data, headers, method, url) {
+    // all args had been modified (method and url is read only)
+    return {
+        headers: headers,
+        data: data
+    };
+
+    // just return modified arguments
+    return {
+        headers: headers
+    };
 });
 ```
 

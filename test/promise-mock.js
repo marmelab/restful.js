@@ -1,3 +1,5 @@
+/* global window */
+
 (function() {
     window.Promise = function(cb) {
         var self = this;
@@ -11,10 +13,10 @@
 
             function(error) {
                 self._state = 'rejected';
-                self.error = error
+                self.error = error;
             }
         );
-    }
+    };
 
     window.Promise.prototype.then = function(successCallback, errorCallback) {
         var self = this;
@@ -24,17 +26,19 @@
                 return;
             }
 
+            var nextResult;
+
             if (self._state === 'rejected') {
                 if (!errorCallback) {
                     return;
                 }
 
-                var nextResult = errorCallback(self.error);
+                nextResult = errorCallback(self.error);
 
                 if (nextResult && nextResult.then) {
                     return nextResult.then(function() {
-                        reject(nextResult)
-                    })
+                        reject(nextResult);
+                    });
                 }
 
                 return reject(nextResult);
@@ -44,15 +48,15 @@
                 return;
             }
 
-            var nextResult = successCallback(self.result);
+            nextResult = successCallback(self.result);
 
             if (nextResult && nextResult.then) {
                 return nextResult.then(function(result) {
-                    resolve(result)
-                })
+                    resolve(result);
+                });
             }
 
             resolve(nextResult);
         });
-    }
+    };
 }());

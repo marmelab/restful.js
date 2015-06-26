@@ -2,5 +2,6 @@
     "curly": true,
     "eqeqeq": true,
     "undef": true,
-    "esnext": true
+    "esnext": true,
+    "jasmine": true
 }

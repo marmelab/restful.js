@@ -1,4 +1,4 @@
-/*global describe,it,expect,beforeEach,jasmine,restful,spyOn */
+/*global restful,spyOn */
 
 (function() {
     'use strict';
@@ -8,7 +8,7 @@
         resource;
 
     function q(result) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             resolve(result);
         });
     }
@@ -17,21 +17,15 @@
         beforeEach(function() {
             httpBackend = {
                 get: function(config) {
-
                     if (config.url.substr(config.url.length - 1) !== 's') {
                         return q({
                             // `data` is the response that was provided by the server
-                            data: config.responseInterceptors[0] ? config.responseInterceptors[0]({
+                            data: config.transformResponse[0]({
                                 id: 1,
                                 title: 'test',
                                 body: 'Hello, I am a test',
                                 published_at: '2015-01-03'
-                            }) : {
-                                id: 1,
-                                title: 'test',
-                                body: 'Hello, I am a test',
-                                published_at: '2015-01-03'
-                            },
+                            }),
 
                             // `status` is the HTTP status code from the server response
                             status: 200,
@@ -68,6 +62,10 @@
                             config: {}
                         });
                     }
+                },
+
+                'custom-get': function(config) {
+                    return this.get(config);
                 },
 
                 put: function(config) {
@@ -166,13 +164,9 @@
                 .prefixUrl('v1')
                 .protocol('https');
 
-            http = {
-                request: function(method, config) {
-                    return httpBackend[method](config);
-                }
-            };
-
-            resource()._http(http);
+            resource()._http(resource()._http().setBackend(function (config) {
+                return httpBackend[config.method](config);
+            }));
         });
 
         it('should provide a configured resource', function() {
@@ -180,7 +174,6 @@
             expect(resource.port()).toBe(3000);
             expect(resource.prefixUrl()).toBe('v1');
             expect(resource.protocol()).toBe('https');
-            expect(resource()()).toBe(http);
 
             expect(resource.url()).toBe('https://localhost:3000/v1');
         });
@@ -219,10 +212,12 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
 
             httpBackend.get.reset();
@@ -236,10 +231,12 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: { test: 'test3' },
                 headers: { bar: 'foo' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -262,6 +259,7 @@
             });
 
             expect(httpBackend.put).toHaveBeenCalledWith({
+                method: 'put',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 data: {
@@ -270,8 +268,9 @@
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
         });
 
@@ -294,10 +293,12 @@
             });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
+                method: 'delete',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -327,10 +328,12 @@
             });
 
             expect(httpBackend.head).toHaveBeenCalledWith({
+                method: 'head',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { bar: 'foo' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -360,6 +363,7 @@
             });
 
             expect(httpBackend.patch).toHaveBeenCalledWith({
+                method: 'patch',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 data: {
@@ -369,8 +373,9 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
         });
 
@@ -396,13 +401,16 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
 
             expect(httpBackend.put).toHaveBeenCalledWith({
+                method: 'put',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 data: {
@@ -414,8 +422,9 @@
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
 
             httpBackend.put.reset();
@@ -428,6 +437,7 @@
             });
 
             expect(httpBackend.put).toHaveBeenCalledWith({
+                method: 'put',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 data: {
@@ -440,8 +450,9 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
         });
 
@@ -463,17 +474,21 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
+                method: 'delete',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: {},
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
 
             httpBackend.delete.reset();
@@ -486,10 +501,12 @@
             });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
+                method: 'delete',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -509,10 +526,12 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/1',
                 params: { page: 1 },
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -536,10 +555,12 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments',
                 params: { page: 1 },
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -569,6 +590,7 @@
             });
 
             expect(httpBackend.post).toHaveBeenCalledWith({
+                method: 'post',
                 url: 'https://localhost:3000/v1/articles/3/comments',
                 params: {},
                 data: {
@@ -578,8 +600,9 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
         });
 
@@ -609,6 +632,7 @@
             });
 
             expect(httpBackend.put).toHaveBeenCalledWith({
+                method: 'put',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 data: {
@@ -618,8 +642,9 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
         });
 
@@ -649,10 +674,12 @@
             });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
+                method: 'delete',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -682,10 +709,12 @@
             });
 
             expect(httpBackend.head).toHaveBeenCalledWith({
+                method: 'head',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { bar: 'foo' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
         });
 
@@ -715,6 +744,7 @@
             });
 
             expect(httpBackend.patch).toHaveBeenCalledWith({
+                method: 'patch',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 data: {
@@ -724,8 +754,9 @@
                     'Content-Type': 'application/json;charset=UTF-8',
                     foo: 'bar'
                 },
-                responseInterceptors: [],
-                requestInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
             });
         });
 
@@ -741,10 +772,12 @@
             comments.get(2, null, { foo: 'bar' });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo2: 'bar2', foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
 
             httpBackend.get.reset();
@@ -752,10 +785,12 @@
             comments.get(2, null, { foo2: 'bar' });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
                 headers: { foo2: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
             });
 
             comments
@@ -783,10 +818,12 @@
                 comment.one('authors', 1).get();
 
                 expect(httpBackend.get).toHaveBeenCalledWith({
+                    method: 'get',
                     url: 'https://localhost:3000/v1/articles/3/comments/1/authors/1',
                     params: {},
                     headers: { foo3: 'bar3', foo2: 'bar2' },
-                    responseInterceptors: [jasmine.any(Function)]
+                    fullResponseInterceptors: [],
+                    transformResponse: [jasmine.any(Function)]
                 });
             });
         });
@@ -823,10 +860,13 @@
                     url: 'https://localhost:3000/v1/articles/1',
                     params : {},
                     headers: {},
-                    responseInterceptors: [interceptor1]
+                    //responseInterceptors: [interceptor1],
+                    fullResponseInterceptors: [],
+                    transformResponse: [jasmine.any(Function)],
+                    method: 'patch'
                 });
 
-                var transformedData = getArgs.responseInterceptors[0](JSON.stringify({
+                var transformedData = getArgs.transformResponse[0](JSON.stringify({
                     id: 1,
                     title: 'test',
                     body: 'Hello, I am a test',
@@ -897,10 +937,79 @@
             });
 
             expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
                 url: 'http://custom.url/comment/1',
                 params: { page: 1 },
                 headers: { foo: 'bar' },
-                responseInterceptors: []
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
+            });
+        });
+
+        it('should call full request interceptors on collection getAll request', function() {
+            resource.addFullRequestInterceptor(function (params, headers, data, method) {
+                params._end = params.page * 20;
+                params._start = params._end - 20;
+                delete params.page;
+
+                headers.custom = 'mine';
+
+                return {
+                    method: 'custom-get',
+                    params: params,
+                    headers: headers
+                };
+            });
+            var articles = resource.all('articles');
+
+            spyOn(httpBackend, 'get').andCallThrough();
+
+            articles.getAll({ page: 1 }, { foo: 'bar' });
+
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'custom-get',
+                url: 'https://localhost:3000/v1/articles',
+                params: { _start: 0, _end: 20 },
+                headers: { foo: 'bar', custom: 'mine' },
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)]
+            });
+        });
+
+        it('should call full reponse interceptors on collection getAll response', function() {
+            var interceptor = function interceptor(data, headers) {
+                headers['X-FROM'] = 'my_interceptor';
+
+                data[0].title = 'Intercepted :)';
+
+                return {
+                    data: data,
+                    headers: headers
+                };
+            };
+            resource.addFullResponseInterceptor(interceptor);
+            var articles = resource.all('articles');
+
+            spyOn(httpBackend, 'get').andCallThrough();
+
+            articles.getAll({ page: 1 }, { foo: 'bar' }).then(function(response) {
+                var entities = response.body();
+
+                // As we use a promesse mock, this is always called synchronously
+                expect(entities[0].data().body).toBe('Hello, I am a test');
+                expect(entities[0].data().title).toBe('Intercepted :)');
+                expect(entities[1].data().body).toBe('Hello, I am a test2');
+
+                expect(response().headers['X-FROM']).toBe('my_interceptor');
+            });
+
+            expect(httpBackend.get).toHaveBeenCalledWith({
+                method: 'get',
+                url: 'https://localhost:3000/v1/articles',
+                params: { page: 1 },
+                headers: { foo: 'bar' },
+                fullResponseInterceptors: [interceptor],
+                transformResponse: [jasmine.any(Function)]
             });
         });
     });
