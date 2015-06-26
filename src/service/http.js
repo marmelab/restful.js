@@ -37,9 +37,7 @@ export default function http(httpBackend) {
         },
 
         request(method, config) {
-            config.method = method;
-
-            if (['post', 'put', 'patch'].indexOf(method) !== -1) {
+            if (['post', 'put', 'patch'].indexOf(config.method) !== -1) {
                 config.transformRequest = [interceptorCallback(config.requestInterceptors || [], config.method, config.url)];
                 delete config.requestInterceptors;
             }
@@ -49,17 +47,17 @@ export default function http(httpBackend) {
 
             return this.backend(config).then(function (response) {
                 const interceptors = config.fullResponseInterceptors;
-                    for (let i in interceptors) {
-                        let intercepted = interceptors[i](response.data, response.headers);
+                for (let i in interceptors) {
+                    let intercepted = interceptors[i](response.data, response.headers, config.method, config.url);
 
-                        if (intercepted.data) {
-                            response.data = intercepted.data;
-                        }
-
-                        if (intercepted.headers) {
-                            response.headers = intercepted.headers;
-                        }
+                    if (intercepted.data) {
+                        response.data = intercepted.data;
                     }
+
+                    if (intercepted.headers) {
+                        response.headers = intercepted.headers;
+                    }
+                }
 
                 return response;
             });

@@ -101,8 +101,9 @@ export default function endpoint(url, parent) {
         return headers;
     }
 
-    function _generateRequestConfig(url, params = {}, headers = {}, data = null) {
+    function _generateRequestConfig(method, url, params = {}, headers = {}, data = null) {
         var config = {
+            method: method,
             url: url,
             params: params || {},
             headers: assign({}, _getHeaders(), headers || {}),
@@ -117,7 +118,11 @@ export default function endpoint(url, parent) {
 
         var interceptors = _getFullRequestInterceptors();
         for (let i in interceptors) {
-            let intercepted = interceptors[i](url, params, headers, data);
+            let intercepted = interceptors[i](params, headers, data, method, url);
+
+            if (intercepted.method) {
+                config.method = intercepted.method;
+            }
 
             if (intercepted.url) {
                 config.url = intercepted.url;
@@ -141,69 +146,77 @@ export default function endpoint(url, parent) {
 
     var model = {
         get(params, headers) {
+            var nextConfig = _generateRequestConfig('get', url, params, headers);
+
             return config._parent().request(
-                'get',
-                _generateRequestConfig(url, params, headers)
+                nextConfig.method,
+                nextConfig
             );
         },
 
         getAll(params, headers) {
+            var nextConfig = _generateRequestConfig('get', url, params, headers);
+
             return config._parent().request(
-                'get',
-                _generateRequestConfig(url, params, headers)
+                nextConfig.method,
+                nextConfig
             );
         },
 
         post(data, headers) {
             headers = headers || {};
-
             if (!headers['Content-Type']) {
                 headers['Content-Type'] = 'application/json;charset=UTF-8';
             }
+            var nextConfig = _generateRequestConfig('post', url, {}, headers, data);
 
             return config._parent().request(
-                'post',
-                _generateRequestConfig(url, {}, headers, data)
+                nextConfig.method,
+                nextConfig
             );
         },
 
         put(data, headers) {
             headers = headers || {};
-
             if (!headers['Content-Type']) {
                 headers['Content-Type'] = 'application/json;charset=UTF-8';
             }
+            var nextConfig = _generateRequestConfig('put', url, {}, headers, data);
 
             return config._parent().request(
-                'put',
-                _generateRequestConfig(url, {}, headers, data)
+                nextConfig.method,
+                nextConfig
             );
         },
 
         patch(data, headers) {
             headers = headers || {};
-
             if (!headers['Content-Type']) {
                 headers['Content-Type'] = 'application/json;charset=UTF-8';
             }
+            var nextConfig = _generateRequestConfig('patch', url, {}, headers, data);
 
             return config._parent().request(
-                'patch',
-                _generateRequestConfig(url, {}, headers, data)
+                nextConfig.method,
+                nextConfig
             );
         },
 
         delete(headers) {
+            var nextConfig = _generateRequestConfig('delete', url, {}, headers);
+
             return config._parent().request(
-                'delete',
-                _generateRequestConfig(url, {}, headers)
+                nextConfig.method,
+                nextConfig
             );
         },
 
         head(headers) {
+            var nextConfig = _generateRequestConfig('head', url, {}, headers);
+
             return config._parent().request(
-                'head',
-                _generateRequestConfig(url, {}, headers)
+                nextConfig.method,
+                nextConfig
             );
         },
 
