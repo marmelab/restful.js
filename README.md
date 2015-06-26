@@ -269,7 +269,7 @@ resource.addFullRequestInterceptor(function(params, headers, data, method, url) 
         url: url
     };
 
-    // or just two of args had been modified
+    // just return modified arguments
     return {
         headers: headers,
         data: data
@@ -287,7 +287,7 @@ resource.addFullResponseInterceptor(function(data, headers, method, url) {
         data: data
     };
 
-    // or just one of args had been modified
+    // just return modified arguments
     return {
         headers: headers
     };

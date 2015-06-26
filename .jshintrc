@@ -3,6 +3,5 @@
     "eqeqeq": true,
     "undef": true,
     "esnext": true,
-    "devel": true,
     "jasmine": true
 }
