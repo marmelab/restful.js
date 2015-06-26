@@ -48,8 +48,6 @@ export default function http(httpBackend) {
             delete config.responseInterceptors;
 
             return this.backend(config).then(function (response) {
-                console.log('restful response', response);
-
                 const interceptors = config.fullResponseInterceptors;
                     for (let i in interceptors) {
                         let intercepted = interceptors[i](response.data, response.headers);
