@@ -11,7 +11,7 @@ export default function restful(baseUrl, port) {
         baseUrl: baseUrl,
         port: port || 80,
         prefixUrl: '',
-        protocol: 'http',
+        protocol: 'http'
     };
 
     var fakeEndpoint = (function() {
@@ -21,7 +21,7 @@ export default function restful(baseUrl, port) {
             fullRequestInterceptors: [],
             fullResponseInterceptors: [],
             requestInterceptors: [],
-            responseInterceptors: [],
+            responseInterceptors: []
         };
 
         var model = {

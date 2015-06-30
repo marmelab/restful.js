@@ -202,8 +202,8 @@ export default function endpoint(url, parent) {
             );
         },
 
-        delete(headers) {
-            var nextConfig = _generateRequestConfig('delete', url, {}, headers);
+        delete(headers,data) {
+            var nextConfig = _generateRequestConfig('delete', url, {}, headers,data);
 
             return config._parent().request(
                 nextConfig.method,

@@ -84,9 +84,9 @@ export default function collection(name, parent) {
                 });
         },
 
-        delete(id, headers) {
+        delete(id, headers, data) {
             return refEndpointFactory(id)
-                .delete(headers)
+                .delete(headers,data)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
@@ -94,7 +94,7 @@ export default function collection(name, parent) {
 
         url() {
             return url;
-        },
+        }
     };
 
     return assign(resource(refEndpoint), model);

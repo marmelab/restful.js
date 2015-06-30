@@ -53,8 +53,8 @@ export default function member(name, id, parent) {
                 });
         },
 
-        delete(headers) {
-            return refEndpoint.delete(headers)
+        delete(headers,data) {
+            return refEndpoint.delete(headers,data)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
