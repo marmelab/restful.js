@@ -1035,14 +1035,14 @@
             var articles = resource.allUrl('articles', 'https://localhost:3000/v1/articles');
             spyOn(httpBackend, 'delete').andCallThrough();
 
-            articles.delete(1,{},{key:"value"});
+            articles.delete(1,{},{ key: 'value' });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
                 method: 'delete',
                 url: 'https://localhost:3000/v1/articles/1',
                 params: {},
                 headers: { },
-                data: {key:"value"},
+                data: { key: 'value' },
                 requestInterceptors: [],
                 fullResponseInterceptors: [],
                 transformResponse: [jasmine.any(Function)]
