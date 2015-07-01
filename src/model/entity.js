@@ -1,7 +1,7 @@
 import assign from 'object-assign';
 
 export default function entity(id, data, member) {
-    var model = {
+    let model = {
         _url: null,
 
         customUrl(url) {

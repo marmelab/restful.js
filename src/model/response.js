@@ -2,7 +2,7 @@ import assign from 'object-assign';
 import entity from 'model/entity';
 
 export default function response(serverResponse, memberFactory) {
-    var model = {
+    let model = {
         status() {
             return serverResponse.status;
         },

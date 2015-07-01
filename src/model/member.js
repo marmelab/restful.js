@@ -5,11 +5,11 @@ import responseBuilder from 'service/responseBuilder';
 import resource from 'model/resource';
 
 export default function member(name, id, parent) {
-    var url = parent.customUrl && parent.customUrl() ? parent.customUrl() : [parent.url(), name, id].join('/');
+    let url = parent.customUrl && parent.customUrl() ? parent.customUrl() : [parent.url(), name, id].join('/');
 
-    var refEndpoint = endpoint(url, parent());
+    let refEndpoint = endpoint(url, parent());
 
-    var model = {
+    let model = {
         _url: null,
 
         customUrl(url) {
