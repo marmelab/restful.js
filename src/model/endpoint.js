@@ -64,7 +64,11 @@ export default function endpoint(url, parent) {
     }
 
     function normalizeContentType(headers = {}) {
-        headers['Content-Type'] = headers['Content-Type'] || 'application/json;charset=UTF-8';
+        let _headers = _mergeProperty('headers');
+
+        if (!_headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json;charset=UTF-8';
+        }
 
         return headers;
     }

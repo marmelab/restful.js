@@ -1,20 +1,30 @@
-/* global module,process */
-
 module.exports = function(config) {
-    'use strict';
-
     config.set({
-        basePath: '../',
-        browsers: [process.env.CI ? 'PhantomJS' : 'Chrome'],
+        browsers: ['PhantomJS'],
         files: [
-            {pattern: 'dist/restful.min.js', included: true},
-
-            {pattern: 'test/promise-mock.js', included: true},
-
-            // test files
-            {pattern: 'test/src/**/*.js', included: true},
+            { pattern: 'test-context.js', watched: false }
         ],
-        reporters: ['spec'],
         frameworks: ['jasmine'],
+        preprocessors: {
+            'test-context.js': ['webpack']
+        },
+        reporters: ['spec'],
+        webpack: {
+            module: {
+                loaders: [
+                    { test: /\.js/, exclude: /node_modules/, loader: 'babel-loader' }
+                ]
+            },
+            resolve:{
+                modulesDirectories: [
+                    '../node_modules',
+                    '../src',
+                ]
+            },
+            watch: true
+        },
+        webpackServer: {
+            noInfo: true
+        }
     });
 };
