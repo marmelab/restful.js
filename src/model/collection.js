@@ -46,7 +46,7 @@ export default function collection(name, parent) {
 
         getAll(params, headers) {
             return refEndpoint
-                .getAll(params, headers)
+                .get(params, headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse, memberFactory);
                 });

@@ -20,7 +20,7 @@ export default function endpoint(url, parent) {
 
         while (current) {
             if (isLitteral) {
-                properties = assign(current[propertyName](), properties);
+                properties = assign({}, current[propertyName](), properties);
             } else {
                 properties = properties.concat(current[propertyName]());
             }
@@ -31,12 +31,12 @@ export default function endpoint(url, parent) {
         return properties;
     }
 
-    function _generateRequestConfig(method, url, params = {}, headers = {}, data = null) {
+    function _generateRequestConfig(method, params = null, headers = {}, data = null) {
         let config = {
             method: method,
             url: url,
-            params: params || {},
-            headers: assign({}, _mergeProperty('headers'), headers || {}),
+            params: params,
+            headers: assign({}, _mergeProperty('headers'), headers),
             responseInterceptors: _mergeProperty('responseInterceptors'),
             fullResponseInterceptors: _mergeProperty('fullResponseInterceptors'),
         };
@@ -47,6 +47,7 @@ export default function endpoint(url, parent) {
         }
 
         let interceptors = _mergeProperty('fullRequestInterceptors');
+
         for (let i in interceptors) {
             config = assign(config, interceptors[i](params, headers, data, method, url));
         }
@@ -54,8 +55,8 @@ export default function endpoint(url, parent) {
         return config;
     }
 
-    function request(method, url, params, headers, data) {
-        let nextConfig = _generateRequestConfig(method, url, params, headers, data);
+    function _request(method, params, headers, data) {
+        let nextConfig = _generateRequestConfig(method, params, headers, data);
 
         return config._parent().request(
             nextConfig.method,
@@ -63,7 +64,7 @@ export default function endpoint(url, parent) {
         );
     }
 
-    function normalizeContentType(headers = {}) {
+    function _normalizeContentType(headers = {}) {
         let _headers = _mergeProperty('headers');
 
         if (!_headers['Content-Type']) {
@@ -76,19 +77,17 @@ export default function endpoint(url, parent) {
     model = assign(function() {
         return config._parent();
     }, {
-        get: (params, headers) => request('get', url, params, headers),
+        get: (params, headers) => _request('get', params, headers),
 
-        getAll: (params, headers) => request('get', url, params, headers),
+        post: (data, headers) => _request('post', null, _normalizeContentType(headers), data),
 
-        post: (data, headers) => request('post', url, {}, normalizeContentType(headers), data),
+        put: (data, headers) => _request('put', null, _normalizeContentType(headers), data),
 
-        put: (data, headers) => request('put', url, {}, normalizeContentType(headers), data),
-
-        patch: (data, headers) => request('patch', url, {}, normalizeContentType(headers), data),
+        patch: (data, headers) => _request('patch', null, _normalizeContentType(headers), data),
 
         delete: (data, headers) => request('delete', url, {}, headers, data),
 
-        head: (headers) => request('head', url, {}, headers),
+        head: (headers) => _request('head', null, headers),
     });
 
     configurable(model, config);

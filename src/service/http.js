@@ -44,7 +44,6 @@ export default function http(httpBackend) {
 
             config.transformResponse = [interceptorCallback(config.responseInterceptors || [], config.method, config.url, true)];
             delete config.responseInterceptors;
-
             return this.backend(config).then(function (response) {
                 const interceptors = config.fullResponseInterceptors;
                 for (let i in interceptors) {

@@ -48,7 +48,7 @@ describe('endpoint', () => {
             expect(httpBackend.request).toHaveBeenCalledWith('get', {
                 method: 'get',
                 url: '/url',
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token yyyy',
                     'Content-Type': 'text/plain',
@@ -90,80 +90,6 @@ describe('endpoint', () => {
 
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
             testEndpoint.get(params, headers);
-
-            expect(fullRequestInterceptor).toHaveBeenCalledWith(params, headers, null, 'get', '/url');
-            expect(httpBackend.request).toHaveBeenCalledWith('post', {
-                method: 'post',
-                url: '/intercepted',
-                params: params,
-                headers: {
-                    Authorization: 'Token xxxx',
-                    'Content-Type': 'text/plain',
-                },
-                responseInterceptors: [responseInterceptor],
-                fullResponseInterceptors: [fullResponseInterceptor],
-            });
-        });
-    });
-
-    describe('getAll', () => {
-        beforeEach(() => {
-            httpBackend.request.calls.reset();
-
-            testEndpoint.responseInterceptors([]);
-            testEndpoint.fullResponseInterceptors([]);
-            testEndpoint.requestInterceptors([]);
-            testEndpoint.fullRequestInterceptors([]);
-        });
-
-        it('should call httpBackend with correct config when called with no argument', () => {
-            testEndpoint.getAll();
-
-            expect(httpBackend.request).toHaveBeenCalledWith('get', {
-                method: 'get',
-                url: '/url',
-                params: {},
-                headers: {
-                    Authorization: 'Token yyyy',
-                    'Content-Type': 'text/plain',
-                },
-                responseInterceptors: [responseInterceptor],
-                fullResponseInterceptors: [fullResponseInterceptor],
-            });
-        });
-
-        it('should call httpBackend with correct config when called with params and headers', () => {
-            let params = { filter: 'asc' };
-            let headers = { Authorization: 'Token xxxx' };
-
-            testEndpoint.getAll(params, headers);
-
-            expect(httpBackend.request).toHaveBeenCalledWith('get', {
-                method: 'get',
-                url: '/url',
-                params: params,
-                headers: {
-                    Authorization: 'Token xxxx',
-                    'Content-Type': 'text/plain',
-                },
-                responseInterceptors: [responseInterceptor],
-                fullResponseInterceptors: [fullResponseInterceptor],
-            });
-        });
-
-        it('should call httpBackend with correct config when called and endpoint has full request interceptors', () => {
-            let params = { filter: 'asc' };
-            let headers = { Authorization: 'Token xxxx' };
-
-            let fullRequestInterceptor = jasmine.createSpy('fullRequestInterceptor').and.callFake(() => {
-                return {
-                    method: 'post',
-                    url: '/intercepted',
-                };
-            });
-
-            testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
-            testEndpoint.getAll(params, headers);
 
             expect(fullRequestInterceptor).toHaveBeenCalledWith(params, headers, null, 'get', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('post', {
@@ -199,7 +125,7 @@ describe('endpoint', () => {
                 method: 'post',
                 url: '/url',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token yyyy',
                     'Content-Type': 'text/plain',
@@ -220,7 +146,7 @@ describe('endpoint', () => {
                 method: 'post',
                 url: '/url',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -245,12 +171,12 @@ describe('endpoint', () => {
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
             testEndpoint.post(data, headers);
 
-            expect(fullRequestInterceptor).toHaveBeenCalledWith({}, headers, data, 'post', '/url');
+            expect(fullRequestInterceptor).toHaveBeenCalledWith(null, headers, data, 'post', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('put', {
                 method: 'put',
                 url: '/intercepted',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -281,7 +207,7 @@ describe('endpoint', () => {
                 method: 'put',
                 url: '/url',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token yyyy',
                     'Content-Type': 'text/plain',
@@ -302,7 +228,7 @@ describe('endpoint', () => {
                 method: 'put',
                 url: '/url',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -327,12 +253,12 @@ describe('endpoint', () => {
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
             testEndpoint.put(data, headers);
 
-            expect(fullRequestInterceptor).toHaveBeenCalledWith({}, headers, data, 'put', '/url');
+            expect(fullRequestInterceptor).toHaveBeenCalledWith(null, headers, data, 'put', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('patch', {
                 method: 'patch',
                 url: '/intercepted',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -363,7 +289,7 @@ describe('endpoint', () => {
                 method: 'patch',
                 url: '/url',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token yyyy',
                     'Content-Type': 'text/plain',
@@ -384,7 +310,7 @@ describe('endpoint', () => {
                 method: 'patch',
                 url: '/url',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -412,12 +338,12 @@ describe('endpoint', () => {
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
             testEndpoint.patch(data, headers);
 
-            expect(fullRequestInterceptor).toHaveBeenCalledWith({}, headers, data, 'patch', '/url');
+            expect(fullRequestInterceptor).toHaveBeenCalledWith(null, headers, data, 'patch', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('delete', {
                 method: 'delete',
                 url: '/intercepted',
                 data: data,
-                params: {},
+                params: null,
                 headers: {
                     'Content-Type': 'xml',
                 },
@@ -444,7 +370,7 @@ describe('endpoint', () => {
             expect(httpBackend.request).toHaveBeenCalledWith('delete', {
                 method: 'delete',
                 url: '/url',
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token yyyy',
                     'Content-Type': 'text/plain',
@@ -462,7 +388,7 @@ describe('endpoint', () => {
             expect(httpBackend.request).toHaveBeenCalledWith('delete', {
                 method: 'delete',
                 url: '/url',
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -488,11 +414,11 @@ describe('endpoint', () => {
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
             testEndpoint.delete(headers);
 
-            expect(fullRequestInterceptor).toHaveBeenCalledWith({}, headers, null, 'delete', '/url');
+            expect(fullRequestInterceptor).toHaveBeenCalledWith(null, headers, null, 'delete', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('head', {
                 method: 'head',
                 url: '/intercepted',
-                params: {},
+                params: null,
                 headers: {
                     'Content-Type': 'xml',
                 },
@@ -518,7 +444,7 @@ describe('endpoint', () => {
             expect(httpBackend.request).toHaveBeenCalledWith('head', {
                 method: 'head',
                 url: '/url',
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token yyyy',
                     'Content-Type': 'text/plain',
@@ -536,7 +462,7 @@ describe('endpoint', () => {
             expect(httpBackend.request).toHaveBeenCalledWith('head', {
                 method: 'head',
                 url: '/url',
-                params: {},
+                params: null,
                 headers: {
                     Authorization: 'Token xxxx',
                     'Content-Type': 'text/plain',
@@ -562,11 +488,11 @@ describe('endpoint', () => {
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
             testEndpoint.head(headers);
 
-            expect(fullRequestInterceptor).toHaveBeenCalledWith({}, headers, null, 'head', '/url');
+            expect(fullRequestInterceptor).toHaveBeenCalledWith(null, headers, null, 'head', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('get', {
                 method: 'get',
                 url: '/intercepted',
-                params: {},
+                params: null,
                 headers: {
                     'Content-Type': 'xml',
                 },
