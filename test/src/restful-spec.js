@@ -280,7 +280,7 @@
 
             spyOn(httpBackend, 'delete').andCallThrough();
 
-            comment.delete({ foo: 'bar' }).then(function(response) {
+            comment.delete({}, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
                 expect(response()).toEqual({
                     data: {
@@ -298,6 +298,8 @@
                 params: {},
                 headers: { foo: 'bar' },
                 fullResponseInterceptors: [],
+                data: {},
+                requestInterceptors : [ ],
                 transformResponse: [jasmine.any(Function)]
             });
         });
@@ -486,8 +488,10 @@
                 method: 'delete',
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
+                data: {},
                 headers: {},
                 fullResponseInterceptors: [],
+                requestInterceptors: [],
                 transformResponse: [jasmine.any(Function)]
             });
 
@@ -505,7 +509,9 @@
                 url: 'https://localhost:3000/v1/articles/3/comments/5',
                 params: {},
                 headers: { foo: 'bar' },
+                data: {},
                 fullResponseInterceptors: [],
+                requestInterceptors: [],
                 transformResponse: [jasmine.any(Function)]
             });
         });
@@ -654,7 +660,7 @@
 
             spyOn(httpBackend, 'delete').andCallThrough();
 
-            comments.delete(2, { foo: 'bar' }).then(function(response) {
+            comments.delete(2, {}, { foo: 'bar' }).then(function(response) {
                 // As we use a promesse mock, this is always called synchronously
                 expect(response()).toEqual({
                     // `data` is the response that was provided by the server
@@ -677,8 +683,10 @@
                 method: 'delete',
                 url: 'https://localhost:3000/v1/articles/3/comments/2',
                 params: {},
+                data: {},
                 headers: { foo: 'bar' },
                 fullResponseInterceptors: [],
+                requestInterceptors: [],
                 transformResponse: [jasmine.any(Function)]
             });
         });
@@ -1017,7 +1025,7 @@
             var articles = resource.oneUrl('articles', 'https://localhost:3000/v1/articles');
             spyOn(httpBackend, 'delete').andCallThrough();
 
-            articles.delete({},[1,2]);
+            articles.delete([1,2], {});
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
                 method: 'delete',
@@ -1035,7 +1043,7 @@
             var articles = resource.allUrl('articles', 'https://localhost:3000/v1/articles');
             spyOn(httpBackend, 'delete').andCallThrough();
 
-            articles.delete(1,{},{ key: 'value' });
+            articles.delete(1,{ key: 'value' }, { });
 
             expect(httpBackend.delete).toHaveBeenCalledWith({
                 method: 'delete',

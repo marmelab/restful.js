@@ -84,9 +84,9 @@ export default function collection(name, parent) {
                 });
         },
 
-        delete(id, headers, data) {
+        delete(id, data, headers) {
             return refEndpointFactory(id)
-                .delete(headers, data)
+                .delete(data, headers)
                 .then(function(serverResponse) {
                     return responseBuilder(serverResponse);
                 });
