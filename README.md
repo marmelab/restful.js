@@ -201,7 +201,7 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 * `get ( id [, params [, headers ]] )`: Get a member in a collection. Returns a promise with an entity.
 * `post ( data [, headers ] )`: Create a member in a collection. Returns a promise with the response.
 * `put ( id, data [, headers ] )`: Update a member in a collection. Returns a promise with the response.
-* `delete ( id [, headers ] )`: Delete a member in a collection. Returns a promise with the response.
+* `delete ( id [, data, headers ] )`: Delete a member in a collection. Returns a promise with the response.
 * `patch ( id, data [, headers ] )`: Patch a member in a collection. Returns a promise with the response.
 * `head ( id, [, headers ] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `url ()`: Get the collection url.
@@ -222,7 +222,7 @@ authorsCollection.get(1).then(function(authorEntity) { /*  */ });
 
 * `get ( [ params [, headers ]] )`: Get a member. Returns a promise with an entity.
 * `put ( data [, headers ] )`: Update a member. Returns a promise with the response.
-* `delete ( [ headers ] )`: Delete a member. Returns a promise with the response.
+* `delete ( [ data, headers ] )`: Delete a member. Returns a promise with the response.
 * `patch ( data [, headers ] )`: Patch a member. Returns a promise with the response.
 * `head ( [ headers ] )`: Perform a HEAD request on a member. Returns a promise with the response.
 * `one ( name, id )`: Target a child member in a collection `name`.

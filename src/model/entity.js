@@ -39,7 +39,7 @@ export default function entity(id, data, member) {
         },
 
         remove(headers) {
-            return member.delete(headers);
+            return member.delete({}, headers);
         },
 
         url() {
