@@ -275,7 +275,7 @@ describe('restful', () => {
 
         spyOn(httpBackend, 'delete').and.callThrough();
 
-        comment.delete({ foo: 'bar' })
+        comment.delete(null, { foo: 'bar' })
             .then((response) => {
                 expect(response()).toEqual({
                     data: {
@@ -664,7 +664,7 @@ describe('restful', () => {
 
         spyOn(httpBackend, 'delete').and.callThrough();
 
-        comments.delete(2, { foo: 'bar' })
+        comments.delete(2, null, { foo: 'bar' })
             .then((response) => {
                 expect(response()).toEqual({
                     // `data` is the response that was provided by the server
@@ -1039,15 +1039,17 @@ describe('restful', () => {
 
     it('should call delete not only with header but even with data when deleting one entity', function() {
         var articles = resource.oneUrl('articles', 'https://localhost:3000/v1/articles');
-        spyOn(httpBackend, 'delete').andCallThrough();
+        spyOn(httpBackend, 'delete').and.callThrough();
 
-        articles.delete([1,2], {});
+        articles.delete([1,2]);
 
         expect(httpBackend.delete).toHaveBeenCalledWith({
             method: 'delete',
             url: 'https://localhost:3000/v1/articles',
-            params: {},
-            headers: { },
+            params: null,
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
             data: [1,2],
             requestInterceptors: [],
             fullResponseInterceptors: [],
@@ -1057,15 +1059,17 @@ describe('restful', () => {
 
     it('should call delete not only with header but even with data when deleting a collection entity', function() {
         var articles = resource.allUrl('articles', 'https://localhost:3000/v1/articles');
-        spyOn(httpBackend, 'delete').andCallThrough();
+        spyOn(httpBackend, 'delete').and.callThrough();
 
-        articles.delete(1,{ key: 'value' }, {});
+        articles.delete(1, { key: 'value' });
 
         expect(httpBackend.delete).toHaveBeenCalledWith({
             method: 'delete',
             url: 'https://localhost:3000/v1/articles/1',
-            params: {},
-            headers: { },
+            params: null,
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
             data: { key: 'value' },
             requestInterceptors: [],
             fullResponseInterceptors: [],

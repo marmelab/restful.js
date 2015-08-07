@@ -65,7 +65,7 @@ export default function collection(name, parent) {
         put: (id, data, headers) => _request({ method: 'put', id, data, headers }),
         patch: (id, data, headers) => _request({ method: 'patch', id, data, headers }),
         head: (id, headers) => _request({ method: 'head', id, headers }),
-        delete: (id, headers) => _request({ method: 'delete', id, headers }),
+        delete: (id, data, headers) => _request({ method: 'delete', id, data, headers }),
         url: () => url,
     };
 

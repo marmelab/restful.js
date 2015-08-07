@@ -383,7 +383,7 @@ describe('endpoint', () => {
         it('should call httpBackend with correct config when called with headers', () => {
             let headers = { Authorization: 'Token xxxx' };
 
-            testEndpoint.delete(headers);
+            testEndpoint.delete(null, headers);
 
             expect(httpBackend.request).toHaveBeenCalledWith('delete', {
                 method: 'delete',
@@ -412,7 +412,7 @@ describe('endpoint', () => {
             });
 
             testEndpoint.fullRequestInterceptors().push(fullRequestInterceptor)
-            testEndpoint.delete(headers);
+            testEndpoint.delete(null, headers);
 
             expect(fullRequestInterceptor).toHaveBeenCalledWith(null, headers, null, 'delete', '/url');
             expect(httpBackend.request).toHaveBeenCalledWith('head', {

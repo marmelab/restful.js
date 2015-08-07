@@ -73,13 +73,13 @@ export default function endpoint(url, parent) {
     }, {
         get: (params, headers) => _request('get', null, params, headers),
 
-        post: (data, headers) => _request('post', data, null, headers),
+        post: (data, headers) => _request('post', data || null, null, headers),
 
-        put: (data, headers) => _request('put', data, null, headers),
+        put: (data, headers) => _request('put', data || null, null, headers),
 
-        patch: (data, headers) => _request('patch', data, null, headers),
+        patch: (data, headers) => _request('patch', data || null, null, headers),
 
-        delete: (data, headers) => request('delete', data, {}, headers),
+        delete: (data, headers) => _request('delete', data || null, null, headers),
 
         head: (headers) => _request('head', null, null, headers),
     });
