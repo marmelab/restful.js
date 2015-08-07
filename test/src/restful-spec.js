@@ -1056,5 +1056,29 @@
                 transformResponse: [jasmine.any(Function)]
             });
         });
+
+        it('should only JSON.stringify data in the default requestInterceptor if content-type is application/json', function() {
+            var article = resource.one('articles', 3),
+                comments = article.all('comments');
+
+            spyOn(httpBackend, 'post').andCallThrough();
+
+            comments.post('foo', {
+                'Content-Type': 'multipart/form-data'
+            });
+
+            expect(httpBackend.post).toHaveBeenCalledWith({
+                method: 'post',
+                url: 'https://localhost:3000/v1/articles/3/comments',
+                params: {},
+                data: 'foo',
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                fullResponseInterceptors: [],
+                transformResponse: [jasmine.any(Function)],
+                transformRequest: [jasmine.any(Function)]
+            });
+        });
     });
 })();

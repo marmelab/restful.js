@@ -14,7 +14,7 @@ function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
             data = interceptors[i](data, headers, method, url);
         }
 
-        if (!isResponseInterceptor) {
+        if (!isResponseInterceptor && /application\/json/.test(headers['Content-Type'])) {
             try {
                 data = JSON.stringify(data);
             } catch (e) {}
