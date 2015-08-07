@@ -7,15 +7,15 @@ import axios from 'axios';
 import http from 'service/http';
 
 export default function restful(baseUrl, port) {
-    var config = {
+    let config = {
         baseUrl: baseUrl,
         port: port || 80,
         prefixUrl: '',
         protocol: 'http',
     };
 
-    var fakeEndpoint = (function() {
-        var _config = {
+    let fakeEndpoint = (function() {
+        let _config = {
             _http: http(axios),
             headers: {},
             fullRequestInterceptors: [],
@@ -24,9 +24,9 @@ export default function restful(baseUrl, port) {
             responseInterceptors: [],
         };
 
-        var model = {
+        let model = {
             url() {
-                var url = config.protocol + '://' + config.baseUrl;
+                let url = config.protocol + '://' + config.baseUrl;
 
                 if (config.port !== 80) {
                     url += ':' + config.port;
@@ -47,7 +47,7 @@ export default function restful(baseUrl, port) {
         }, model);
     }());
 
-    var model = {
+    let model = {
         _url: null,
 
         customUrl(url) {

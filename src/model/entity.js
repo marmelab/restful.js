@@ -1,7 +1,7 @@
 import assign from 'object-assign';
 
 export default function entity(id, data, member) {
-    var model = {
+    let model = {
         _url: null,
 
         customUrl(url) {
@@ -39,7 +39,7 @@ export default function entity(id, data, member) {
         },
 
         remove(headers) {
-            return member.delete({}, headers);
+            return member.delete(null, headers);
         },
 
         url() {

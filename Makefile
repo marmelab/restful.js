@@ -14,5 +14,5 @@ jshint:
 	./node_modules/jshint/bin/jshint src/**/*.js
 	./node_modules/jshint/bin/jshint test/**/*.js
 
-test: build
+test:
 	CHROME_BIN=`which chromium-browser` ${CURDIR}/node_modules/karma/bin/karma start test/karma.conf.js --single-run

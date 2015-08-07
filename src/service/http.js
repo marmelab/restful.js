@@ -10,7 +10,7 @@ function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
             } catch (e) {}
         }
 
-        for (var i in interceptors) {
+        for (let i in interceptors) {
             data = interceptors[i](data, headers, method, url);
         }
 
@@ -25,7 +25,7 @@ function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
 }
 
 export default function http(httpBackend) {
-    var model = {
+    let model = {
         backend: httpBackend,
 
         setBackend(httpBackend) {
@@ -44,7 +44,6 @@ export default function http(httpBackend) {
 
             config.transformResponse = [interceptorCallback(config.responseInterceptors || [], config.method, config.url, true)];
             delete config.responseInterceptors;
-
             return this.backend(config).then(function (response) {
                 const interceptors = config.fullResponseInterceptors;
                 for (let i in interceptors) {

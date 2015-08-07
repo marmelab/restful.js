@@ -5,7 +5,7 @@ export default function resource(refEndpoint) {
         return refEndpoint;
     }
 
-    var model = assign(modelFunc, {
+    let model = assign(modelFunc, {
         addFullRequestInterceptor(interceptor) {
             refEndpoint.fullRequestInterceptors().push(interceptor);
 

@@ -2,7 +2,7 @@ import assign from 'object-assign';
 import configurable from 'util/configurable';
 
 export default function endpoint(url, parent) {
-    var config = {
+    let config = {
             _parent: parent,
             headers: {},
             fullRequestInterceptors: [],
@@ -11,220 +11,78 @@ export default function endpoint(url, parent) {
             responseInterceptors:[],
         };
 
-    /**
-     * Merge the local full request interceptors and the parent's ones
-     * @private
-     * @return {array} full request interceptors
-     */
-    function _getFullRequestInterceptors() {
-        var current = model,
-            fullRequestInterceptors = [];
+    let model;
+
+    function _mergeProperty(propertyName) {
+        let current = model,
+            isLitteral = current[propertyName]().length === undefined,
+            properties = isLitteral ? {} : [];
 
         while (current) {
-            fullRequestInterceptors = fullRequestInterceptors.concat(current.fullRequestInterceptors());
+            if (isLitteral) {
+                properties = assign({}, current[propertyName](), properties);
+            } else {
+                properties = properties.concat(current[propertyName]());
+            }
 
             current = current._parent ? current._parent() : null;
         }
 
-        return fullRequestInterceptors;
+        return properties;
     }
 
-    /**
-     * Merge the local full response interceptors and the parent's ones
-     * @private
-     * @return {array} full response interceptors
-     */
-    function _getFullResponseInterceptors() {
-        var current = model,
-            fullResponseInterceptors = [];
-
-        while (current) {
-            fullResponseInterceptors = fullResponseInterceptors.concat(current.fullResponseInterceptors());
-
-            current = current._parent ? current._parent() : null;
-        }
-
-        return fullResponseInterceptors;
-    }
-
-    /**
-     * Merge the local request interceptors and the parent's ones
-     * @private
-     * @return {array} request interceptors
-     */
-    function _getRequestInterceptors() {
-        var current = model,
-            requestInterceptors = [];
-
-        while (current) {
-            requestInterceptors = requestInterceptors.concat(current.requestInterceptors());
-
-            current = current._parent ? current._parent() : null;
-        }
-
-        return requestInterceptors;
-    }
-
-    /**
-     * Merge the local response interceptors and the parent's ones
-     * @private
-     * @return {array} response interceptors
-     */
-    function _getResponseInterceptors() {
-        var current = model,
-            responseInterceptors = [];
-
-        while (current) {
-            responseInterceptors = responseInterceptors.concat(current.responseInterceptors());
-
-            current = current._parent ? current._parent() : null;
-        }
-
-        return responseInterceptors;
-    }
-
-    /**
-     * Merge the local headers and the parent's ones
-     * @private
-     * @return {array} headers
-     */
-    function _getHeaders() {
-        var current = model,
-            headers = {};
-
-        while (current) {
-            assign(headers, current.headers());
-
-            current = current._parent ? current._parent() : null;
-        }
-
-        return headers;
-    }
-
-    function _generateRequestConfig(method, url, params = {}, headers = {}, data = null) {
-        var config = {
+    function _generateRequestConfig(method, data = null, params = null, headers = {}) {
+        let config = {
             method: method,
             url: url,
-            params: params || {},
-            headers: assign({}, _getHeaders(), headers || {}),
-            responseInterceptors: _getResponseInterceptors(),
-            fullResponseInterceptors: _getFullResponseInterceptors(),
+            params: params,
+            headers: assign({}, _mergeProperty('headers'), headers),
+            responseInterceptors: _mergeProperty('responseInterceptors'),
+            fullResponseInterceptors: _mergeProperty('fullResponseInterceptors'),
         };
 
         if (data) {
+            if (!config.headers['Content-Type']) {
+                config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+            }
+
             config.data = data;
-            config.requestInterceptors = _getRequestInterceptors();
+            config.requestInterceptors = _mergeProperty('requestInterceptors');
         }
 
-        var interceptors = _getFullRequestInterceptors();
+        let interceptors = _mergeProperty('fullRequestInterceptors');
+
         for (let i in interceptors) {
-            let intercepted = interceptors[i](params, headers, data, method, url);
-
-            if (intercepted.method) {
-                config.method = intercepted.method;
-            }
-
-            if (intercepted.url) {
-                config.url = intercepted.url;
-            }
-
-            if (intercepted.params) {
-                config.params = intercepted.params;
-            }
-
-            if (intercepted.headers) {
-                config.headers = intercepted.headers;
-            }
-
-            if (intercepted.data) {
-                config.data = intercepted.data;
-            }
+            config = assign(config, interceptors[i](params, headers, data, method, url));
         }
 
         return config;
     }
 
-    var model = {
-        get(params, headers) {
-            var nextConfig = _generateRequestConfig('get', url, params, headers);
+    function _request(method, data, params, headers) {
+        let nextConfig = _generateRequestConfig(method, data, params, headers);
 
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        getAll(params, headers) {
-            var nextConfig = _generateRequestConfig('get', url, params, headers);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        post(data, headers) {
-            headers = headers || {};
-            if (!headers['Content-Type']) {
-                headers['Content-Type'] = 'application/json;charset=UTF-8';
-            }
-            var nextConfig = _generateRequestConfig('post', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        put(data, headers) {
-            headers = headers || {};
-            if (!headers['Content-Type']) {
-                headers['Content-Type'] = 'application/json;charset=UTF-8';
-            }
-            var nextConfig = _generateRequestConfig('put', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        patch(data, headers) {
-            headers = headers || {};
-            if (!headers['Content-Type']) {
-                headers['Content-Type'] = 'application/json;charset=UTF-8';
-            }
-            var nextConfig = _generateRequestConfig('patch', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        delete(data, headers) {
-            var nextConfig = _generateRequestConfig('delete', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        head(headers) {
-            var nextConfig = _generateRequestConfig('head', url, {}, headers);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-    };
+        return config._parent().request(
+            nextConfig.method,
+            nextConfig
+        );
+    }
 
     model = assign(function() {
         return config._parent();
-    }, model);
+    }, {
+        get: (params, headers) => _request('get', null, params, headers),
+
+        post: (data, headers) => _request('post', data || null, null, headers),
+
+        put: (data, headers) => _request('put', data || null, null, headers),
+
+        patch: (data, headers) => _request('patch', data || null, null, headers),
+
+        delete: (data, headers) => _request('delete', data || null, null, headers),
+
+        head: (headers) => _request('head', null, null, headers),
+    });
 
     configurable(model, config);
 
