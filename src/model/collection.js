@@ -5,12 +5,12 @@ import member from 'model/member';
 import resource from 'model/resource';
 
 export default function collection(name, parent) {
-    var url = parent.customUrl && parent.customUrl() ? parent.customUrl() : [parent.url(), name].join('/');
+    let url = parent.customUrl && parent.customUrl() ? parent.customUrl() : [parent.url(), name].join('/');
 
-    var refEndpoint = endpoint(url, parent());
+    let refEndpoint = endpoint(url, parent());
 
     function refEndpointFactory(id) {
-        var _endpoint = endpoint(url + '/' + id, parent());
+        let _endpoint = endpoint(url + '/' + id, parent());
 
         // Configure the endpoint
         // We do it this way because the request must have an endpoint which inherits from this collection config
@@ -23,7 +23,7 @@ export default function collection(name, parent) {
     }
 
     function memberFactory(id) {
-        var _member = member(name, id, parent);
+        let _member = member(name, id, parent);
 
         // Configure the endpoint
         // We do it this way because the response must have a member which inherits from this collection config
@@ -35,66 +35,38 @@ export default function collection(name, parent) {
         return _member;
     }
 
-    var model = {
-        get(id, params, headers) {
-            return refEndpointFactory(id)
-                .get(params, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse, memberFactory);
-                });
-        },
+    function _request(config) {
+        let reqEndpoint = config.hasOwnProperty('id') ? refEndpointFactory(config.id) : refEndpoint;
 
-        getAll(params, headers) {
-            return refEndpoint
-                .get(params, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse, memberFactory);
-                });
-        },
+        let args = [];
 
-        post(data, headers) {
-            return refEndpoint
-                .post(data, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse);
-                });
-        },
+        if (config.hasOwnProperty('data')) {
+            args.push(config.data);
+        }
 
-        put(id, data, headers) {
-            return refEndpointFactory(id)
-                .put(data, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse);
-                });
-        },
+        if (config.hasOwnProperty('params')) {
+            args.push(config.params);
+        }
 
-        patch(id, data, headers) {
-            return refEndpointFactory(id)
-                .patch(data, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse);
-                });
-        },
+        if (config.hasOwnProperty('headers')) {
+            args.push(config.headers);
+        }
 
-        head(id, data, headers) {
-            return refEndpointFactory(id)
-                .head(data, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse);
-                });
-        },
+        return reqEndpoint[config.method].apply(reqEndpoint, args)
+            .then((serverResponse) => {
+                return responseBuilder(serverResponse, config.method === 'get' ? memberFactory : undefined);
+            });
+    }
 
-        delete(id, data, headers) {
-            return refEndpointFactory(id)
-                .delete(data, headers)
-                .then(function(serverResponse) {
-                    return responseBuilder(serverResponse);
-                });
-        },
-
-        url() {
-            return url;
-        },
+    let model = {
+        get: (id, params, headers) => _request({ method: 'get', id, params, headers }),
+        getAll: (params, headers) => _request({ method: 'get', params, headers }),
+        post: (data, headers) => _request({ method: 'post', data, headers }),
+        put: (id, data, headers) => _request({ method: 'put', id, data, headers }),
+        patch: (id, data, headers) => _request({ method: 'patch', id, data, headers }),
+        head: (id, headers) => _request({ method: 'head', id, headers }),
+        delete: (id, headers) => _request({ method: 'delete', id, headers }),
+        url: () => url,
     };
 
     return assign(resource(refEndpoint), model);

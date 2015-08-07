@@ -31,7 +31,7 @@ export default function endpoint(url, parent) {
         return properties;
     }
 
-    function _generateRequestConfig(method, params = null, headers = {}, data = null) {
+    function _generateRequestConfig(method, data = null, params = null, headers = {}) {
         let config = {
             method: method,
             url: url,
@@ -42,6 +42,10 @@ export default function endpoint(url, parent) {
         };
 
         if (data) {
+            if (!config.headers['Content-Type']) {
+                config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+            }
+
             config.data = data;
             config.requestInterceptors = _mergeProperty('requestInterceptors');
         }
@@ -55,8 +59,8 @@ export default function endpoint(url, parent) {
         return config;
     }
 
-    function _request(method, params, headers, data) {
-        let nextConfig = _generateRequestConfig(method, params, headers, data);
+    function _request(method, data, params, headers) {
+        let nextConfig = _generateRequestConfig(method, data, params, headers);
 
         return config._parent().request(
             nextConfig.method,
@@ -64,30 +68,20 @@ export default function endpoint(url, parent) {
         );
     }
 
-    function _normalizeContentType(headers = {}) {
-        let _headers = _mergeProperty('headers');
-
-        if (!_headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json;charset=UTF-8';
-        }
-
-        return headers;
-    }
-
     model = assign(function() {
         return config._parent();
     }, {
-        get: (params, headers) => _request('get', params, headers),
+        get: (params, headers) => _request('get', null, params, headers),
 
-        post: (data, headers) => _request('post', null, _normalizeContentType(headers), data),
+        post: (data, headers) => _request('post', data, null, headers),
 
-        put: (data, headers) => _request('put', null, _normalizeContentType(headers), data),
+        put: (data, headers) => _request('put', data, null, headers),
 
-        patch: (data, headers) => _request('patch', null, _normalizeContentType(headers), data),
+        patch: (data, headers) => _request('patch', data, null, headers),
 
-        delete: (data, headers) => request('delete', url, {}, headers, data),
+        delete: (data, headers) => request('delete', data, {}, headers),
 
-        head: (headers) => _request('head', null, headers),
+        head: (headers) => _request('head', null, null, headers),
     });
 
     configurable(model, config);
