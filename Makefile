@@ -5,6 +5,7 @@ install:
 	bower install
 
 build: jshint
+	${CURDIR}/node_modules/.bin/webpack --output-file=restful.js
 	${CURDIR}/node_modules/.bin/webpack --optimize-minimize --output-file=restful.min.js
 
 watch:
