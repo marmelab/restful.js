@@ -2,17 +2,15 @@
 
 install:
 	npm install
-	bower install
 
-build: jshint
+build:
 	${CURDIR}/node_modules/.bin/webpack --optimize-minimize --output-file=restful.min.js
 
+build-dev:
+	${CURDIR}/node_modules/.bin/webpack --output-file=restful.js
+
 watch:
-	${CURDIR}/node_modules/.bin/webpack --watch
+	${CURDIR}/node_modules/.bin/webpack -d --watch
 
-jshint:
-	./node_modules/jshint/bin/jshint src/**/*.js
-	./node_modules/jshint/bin/jshint test/**/*.js
-
-test: build
-	CHROME_BIN=`which chromium-browser` ${CURDIR}/node_modules/karma/bin/karma start test/karma.conf.js --single-run
+test:
+	NODE_ENV=test ${CURDIR}/node_modules/.bin/mocha --compilers js:babel/register --colors --reporter=spec --timeout=10000 test/{**,**/**,**/**/**}/*.js

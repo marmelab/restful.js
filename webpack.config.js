@@ -2,12 +2,6 @@ module.exports = {
     entry: {
         restful: './src/restful.js',
     },
-    resolve:{
-        modulesDirectories: [
-            'node_modules',
-            'src'
-        ]
-    },
     module: {
         loaders: [{
             test: /\.js$/,
@@ -19,6 +13,6 @@ module.exports = {
         path: './dist',
         filename: '[name].js',
         library: 'restful',
-        libraryTarget: 'umd'
-    }
+        libraryTarget: 'umd',
+    },
 };

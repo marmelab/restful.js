@@ -1,40 +1,31 @@
-import assign from 'object-assign';
-import entity from 'model/entity';
+import entity from './entity';
 
-export default function response(serverResponse, memberFactory) {
-    var model = {
+export default function(response, endpoint) {
+    const url = endpoint.url();
+    const identifier = endpoint.identifier();
+
+    return {
         status() {
-            return serverResponse.status;
+            return response.statusCode;
         },
-
         body(hydrate = true) {
-            if (!hydrate || !memberFactory) {
-                return serverResponse.data;
+            const { data } = response;
+
+            if (!hydrate) {
+                return data;
             }
 
-            if (Object.prototype.toString.call(serverResponse.data) === '[object Array]') {
-                return serverResponse.data.map(function(datum) {
-                    return entity(datum.id, datum, memberFactory(datum.id));
+            if (Object.prototype.toString.call(data) === '[object Array]') {
+                return data.map((datum) => {
+                    const id = datum[identifier];
+                    return entity(datum, endpoint.new(`${url}/${id}`));
                 });
             }
 
-            return entity(
-                serverResponse.data.id,
-                serverResponse.data,
-                memberFactory(serverResponse.data.id)
-            );
+            return entity(data, endpoint);
         },
-
         headers() {
-            return serverResponse.headers;
+            return response.headers;
         },
-
-        config() {
-            return serverResponse.config;
-        }
     };
-
-    return assign(function () {
-        return serverResponse;
-    }, model);
 }

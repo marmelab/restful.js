@@ -1,94 +1,23 @@
-import assign from 'object-assign';
-import configurable from 'util/configurable';
-import collection from 'model/collection';
-import member from 'model/member';
-import resource from 'model/resource';
-import axios from 'axios';
-import http from 'service/http';
+import debug from './service/debug';
+import endpoint from './model/endpoint';
+import fetch from './http/fetch';
+import http from './service/http';
+import { member } from './model/decorator';
+import scope from './model/scope';
 
-export default function restful(baseUrl, port) {
-    var config = {
-        baseUrl: baseUrl,
-        port: port || 80,
-        prefixUrl: '',
-        protocol: 'http',
-    };
+export default function(baseUrl, httpBackend = fetch) {
+    const rootScope = scope();
+    rootScope.assign('config', 'entityIdentifier', 'id');
+    rootScope.set('debug', false);
+    rootScope.set('url', baseUrl || `${window.location.protocol}//${window.location.host}`);
 
-    var fakeEndpoint = (function() {
-        var _config = {
-            _http: http(axios),
-            headers: {},
-            fullRequestInterceptors: [],
-            fullResponseInterceptors: [],
-            requestInterceptors: [],
-            responseInterceptors: [],
-        };
+    const rootEndpoint = member(endpoint(http(httpBackend))(rootScope));
 
-        var model = {
-            url() {
-                var url = config.protocol + '://' + config.baseUrl;
+    rootEndpoint.on('error', (error, config) => rootScope.get('debug') && debug('error', error, config));
+    rootEndpoint.on('request', config => rootScope.get('debug') && debug('request', null, config));
+    rootEndpoint.on('response', (response, config) => rootScope.get('debug') && debug('response', response.body(false), config));
 
-                if (config.port !== 80) {
-                    url += ':' + config.port;
-                }
+    rootEndpoint.debug = enabled => rootScope.set('debug', enabled);
 
-                if (config.prefixUrl !== '') {
-                    url += '/' + config.prefixUrl;
-                }
-
-                return url;
-            }
-        };
-
-        configurable(model, _config);
-
-        return assign(function() {
-            return _config._http;
-        }, model);
-    }());
-
-    var model = {
-        _url: null,
-
-        customUrl(url) {
-            if (typeof url === 'undefined') {
-                return this._url;
-            }
-
-            this._url = url;
-
-            return this;
-        },
-
-        url() {
-            return fakeEndpoint.url();
-        },
-
-        one(name, id) {
-            return member(name, id, model);
-        },
-
-        oneUrl(name, url) {
-            this.customUrl(url);
-
-            return this.one(name, null);
-        },
-
-        all(name) {
-            return collection(name, model);
-        },
-
-        allUrl(name, url) {
-            this.customUrl(url);
-
-            return this.all(name);
-        }
-    };
-
-    // We override model because one and all need it as a closure
-    model = assign(resource(fakeEndpoint), model);
-
-    configurable(model, config);
-
-    return model;
+    return rootEndpoint;
 }
