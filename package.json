@@ -1,19 +1,21 @@
 {
   "name": "restful.js",
-  "version": "0.6.2",
+  "version": "0.9.0",
   "repository": "https://github.com/marmelab/restful.js",
+  "bugs": {
+    "url": "https://github.com/marmelab/restful.js/issues"
+  },
   "description": "A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.",
   "scripts": {
     "test": "make test"
   },
-  "main": "dist/restful.min.js",
+  "main": "src",
   "author": "Robin Bressan <robin@buddey.net>",
   "license": "MIT",
   "dependencies": {
     "babel": "~4.6.6",
     "babel-loader": "~4.0.0",
-    "object-assign": "~2.0.0",
-    "whatwg-fetch": "^0.9.0"
+    "object-assign": "~2.0.0"
   },
   "devDependencies": {
     "babel-eslint": "~4.0.10",
@@ -23,5 +25,9 @@
     "mocha": "~2.3.0",
     "sinon": "~1.16.1",
     "webpack": "~1.9.11"
+  },
+  "peerDependencies": {
+    "request": "~2.62.0",
+    "whatwg-fetch": "~0.9.0"
   }
 }
