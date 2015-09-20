@@ -6,10 +6,7 @@ install:
 	npm install
 
 build:
-	webpack --optimize-minimize --output-file=restful.min.js
-
-build-dev:
-	webpack --output-file=restful.js
+	webpack
 
 watch:
 	webpack -d --watch

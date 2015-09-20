@@ -11,7 +11,7 @@ export default function(baseUrl, httpBackend) {
 
     const rootEndpoint = member(endpoint(http(httpBackend))(rootScope));
 
-    if (process && process.env && process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
         const debug = require('./service/debug');
         rootEndpoint.on('error', (error, config) => rootScope.get('debug') && debug('error', error, config));
         rootEndpoint.on('request', config => rootScope.get('debug') && debug('request', null, config));

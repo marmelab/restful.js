@@ -1,6 +1,11 @@
+/* eslint-disable no-var */
+var webpack = require('webpack');
+var production = process.env.NODE_ENV === 'production';
+
 module.exports = {
     entry: {
-        restful: './src/index.js',
+        fetch: './build/restful.fetch.js',
+        standalone: './build/restful.standalone.js',
     },
     module: {
         loaders: [{
@@ -13,10 +18,13 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         }),
-    ],
+    ].concat(production ?  [
+        new webpack.optimize.UglifyJsPlugin(),
+        new webpack.optimize.DedupePlugin(),
+    ] : []),
     output: {
         path: './dist',
-        filename: '[name].js',
+        filename: production ? 'restful.[name].min.js' : 'restful.[name].js',
         library: 'restful',
         libraryTarget: 'umd',
     },
