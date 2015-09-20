@@ -3,8 +3,8 @@ import responseFactory from './response';
 
 export default function(request) {
     return function endpointFactory(scope) {
-        scope.on('error', () => true); // Add default error listener to prevent unwanted throw
-        const endpoint = {}; // Persist reference
+        scope.on('error', () => true); // Add a default error listener to prevent unwanted exception
+        const endpoint = {}; // Persists reference
 
         function _generateRequestConfig(method, data, params, headers) {
             const config = {
