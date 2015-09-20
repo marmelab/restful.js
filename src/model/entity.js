@@ -1,15 +1,13 @@
-export default function(data, endpoint, identifier) {
+export default function(data, endpoint) {
     return {
         all: endpoint.all,
         custom: endpoint.custom,
         data() {
             return data;
         },
-        delete(...args) {
-            return endpoint.delete(...args);
-        },
+        delete: endpoint.delete,
         id() {
-            return data[identifier];
+            return data[endpoint.identifier()];
         },
         one: endpoint.one,
         save(...args) {

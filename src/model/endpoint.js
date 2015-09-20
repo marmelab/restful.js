@@ -64,7 +64,13 @@ export default function(request) {
             addRequestInterceptor: interceptor => scope.push('requestInterceptors', interceptor),
             addResponseInterceptor: interceptor => scope.push('responseInterceptors', interceptor),
             delete: _httpMethodFactory('delete'),
-            identifier: (newIdentifier) => scope.assign('config', 'entityIdentifier', newIdentifier),
+            identifier: newIdentifier => {
+                if (newIdentifier === undefined) {
+                    return scope.get('config').entityIdentifier;
+                }
+
+                newIdentifierscope.assign('config', 'entityIdentifier', newIdentifier);
+            },
             get: _httpMethodFactory('get', false),
             head: _httpMethodFactory('head', false),
             header: (key, value) => scope.assign('headers', key, value),
