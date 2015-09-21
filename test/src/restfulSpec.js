@@ -7,7 +7,7 @@ global.window = {
 global.self = {};
 
 import { expect } from 'chai';
-import restful from '../../src/restful';
+import restful from '../../src';
 import sinon from 'sinon';
 
 describe('Restful', () => {
