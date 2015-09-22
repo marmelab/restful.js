@@ -8,6 +8,7 @@ export default function(request) {
 
         function _generateRequestConfig(method, data, params, headers) {
             const config = {
+                errorInterceptors: scope.get('errorInterceptors') || [],
                 headers: assign({}, scope.get('headers'), headers || {}),
                 method,
                 params,
@@ -61,6 +62,7 @@ export default function(request) {
         }
 
         assign(endpoint, {
+            addErrorInterceptor: interceptor => scope.push('errorInterceptors', interceptor),
             addRequestInterceptor: interceptor => scope.push('requestInterceptors', interceptor),
             addResponseInterceptor: interceptor => scope.push('responseInterceptors', interceptor),
             delete: _httpMethodFactory('delete'),

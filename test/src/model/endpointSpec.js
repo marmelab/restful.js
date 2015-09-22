@@ -25,6 +25,7 @@ describe('Endpoint model', () => {
             endpoint.get();
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {},
                 method: 'get',
                 params: null,
@@ -38,6 +39,7 @@ describe('Endpoint model', () => {
             endpoint.get({ filter: 'asc' }, { Authorization: 'Token xxxx' });
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {
                     Authorization: 'Token xxxx',
                 },
@@ -64,6 +66,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
@@ -90,6 +93,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
@@ -117,6 +121,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
@@ -143,6 +148,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
@@ -170,6 +176,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
@@ -196,6 +203,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
@@ -223,6 +231,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
@@ -249,6 +258,7 @@ describe('Endpoint model', () => {
                     'request',
                     'data',
                 ],
+                errorInterceptors: [],
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
@@ -269,6 +279,7 @@ describe('Endpoint model', () => {
             endpoint.head();
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {},
                 method: 'head',
                 params: null,
@@ -282,6 +293,7 @@ describe('Endpoint model', () => {
             endpoint.head({ filter: 'asc' }, { Authorization: 'Token xxxx' });
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {
                     Authorization: 'Token xxxx',
                 },
@@ -303,6 +315,7 @@ describe('Endpoint model', () => {
             endpoint.get();
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {},
                 method: 'get',
                 params: null,
@@ -318,11 +331,28 @@ describe('Endpoint model', () => {
             endpoint.get();
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {},
                 method: 'get',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [{ hello2: 'world2' }],
+                url: '/url',
+            }]);
+        });
+
+        it('should add a error interceptor and pass it to the request callback when one request is performed', () => {
+            endpoint.addErrorInterceptor({ hello3: 'world3' });
+
+            endpoint.get();
+
+            expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [{ hello3: 'world3' }],
+                headers: {},
+                method: 'get',
+                params: null,
+                requestInterceptors: [],
+                responseInterceptors: [],
                 url: '/url',
             }]);
         });
@@ -334,6 +364,7 @@ describe('Endpoint model', () => {
             endpoint.get(null, { hello: 'world' });
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {
                     Authorization: 'xxxx',
                     hello: 'world',
@@ -351,6 +382,7 @@ describe('Endpoint model', () => {
             endpoint.get(null, { Authorization: 'yyyy' });
 
             expect(request.getCall(0).args).to.deep.equal([{
+                errorInterceptors: [],
                 headers: {
                     Authorization: 'yyyy',
                 },
@@ -383,6 +415,7 @@ describe('Endpoint model', () => {
 
         expect(request.getCall(0).args).to.deep.equal([{
             data: { content: 'test' },
+            errorInterceptors: [],
             headers: {
                 Authorization: 'xxxx',
                 'Content-Type': 'application/json;charset=UTF-8',
@@ -407,6 +440,7 @@ describe('Endpoint model', () => {
         endpoint.get();
 
         expect(listener.getCall(0).args).to.deep.equal([{
+            errorInterceptors: [],
             headers: {},
             method: 'get',
             params: null,
@@ -425,6 +459,7 @@ describe('Endpoint model', () => {
                 result: true,
             });
             expect(listener.getCall(0).args[1]).to.deep.equal({
+                errorInterceptors: [],
                 headers: {},
                 method: 'get',
                 params: null,
@@ -449,6 +484,7 @@ describe('Endpoint model', () => {
             expect(listener.getCall(0).args).to.deep.equal([
                 new Error('Oops'),
                 {
+                    errorInterceptors: [],
                     headers: {},
                     method: 'get',
                     params: null,
@@ -473,6 +509,7 @@ describe('Endpoint model', () => {
             expect(listener.getCall(0).args).to.deep.equal([
                 new Error('Oops'),
                 {
+                    errorInterceptors: [],
                     headers: {},
                     method: 'get',
                     params: null,

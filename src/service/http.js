@@ -2,8 +2,10 @@ import assign from 'object-assign';
 
 export default function(httpBackend) {
     return (config) => {
+        const errorInterceptors = config.errorInterceptors || [];
         const requestInterceptors = config.requestInterceptors || [];
         const responseInterceptors = config.responseInterceptors || [];
+        delete config.errorInterceptors;
         delete config.requestInterceptors;
         delete config.responseInterceptors;
 
@@ -29,6 +31,19 @@ export default function(httpBackend) {
                         });
                     }, Promise.resolve(response));
                 });
+            })
+            .then(null, (error) => {
+                return errorInterceptors
+                    .reduce((promise, interceptor) => {
+                        return promise.then(currentError => {
+                            return Promise.resolve()
+                                .then(() => interceptor(currentError, config))
+                                .then((nextError) => {
+                                    return assign({}, currentError, nextError);
+                                });
+                        });
+                    }, Promise.resolve(error))
+                    .then((transformedError) => Promise.reject(transformedError));
             });
     };
 }
