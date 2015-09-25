@@ -11,9 +11,15 @@ export default function(fetch) {
         return fetch(url, config)
             .then((response) => {
                 return response.json().then((json) => {
+                    const headers = {};
+
+                    response.headers.forEach((value, name) => {
+                        headers[name] = value;
+                    });
+
                     const responsePayload = {
                         data: json,
-                        headers: response.headers,
+                        headers: headers,
                         statusCode: response.status,
                     };
 

@@ -1,4 +1,3 @@
-import debug from './service/debug';
 import endpoint from './model/endpoint';
 import http from './service/http';
 import { member } from './model/decorator';
@@ -14,12 +13,5 @@ export default function(baseUrl, httpBackend) {
         rootScope.set('url', baseUrl);
     }
 
-    const rootEndpoint = member(endpoint(http(httpBackend))(rootScope));
-
-    if (process.env.NODE_ENV !== 'production') {
-        // We make the root endpoint retrievable from any debug tool
-        debug(rootEndpoint);
-    }
-
-    return rootEndpoint;
+    return member(endpoint(http(httpBackend))(rootScope));
 }

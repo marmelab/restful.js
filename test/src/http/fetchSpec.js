@@ -10,7 +10,9 @@ describe('Fetch HTTP Backend', () => {
     beforeEach(() => {
         response = {
             headers: {
-                test: 'here',
+                forEach: (cb) => {
+                    cb('here', 'test');
+                },
             },
             json: () => Promise.resolve({ content: 'Yes' }),
             status: 200,
