@@ -1,48 +1,41 @@
 import assign from 'object-assign';
+import { fromJS, List, Iterable } from 'immutable';
+import serialize from '../util/serialize';
+
+/* eslint-disable new-cap */
+function reducePromiseList(list, initialValue, params = []) {
+    return list.reduce((promise, nextItem) => {
+        return promise.then(currentValue => {
+            return Promise.resolve(nextItem(serialize(currentValue), ...params))
+                .then((nextValue) => {
+                    if (!Iterable.isIterable(currentValue)) {
+                        return assign({}, currentValue, nextValue);
+                    }
+
+                    return currentValue.mergeDeep(nextValue);
+                });
+        });
+    }, Promise.resolve(initialValue));
+}
 
 export default function(httpBackend) {
     return (config) => {
-        const errorInterceptors = config.errorInterceptors || [];
-        const requestInterceptors = config.requestInterceptors || [];
-        const responseInterceptors = config.responseInterceptors || [];
-        delete config.errorInterceptors;
-        delete config.requestInterceptors;
-        delete config.responseInterceptors;
+        const errorInterceptors = List(config.get('errorInterceptors'));
+        const requestInterceptors = List(config.get('requestInterceptors'));
+        const responseInterceptors = List(config.get('responseInterceptors'));
+        const currentConfig = config
+            .delete('errorInterceptors')
+            .delete('requestInterceptors')
+            .delete('responseInterceptors');
 
-        return requestInterceptors
-            .reduce((promise, interceptor) => {
-                return promise.then(currentConfig => {
-                    return Promise.resolve()
-                        .then(() => interceptor(currentConfig))
-                        .then((nextConfig) => {
-                            return assign({}, currentConfig, nextConfig);
-                        });
-                });
-            }, Promise.resolve(config))
+        return reducePromiseList(requestInterceptors, currentConfig)
             .then((transformedConfig) => {
-                return httpBackend(transformedConfig).then((response) => {
-                    return responseInterceptors.reduce((promise, interceptor) => {
-                        return promise.then(currentResponse => {
-                            return Promise.resolve()
-                                .then(() => interceptor(currentResponse, transformedConfig))
-                                .then((nextResponse) => {
-                                    return assign({}, currentResponse, nextResponse);
-                                });
-                        });
-                    }, Promise.resolve(response));
+                return httpBackend(serialize(transformedConfig)).then((response) => {
+                    return reducePromiseList(responseInterceptors, fromJS(response), [serialize(transformedConfig)]);
                 });
             })
             .then(null, (error) => {
-                return errorInterceptors
-                    .reduce((promise, interceptor) => {
-                        return promise.then(currentError => {
-                            return Promise.resolve()
-                                .then(() => interceptor(currentError, config))
-                                .then((nextError) => {
-                                    return assign({}, currentError, nextError);
-                                });
-                        });
-                    }, Promise.resolve(error))
+                return reducePromiseList(errorInterceptors, error, [serialize(currentConfig)])
                     .then((transformedError) => Promise.reject(transformedError));
             });
     };

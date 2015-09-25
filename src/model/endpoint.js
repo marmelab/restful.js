@@ -1,43 +1,46 @@
 import assign from 'object-assign';
 import responseFactory from './response';
+import { fromJS, List, Map } from 'immutable';
+import serialize from '../util/serialize';
 
+/* eslint-disable new-cap */
 export default function(request) {
     return function endpointFactory(scope) {
         scope.on('error', () => true); // Add a default error listener to prevent unwanted exception
         const endpoint = {}; // Persists reference
 
         function _generateRequestConfig(method, data, params, headers) {
-            const config = {
-                errorInterceptors: scope.get('errorInterceptors') || [],
-                headers: assign({}, scope.get('headers'), headers || {}),
+            let config = Map({
+                errorInterceptors: List(scope.get('errorInterceptors')),
+                headers: Map(scope.get('headers')).mergeDeep(Map(headers)),
                 method,
                 params,
-                requestInterceptors: scope.get('requestInterceptors') || [],
-                responseInterceptors: scope.get('responseInterceptors') || [],
+                requestInterceptors: List(scope.get('requestInterceptors')),
+                responseInterceptors: List(scope.get('responseInterceptors')),
                 url: scope.get('url'),
-            };
+            });
 
             if (data) {
-                if (!config.headers['Content-Type']) {
-                    config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+                if (!config.hasIn(['headers', 'Content-Type'])) {
+                    config = config.setIn(['headers', 'Content-Type'], 'application/json;charset=UTF-8');
                 }
 
-                config.data = data;
+                config = config.set('data', fromJS(data));
             }
 
-            scope.emit('request', assign({}, config));
+            scope.emit('request', serialize(config));
 
             return config;
         }
 
         function _onResponse(config, rawResponse) {
-            const response = responseFactory(rawResponse, endpoint, scope.get('config').entityIdentifier);
-            scope.emit('response', assign({}, response), assign({}, config));
+            const response = responseFactory(rawResponse, endpoint);
+            scope.emit('response', response, serialize(config));
             return response;
         }
 
         function _onError(config, error) {
-            scope.emit('error', error, assign({}, config));
+            scope.emit('error', error, serialize(config));
             throw error;
         }
 
@@ -45,16 +48,16 @@ export default function(request) {
             if (expectData) {
                 return (data, params = null, headers = null) => {
                     const config = _generateRequestConfig(method, data, params, headers);
-                    return request(assign({}, config)).then(
-                        (rawResponse) => _onResponse(assign({}, config), rawResponse),
-                        (rawResponse) => _onError(assign({}, config), rawResponse)
+                    return request(config).then(
+                        (rawResponse) => _onResponse(config, rawResponse),
+                        (rawResponse) => _onError(config, rawResponse)
                     );
                 };
             }
 
             return (params = null, headers = null) => {
                 const config = _generateRequestConfig(method, null,  params, headers);
-                return request(assign({}, config)).then(
+                return request(config).then(
                     (rawResponse) => _onResponse(config, rawResponse),
                     (error) => _onError(config, error)
                 );
@@ -68,10 +71,10 @@ export default function(request) {
             delete: _httpMethodFactory('delete'),
             identifier: newIdentifier => {
                 if (newIdentifier === undefined) {
-                    return scope.get('config').entityIdentifier;
+                    return scope.get('config').get('entityIdentifier');
                 }
 
-                newIdentifierscope.assign('config', 'entityIdentifier', newIdentifier);
+                scope.assign('config', 'entityIdentifier', newIdentifier);
             },
             get: _httpMethodFactory('get', false),
             head: _httpMethodFactory('head', false),

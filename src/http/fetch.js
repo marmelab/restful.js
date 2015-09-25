@@ -14,9 +14,14 @@ export default function(fetch) {
                     return response;
                 }
 
-                const error = new Error(response.statusText);
-                error.response = response;
-                throw error;
+                return response.json().then((json) => {
+                    const error = new Error(response.statusText);
+                    error.response = {
+                        data: json,
+                        statusCode: response.status,
+                    };
+                    throw error;
+                });
             })
             .then((response) => {
                 return response.json().then((json) => {

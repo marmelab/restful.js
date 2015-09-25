@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { fromJS } from 'immutable';
 import responseModel from '../../../src/model/response';
 import sinon from 'sinon';
 
@@ -16,7 +17,7 @@ describe('Response model', () => {
             url: sinon.stub().returns('/url'),
         };
 
-        response = responseModel({
+        response = responseModel(fromJS({
             data: {
                 hello: 'world',
                 here: 'again',
@@ -25,7 +26,7 @@ describe('Response model', () => {
                 hello: 'world',
             },
             statusCode: 200,
-        }, endpoint);
+        }), endpoint);
     });
 
     it('should return its statusCode when statusCode is called', () => {
@@ -61,7 +62,7 @@ describe('Response model', () => {
     it('should return an array of entities when it raw data is an array and body is called without argument', () => {
         delete endpoint.all; // We simulate a collection endpoint;
 
-        const entities = responseModel({
+        const entities = responseModel(fromJS({
             data: [
                 {
                     hello: 'world',
@@ -72,7 +73,7 @@ describe('Response model', () => {
                     here: 'again2',
                 },
             ],
-        }, endpoint).body();
+        }), endpoint).body();
 
         expect(entities[0].data()).to.deep.equal({
             hello: 'world',

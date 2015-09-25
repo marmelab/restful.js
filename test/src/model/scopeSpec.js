@@ -14,12 +14,12 @@ describe('Scope Model', () => {
         const rootScope = scope();
 
         rootScope.assign('obj', 'hello', 'again');
-        expect(rootScope.get('obj')).to.deep.equal({
+        expect(rootScope.get('obj').toJS()).to.deep.equal({
             hello: 'again',
         });
 
         rootScope.assign('obj', 'goodbye', 'again again');
-        expect(rootScope.get('obj')).to.deep.equal({
+        expect(rootScope.get('obj').toJS()).to.deep.equal({
             goodbye: 'again again',
             hello: 'again',
         });
@@ -29,12 +29,12 @@ describe('Scope Model', () => {
         const rootScope = scope();
 
         rootScope.push('arr', 'here');
-        expect(rootScope.get('arr')).to.deep.equal([
+        expect(rootScope.get('arr').toJS()).to.deep.equal([
             'here',
         ]);
 
         rootScope.push('arr', 'there');
-        expect(rootScope.get('arr')).to.deep.equal([
+        expect(rootScope.get('arr').toJS()).to.deep.equal([
             'here',
             'there',
         ]);
@@ -68,18 +68,18 @@ describe('Scope Model', () => {
         const grandChildScope = childScope.new();
         grandChildScope.assign('obj', 'well', 'fine');
 
-        expect(rootScope.get('obj')).to.deep.equal({
+        expect(rootScope.get('obj').toJS()).to.deep.equal({
             goodbye: 'again again',
             hello: 'again',
         });
 
-        expect(childScope.get('obj')).to.deep.equal({
+        expect(childScope.get('obj').toJS()).to.deep.equal({
             good: 'bad',
             goodbye: 'again again again',
             hello: 'again',
         });
 
-        expect(grandChildScope.get('obj')).to.deep.equal({
+        expect(grandChildScope.get('obj').toJS()).to.deep.equal({
             good: 'bad',
             goodbye: 'again again again',
             hello: 'again',
@@ -98,18 +98,18 @@ describe('Scope Model', () => {
         const grandChildScope = childScope.new();
         grandChildScope.push('arr', 'place');
 
-        expect(rootScope.get('arr')).to.deep.equal([
+        expect(rootScope.get('arr').toJS()).to.deep.equal([
             'here',
             'there',
         ]);
 
-        expect(childScope.get('arr')).to.deep.equal([
+        expect(childScope.get('arr').toJS()).to.deep.equal([
             'here',
             'there',
             'location',
         ]);
 
-        expect(grandChildScope.get('arr')).to.deep.equal([
+        expect(grandChildScope.get('arr').toJS()).to.deep.equal([
             'here',
             'there',
             'location',

@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import httpService from '../../../src/service/http';
+import { Map } from 'immutable';
 import sinon from 'sinon';
 
+/* eslint-disable new-cap */
 describe('HTTP Service', () => {
     let http;
     let httpBackend;
@@ -21,7 +23,7 @@ describe('HTTP Service', () => {
         }));
         const responseInterceptor1 = sinon.stub().returns({ status: 'yes' });
 
-        http({
+        http(Map({
             method: 'get',
             form: {
                 test: 'test',
@@ -29,7 +31,7 @@ describe('HTTP Service', () => {
             requestInterceptors: [requestInterceptor1, requestInterceptor2, requestInterceptor3],
             responseInterceptors: [responseInterceptor1],
             url: '/url',
-        }).then((response) => {
+        })).then((response) => {
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     method: 'get',
@@ -87,7 +89,7 @@ describe('HTTP Service', () => {
                     url: '/updated',
                 },
             ]);
-            expect(response).to.deep.equal({
+            expect(response.toJS()).to.deep.equal({
                 output: 1,
                 status: 'yes',
             });
@@ -102,7 +104,7 @@ describe('HTTP Service', () => {
         }));
         const errorInterceptor1 = sinon.stub().returns({ status: 'yes' });
 
-        http({
+        http(Map({
             errorInterceptors: [errorInterceptor1],
             method: 'get',
             form: {
@@ -111,7 +113,7 @@ describe('HTTP Service', () => {
             requestInterceptors: [requestInterceptor1, requestInterceptor2],
             responseInterceptors: [],
             url: '/url',
-        }).then(done.bind(done, 'It should throw an error'), (error) => {
+        })).then(done.bind(done, 'It should throw an error'), (error) => {
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     method: 'get',
@@ -152,7 +154,7 @@ describe('HTTP Service', () => {
         }));
         const errorInterceptor1 = sinon.stub().returns({ status: 'yes' });
 
-        http({
+        http(Map({
             errorInterceptors: [errorInterceptor1],
             method: 'get',
             form: {
@@ -161,7 +163,7 @@ describe('HTTP Service', () => {
             requestInterceptors: [],
             responseInterceptors: [responseInterceptor1],
             url: '/url',
-        }).then(done.bind(done, 'It should throw an error'), (error) => {
+        })).then(done.bind(done, 'It should throw an error'), (error) => {
             expect(responseInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     output: 1,
@@ -204,7 +206,7 @@ describe('HTTP Service', () => {
         const errorInterceptor1 = sinon.stub().returns({ status: 'yes' });
         httpBackend.returns(Promise.reject(new Error('Oops')));
 
-        http({
+        http(Map({
             errorInterceptors: [errorInterceptor1],
             method: 'get',
             form: {
@@ -213,7 +215,7 @@ describe('HTTP Service', () => {
             requestInterceptors: [requestInterceptor1],
             responseInterceptors: [],
             url: '/url',
-        }).then(done.bind(done, 'It should throw an error'), (error) => {
+        })).then(done.bind(done, 'It should throw an error'), (error) => {
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     method: 'get',

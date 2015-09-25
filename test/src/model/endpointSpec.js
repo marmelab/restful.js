@@ -1,17 +1,19 @@
 import { expect } from 'chai';
 import endpointModel from '../../../src/model/endpoint';
+import { Map } from 'immutable';
 import scopeModel from '../../../src/model/scope';
 import sinon from 'sinon';
 
+/* eslint-disable new-cap */
 describe('Endpoint model', () => {
     let endpoint;
     let request;
     let scope;
 
     beforeEach(() => {
-        request = sinon.stub().returns(Promise.resolve({
+        request = sinon.stub().returns(Promise.resolve(Map({
             data: { result: true },
-        }));
+        })));
 
         scope = scopeModel();
         scope.set('url', '/url');
@@ -24,7 +26,7 @@ describe('Endpoint model', () => {
         it('should call request with correct config when called with no argument', () => {
             endpoint.get();
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
                 method: 'get',
@@ -32,13 +34,13 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should call request with correct config when called with params and headers', () => {
             endpoint.get({ filter: 'asc' }, { Authorization: 'Token xxxx' });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {
                     Authorization: 'Token xxxx',
@@ -50,7 +52,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -61,7 +63,7 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -75,7 +77,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -88,7 +90,7 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -105,7 +107,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -116,7 +118,7 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -130,7 +132,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -143,7 +145,7 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -160,7 +162,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -171,7 +173,7 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -185,7 +187,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -198,7 +200,7 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -215,7 +217,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -226,7 +228,7 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -240,7 +242,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -253,7 +255,7 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 data: [
                     'request',
                     'data',
@@ -270,7 +272,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -278,7 +280,7 @@ describe('Endpoint model', () => {
         it('should call request with correct config when called with no argument', () => {
             endpoint.head();
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
                 method: 'head',
@@ -286,13 +288,13 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should call request with correct config when called with params and headers', () => {
             endpoint.head({ filter: 'asc' }, { Authorization: 'Token xxxx' });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {
                     Authorization: 'Token xxxx',
@@ -304,7 +306,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -314,7 +316,7 @@ describe('Endpoint model', () => {
 
             endpoint.get();
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
                 method: 'get',
@@ -322,7 +324,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [{ hello: 'world' }],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should add a response interceptor and pass it to the request callback when one request is performed', () => {
@@ -330,7 +332,7 @@ describe('Endpoint model', () => {
 
             endpoint.get();
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
                 method: 'get',
@@ -338,7 +340,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [{ hello2: 'world2' }],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should add a error interceptor and pass it to the request callback when one request is performed', () => {
@@ -346,7 +348,7 @@ describe('Endpoint model', () => {
 
             endpoint.get();
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [{ hello3: 'world3' }],
                 headers: {},
                 method: 'get',
@@ -354,7 +356,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -363,7 +365,7 @@ describe('Endpoint model', () => {
             endpoint.header('Authorization', 'xxxx');
             endpoint.get(null, { hello: 'world' });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {
                     Authorization: 'xxxx',
@@ -374,14 +376,14 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
 
         it('should override existing headers when performing a request with the same header name', () => {
             endpoint.header('Authorization', 'xxxx');
             endpoint.get(null, { Authorization: 'yyyy' });
 
-            expect(request.getCall(0).args).to.deep.equal([{
+            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {
                     Authorization: 'yyyy',
@@ -391,7 +393,7 @@ describe('Endpoint model', () => {
                 requestInterceptors: [],
                 responseInterceptors: [],
                 url: '/url',
-            }]);
+            });
         });
     });
 
@@ -413,7 +415,7 @@ describe('Endpoint model', () => {
 
         childEndpoint.post({ content: 'test' });
 
-        expect(request.getCall(0).args).to.deep.equal([{
+        expect(request.getCall(0).args[0].toJS()).to.deep.equal({
             data: { content: 'test' },
             errorInterceptors: [],
             headers: {
@@ -430,7 +432,7 @@ describe('Endpoint model', () => {
                 { omega: 'gamma' },
             ],
             url: '/url2',
-        }]);
+        });
     });
 
     it('should emit a request event when a request is made', () => {

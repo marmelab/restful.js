@@ -1,28 +1,53 @@
-/* eslint-disable no-console */
-export default function debug(type, data, config) {
-    const logger = type === 'error' ? 'error' : 'log';
+import assign from 'object-assign';
 
-    if (!console.groupCollapsed) {
-        if (data) {
-            return console[logger](type, config.method.toUpperCase(), config.url, data, config);
+function emitDebug(payload) {
+    const message = assign({
+        jsonrpc: '2.0',
+        method: 'restful:debug',
+    }, payload);
+
+    window.postMessage(message, '*');
+}
+
+export default function(endpoint) {
+    if (!window || !window.addEventListener || !window.postMessage) {
+        return;
+    }
+
+    endpoint.on('error', (error, config) => {
+        const propertiesNames = Object.getOwnPropertyNames(error);
+        const serializedError = {};
+
+        for (const i in propertiesNames) {
+            if (!propertiesNames.hasOwnProperty(i)) {
+                return;
+            }
+
+            serializedError[propertiesNames[i]] = error[propertiesNames[i]];
         }
 
-        return console[logger](type, config.method.toUpperCase(), config.url, config);
-    }
+        emitDebug({
+            config,
+            error: serializedError,
+            type: 'error',
+            url: endpoint.url(),
+        });
+    });
 
-    if (data) {
-        console[logger](type, config.method.toUpperCase(), config.url, data);
-    } else {
-        console[logger](type, config.method.toUpperCase(), config.url);
-    }
+    endpoint.on('request', (config) => emitDebug({
+        config,
+        type: 'request',
+        url: endpoint.url(),
+    }));
 
-    console.groupCollapsed('config');
-    for (let i in config) { // eslint-disable-line prefer-const
-        if (!config.hasOwnProperty(i)) {
-            continue;
-        }
-
-        console.log(i, config[i]);
-    }
-    console.groupEnd();
+    endpoint.on('response', (response, config) => emitDebug({
+        config,
+        response: {
+            body: response.body(false),
+            headers: response.headers(),
+            statusCode: response.statusCode(),
+        },
+        type: 'response',
+        url: endpoint.url(),
+    }));
 }

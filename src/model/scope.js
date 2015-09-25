@@ -1,17 +1,18 @@
-import assign from 'object-assign';
 import { EventEmitter } from 'events';
+import { List, Map, Iterable } from 'immutable';
 
+/* eslint-disable new-cap */
 export default function scopeFactory(parentScope) {
-    const _data = {};
+    let _data = Map();
     const _emitter = new EventEmitter();
 
     const scope = {
         assign(key, subKey, value) {
             if (!scope.has(key)) {
-                scope.set(key, {});
+                scope.set(key, Map());
             }
 
-            _data[key][subKey] = value;
+            _data = _data.setIn([key, subKey], value);
             return scope;
         },
         emit(...args) {
@@ -22,9 +23,9 @@ export default function scopeFactory(parentScope) {
             }
         },
         get(key) {
-            const datum = _data[key];
+            const datum = _data.get(key);
 
-            if ((scope.has(key) && typeof(datum) !== 'object') || !parentScope) {
+            if ((scope.has(key) && !Iterable.isIterable(datum)) || !parentScope) {
                 return datum;
             } else if (!scope.has(key) && parentScope) {
                 return parentScope.get(key);
@@ -32,14 +33,18 @@ export default function scopeFactory(parentScope) {
 
             const parentDatum = parentScope.get(key);
 
-            if (datum.length === undefined) {
-                return assign({}, parentDatum, datum);
+            if (!parentDatum) {
+                return datum;
             }
 
-            return (parentDatum || []).concat(datum);
+            if (List.isList(parentDatum)) {
+                return parentDatum.concat(datum);
+            }
+
+            return parentDatum.mergeDeep(datum);
         },
         has(key) {
-            return _data.hasOwnProperty(key);
+            return _data.has(key);
         },
         new() {
             return scopeFactory(scope);
@@ -48,14 +53,14 @@ export default function scopeFactory(parentScope) {
         once: _emitter.once.bind(_emitter),
         push(key, value) {
             if (!scope.has(key)) {
-                scope.set(key, []);
+                scope.set(key, List());
             }
 
-            _data[key].push(value);
+            _data = _data.update(key, (list) => list.push(value));
             return scope;
         },
         set(key, value) {
-            _data[key] = value;
+            _data = _data.set(key, value);
             return scope;
         },
     };
