@@ -28,7 +28,7 @@
     "sinon": "~1.16.1",
     "webpack": "~1.9.11"
   },
-  "peerDependencies": {
+  "optionnalDependencies": {
     "request": "~2.62.0",
     "whatwg-fetch": "~0.9.0"
   }
