@@ -26,7 +26,6 @@ export function collection(endpoint) {
         head: _bindHttpMethod('head'),
         one: (name, id) => member(endpoint.new(`${endpoint.url()}/${name}/${id}`)), // eslint-disable-line no-use-before-define
         patch: _bindHttpMethod('patch'),
-        post: _bindHttpMethod('post'),
         put: _bindHttpMethod('put'),
     });
 }

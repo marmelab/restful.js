@@ -38,7 +38,7 @@ describe('Restful', () => {
         delete global.window;
     });
 
-    it.only('should work with a real API', (done) => {
+    it('should work with a real API', (done) => {
         api(nock);
         const client = restful('http://localhost', requestBackend(request));
 
@@ -75,7 +75,30 @@ describe('Restful', () => {
 
                         expect(comment.id()).to.equal('2');
                         comment.data().content = 'Updated';
-                        // return comment.save();
+                        return comment.save();
+                    })
+                    .then((response) => {
+                        expect(response.body(false)).to.deep.equal({
+                            content: 'Updated',
+                            id: '2',
+                        });
+                        return client.all('articles').post({
+                            title: 'Hello',
+                        });
+                    })
+                    .then((response) => {
+                        expect(response.body(false)).to.deep.equal({
+                            title: 'Hello',
+                        });
+                        expect(response.statusCode()).to.equal(201);
+
+                        return client.one('articles', 1).delete({ cascade: '1' });
+                    })
+                    .then((response) => {
+                        expect(response.body(false)).to.deep.equal({
+                            cascade: '1',
+                        });
+                        expect(response.statusCode()).to.equal(200);
                     });
             })
             .then(() => done())

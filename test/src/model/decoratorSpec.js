@@ -123,12 +123,11 @@ describe('Decorator Model', () => {
 
         it('should create a new endpoint with correct url on the fly when an http method is called', () => {
             const collection = decorators.collection(endpoint);
+            endpoint.post = sinon.stub().returns({ hello2: 'world2' });
             const get = sinon.stub().returns({ hello: 'world' });
-            const post = sinon.stub().returns({ hello2: 'world2' });
 
             endpoint.new.returns({
                 get,
-                post,
             });
 
             expect(collection.get(1, { test: 1 }, { here: 2 })).to.deep.equal({ hello: 'world' });
@@ -140,14 +139,11 @@ describe('Decorator Model', () => {
                 '/url/1',
             ]);
 
-            expect(collection.post(2, { data: true }, { test: 1 }, { here: 2 })).to.deep.equal({ hello2: 'world2' });
-            expect(post.getCall(0).args).to.deep.equal([
+            expect(collection.post({ data: true }, { test: 1 }, { here: 2 })).to.deep.equal({ hello2: 'world2' });
+            expect(endpoint.post.getCall(0).args).to.deep.equal([
                 { data: true },
                 { test: 1 },
                 { here: 2 },
-            ]);
-            expect(endpoint.new.getCall(1).args).to.deep.equal([
-                '/url/2',
             ]);
         });
 
