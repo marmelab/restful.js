@@ -10,26 +10,20 @@ export default function(fetch) {
 
         return fetch(url, config)
             .then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-
                 return response.json().then((json) => {
-                    const error = new Error(response.statusText);
-                    error.response = {
-                        data: json,
-                        statusCode: response.status,
-                    };
-                    throw error;
-                });
-            })
-            .then((response) => {
-                return response.json().then((json) => {
-                    return {
+                    const responsePayload = {
                         data: json,
                         headers: response.headers,
                         statusCode: response.status,
                     };
+
+                    if (response.status >= 200 && response.status < 300) {
+                        return responsePayload;
+                    }
+
+                    const error = new Error(response.statusText);
+                    error.response = responsePayload;
+                    throw error;
                 });
             });
     };
