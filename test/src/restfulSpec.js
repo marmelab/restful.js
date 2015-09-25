@@ -1,9 +1,8 @@
 import api from '../mock/api';
 import { expect } from 'chai';
 import nock from 'nock';
-import requestBackend from '../../src/http/request';
 import request from 'request';
-import restful from '../../src';
+import restful, { requestBackend } from '../../src';
 import sinon from 'sinon';
 
 describe('Restful', () => {

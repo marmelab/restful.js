@@ -4,6 +4,8 @@ PATH := ${CURDIR}/node_modules/.bin:${PATH}
 
 install:
 	npm install
+	npm install whatwg-fetch
+	npm install request
 
 build:
 	webpack

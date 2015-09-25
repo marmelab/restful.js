@@ -1,6 +1,8 @@
 import endpoint from './model/endpoint';
+import fetchBackend from './http/fetch';
 import http from './service/http';
 import { member } from './model/decorator';
+import requestBackend from './http/request';
 import scope from './model/scope';
 
 export default function(baseUrl, httpBackend) {
@@ -15,3 +17,5 @@ export default function(baseUrl, httpBackend) {
 
     return member(endpoint(http(httpBackend))(rootScope));
 }
+
+export { fetchBackend, requestBackend };
