@@ -27,6 +27,7 @@ export default function(fetch) {
                 return response.json().then((json) => {
                     return {
                         data: json,
+                        headers: response.headers,
                         statusCode: response.status,
                     };
                 });

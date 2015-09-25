@@ -10,10 +10,10 @@ describe('Response model', () => {
     beforeEach(() => {
         endpoint = {
             all: sinon.spy(),
-            identifier: sinon.stub().returns('hello'),
-            new: sinon.stub().returns({
+            custom: sinon.stub().returns({
                 url: sinon.stub().returns('/url/id'),
             }),
+            identifier: sinon.stub().returns('hello'),
             url: sinon.stub().returns('/url'),
         };
 
@@ -87,7 +87,7 @@ describe('Response model', () => {
         expect(entities[0].url()).to.equal('/url/id');
         expect(entities[1].url()).to.equal('/url/id');
 
-        expect(endpoint.new.getCall(0).args).to.deep.equal(['/url/world']);
-        expect(endpoint.new.getCall(1).args).to.deep.equal(['/url/world2']);
+        expect(endpoint.custom.getCall(0).args).to.deep.equal(['world']);
+        expect(endpoint.custom.getCall(1).args).to.deep.equal(['world2']);
     });
 });

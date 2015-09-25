@@ -4,7 +4,6 @@ import serialize from '../util/serialize';
 
 /* eslint-disable new-cap */
 export default function(response, decoratedEndpoint) {
-    const url = decoratedEndpoint.url();
     const identifier = decoratedEndpoint.identifier();
 
     return {
@@ -25,7 +24,7 @@ export default function(response, decoratedEndpoint) {
 
                 return serialize(data.map((datum) => {
                     const id = datum.get(identifier);
-                    return entity(serialize(datum), decoratedEndpoint.new(`${url}/${id}`));
+                    return entity(serialize(datum), decoratedEndpoint.custom(`${id}`));
                 }));
             }
 

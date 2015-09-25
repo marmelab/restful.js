@@ -64,10 +64,18 @@ export default function(request) {
             };
         }
 
+        function addInterceptor(type) {
+            return (interceptor) => {
+                scope.push(`${type}Interceptors`, interceptor);
+
+                return endpoint;
+            };
+        }
+
         assign(endpoint, {
-            addErrorInterceptor: interceptor => scope.push('errorInterceptors', interceptor),
-            addRequestInterceptor: interceptor => scope.push('requestInterceptors', interceptor),
-            addResponseInterceptor: interceptor => scope.push('responseInterceptors', interceptor),
+            addErrorInterceptor: addInterceptor('error'),
+            addRequestInterceptor: addInterceptor('request'),
+            addResponseInterceptor: addInterceptor('response'),
             delete: _httpMethodFactory('delete'),
             identifier: newIdentifier => {
                 if (newIdentifier === undefined) {
@@ -75,6 +83,8 @@ export default function(request) {
                 }
 
                 scope.assign('config', 'entityIdentifier', newIdentifier);
+
+                return endpoint;
             },
             get: _httpMethodFactory('get', false),
             head: _httpMethodFactory('head', false),

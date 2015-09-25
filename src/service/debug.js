@@ -10,7 +10,7 @@ function emitDebug(payload) {
 }
 
 export default function(endpoint) {
-    if (!window || !window.addEventListener || !window.postMessage) {
+    if (typeof(window) === 'undefined' || !window.addEventListener || !window.postMessage) {
         return;
     }
 

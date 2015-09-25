@@ -5,13 +5,35 @@ export default function(request) {
             delete config.data;
         }
 
-        return new Promise((resolve, reject) => {
-            request(config, (error, response) => {
-                if (error) {
-                    return reject(error);
+        return new Promise((resolve) => {
+            request(config, (err, response, body) => {
+                if (err) {
+                    throw err;
                 }
 
-                resolve(response);
+                if (response.statusCode >= 200 && response.statusCode < 300) {
+                    let data;
+
+                    try {
+                        data = JSON.parse(body);
+                    } catch (e) {
+                        data = body;
+                    }
+
+                    return resolve({
+                        data,
+                        headers: response.headers,
+                        statusCode: response.statusCode,
+                    });
+                }
+
+                const error = new Error(response.statusMessage);
+                error.response = {
+                    data: body,
+                    statusCode: response.statusCode,
+                };
+
+                throw error;
             });
         });
     };
