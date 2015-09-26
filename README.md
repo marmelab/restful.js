@@ -2,6 +2,8 @@
 
 A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
+*Note*: All examples written in this README use the es6 specification.
+
 ## Installation
 
 It is available with bower or npm:
@@ -72,7 +74,7 @@ var articlesCollection = api.all('articles');  // http://api.example.com/article
 A *member* is an API endpoint for a single entity, for instance `http://api.example.com/articles/1`. Create it using the `one(name, id)` syntax:
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
 ```
 
 Just like above, `articleMember` is a description, not an entity.
@@ -80,8 +82,8 @@ Just like above, `articleMember` is a description, not an entity.
 You can chain `one()` and `all()` to target the required collection or member:
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+const commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
 ```
 
 #### Custom endpoint URL
@@ -104,20 +106,20 @@ Once you have collections and members endpoints, fetch them to get *entities*. R
 If your application does not support native Promise, you can use a [polyfill](https://github.com/jakearchibald/es6-promise).
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-articleMember.get().then(function(response) {
-    var articleEntity = response.body();
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+articleMember.get().then((response) => {
+    const articleEntity = response.body();
 
-    var article = articleEntity.data();
+    const article = articleEntity.data();
     console.log(article.title); // hello, world!
 });
 
-var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
-commentsCollection.getAll().then(function(response) {
-    var commentEntities = response.body();
+const commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
+commentsCollection.getAll().then((response) => {
+    const commentEntities = response.body();
 
-    commentEntities.forEach(function(commentEntity) {
-        var comment = commentEntity.data();
+    commentEntities.forEach((commentEntity) => {
+        const comment = commentEntity.data();
         console.log(comment.body);
     })
 });
@@ -127,14 +129,14 @@ commentsCollection.getAll().then(function(response) {
 
 ```js
 // fetch http://api.example.com/articles/1/comments/4
-var articleMember = api.one('articles', 1);
-var commentMember = articleMember.one('comments', 4);
-commentMember.get().then(function(response) {
+const articleMember = api.one('articles', 1);
+const commentMember = articleMember.one('comments', 4);
+commentMember.get().then((response) => {
     //
 });
 // equivalent to
-var commentsCollection = articleMember.all('comments');
-commentsCollection.get(4).then(function(response) {
+const commentsCollection = articleMember.all('comments');
+commentsCollection.get(4).then((response) => {
     //
 });
 ```
@@ -147,14 +149,14 @@ A response is made from the HTTP response fetched from the endpoint. It exposes 
 An entity is made from the HTTP response data fetched from the endpoint. It exposes a `data()` method:
 
 ```js
-var articleCollection = api.all('articles');  // http://api.example.com/articles
+const articleCollection = api.all('articles');  // http://api.example.com/articles
 
 // http://api.example.com/articles/1
-api.one('articles', 1).get().then(function(response) {
-    var articleEntity = response.body();
+api.one('articles', 1).get().then((response) => {
+    const articleEntity = response.body();
 
     // if the server response was { id: 1, title: 'test', body: 'hello' }
-    var article = articleEntity.data();
+    const article = articleEntity.data();
     article.title; // returns `test`
     article.body; // returns `hello`
     // You can also edit it
@@ -162,7 +164,7 @@ api.one('articles', 1).get().then(function(response) {
     // Finally you can easily update it or delete it
     articleEntity.save(); // will perform a PUT request
     articleEntity.delete(); // will perform a DELETE request
-}, function(response) {
+}, (response) => {
     // The reponse code is not >= 200 and < 400
     throw new Error('Invalid response');
 });
@@ -170,27 +172,27 @@ api.one('articles', 1).get().then(function(response) {
 
 You can also use the entity to continue exploring the API. Entities expose several other methods to chain calls:
 
-* `entity.one(name, id)`: Query a member child of the entity.
-* `entity.all(name)`: Query a collection child of the entity.
-* `entity.url()`: Get the entity url.
-* `entity.save()`: Save the entity modifications by performing a POST request.
-* `entity.delete()`: Remove the entity by performing a DELETE request.
-* `entity.id()`: Get the id of the entity.
+* `entity.one ( name, id )`: Query a member child of the entity.
+* `entity.all ( name )`: Query a collection child of the entity.
+* `entity.url ()`: Get the entity url.
+* `entity.save ( [, data, [, params [, headers ]]] )`: Save the entity modifications by performing a POST request.
+* `entity.delete ( [, data, [, params [, headers ]]] )`: Remove the entity by performing a DELETE request.
+* `entity.id ()`: Get the id of the entity.
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-var commentMember = articleMember.one('comments', 3);  // http://api.example.com/articles/1/comments/3
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+const commentMember = articleMember.one('comments', 3);  // http://api.example.com/articles/1/comments/3
 commentMember.get()
-    .then(function(response) {
-        var commentEntity = response.body();
+    .then((response) => {
+        const commentEntity = response.body();
 
         // You can also call `all` and `one` on an entity
         return comment.all('authors').getAll(); // http://api.example.com/articles/1/comments/3/authors
-    }).then(function(response) {
-        var authorEntities = response.body();
+    }).then((response) => {
+        const authorEntities = response.body();
 
-        authorEntities.forEach(function(authorEntity) {
-            var author = authorEntity.data();
+        authorEntities.forEach((authorEntity) => {
+            const author = authorEntity.data();
             console.log(author.name);
         });
     });
@@ -213,7 +215,7 @@ Restful.js uses an inheritance pattern when collections or members are chained. 
 api.header('AuthToken', 'test');
 api.identifier('_id');
 
-var articlesCollection = api.all('articles');
+const articlesCollection = api.all('articles');
 articlesCollection.get(1); // will send the `AuthToken` header
 // You can configure articlesCollection, too
 articlesCollection.header('foo', 'bar');
@@ -236,8 +238,8 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 * `head ( id, [, params [, headers ]] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
 * `headers ()`: Get all headers added to the collection.
-* `on (event, listener)`: Add an event listener on the collection.
-* `once (event, listener)`: Add an event listener on the collection which will be triggered only once.
+* `on ( event, listener )`: Add an event listener on the collection.
+* `once ( event, listener )`: Add an event listener on the collection which will be triggered only once.
 * `patch ( id, [, data, [, params [, headers ]]] )`: Patch a member in a collection. Returns a promise with the response.
 * `post ( [, data, [, params [, headers ]]] )`: Create a member in a collection. Returns a promise with the response.
 * `put ( id, [, data, [, params [, headers ]]] )`: Update a member in a collection. Returns a promise with the response.
@@ -246,8 +248,8 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 ```js
 // http://api.example.com/articles/1/comments/2/authors
 const authorsCollection = api.one('articles', 1).one('comments', 2).all('authors');
-authorsCollection.getAll().then(function(authorEntities) { /*  */ });
-authorsCollection.get(1).then(function(authorEntity) { /*  */ });
+authorsCollection.getAll().then((authorEntities) => { /*  */ });
+authorsCollection.get(1).then((authorEntity) => { /*  */ });
 ```
 
 ### Member methods
@@ -262,8 +264,8 @@ authorsCollection.get(1).then(function(authorEntity) { /*  */ });
 * `head ( [, params [, headers ]] )`: Perform a HEAD request on a member. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
 * `headers ()`: Get all headers added to the member.
-* `on (event, listener)`: Add an event listener on the member.
-* `once (event, listener)`: Add an event listener on the member which will be triggered only once.
+* `on ( event, listener )`: Add an event listener on the member.
+* `once ( event, listener )`: Add an event listener on the member which will be triggered only once.
 * `one ( name, id )`: Target a child member in a collection `name`.
 * `patch ( [, data, [, params [, headers ]]] )`: Patch a member. Returns a promise with the response.
 * `post ( [, data, [, params [, headers ]]] )`: Create a member. Returns a promise with the response.
@@ -273,8 +275,8 @@ authorsCollection.get(1).then(function(authorEntity) { /*  */ });
 ```js
 // http://api.example.com/articles/1/comments/2
 const commentMember = api.one('articles', 1).one('comments', 2);
-commentMember.get().then(function(commentEntity) { /*  */ });
-commentMember.delete().then(function(data) { /* */ });
+commentMember.get().then((commentEntity) => { /*  */ });
+commentMember.delete().then((data) => { /* */ });
 ```
 
 ### Interceptors
@@ -282,7 +284,7 @@ commentMember.delete().then(function(data) { /* */ });
 An error, response or request interceptor is a callback which looks like this:
 
 ```js
-resource.addRequestInterceptor(function(config) {
+resource.addRequestInterceptor((config) => {
     const { data, headers, method, params, url } = config;
     // all args had been modified
     return {
@@ -300,7 +302,7 @@ resource.addRequestInterceptor(function(config) {
     };
 });
 
-resource.addResponseInterceptor(function(response, config) {
+resource.addResponseInterceptor((response, config) => {
     const { data, headers, statusCode } = response;
     // all args had been modified
     return {
@@ -316,7 +318,7 @@ resource.addResponseInterceptor(function(response, config) {
     };
 });
 
-resource.addErrorInterceptor(function(error, config) {
+resource.addErrorInterceptor((error, config) => {
     const { message, response } = error;
     // all args had been modified
     return {
@@ -351,7 +353,7 @@ resource.addErrorInterceptor(function(error, config) {
 ```js
 // http://api.example.com/articles/1/comments/2
 const commentMember = api.one('articles', 1).one('comments', 2);
-commentMember.get().then(function(commentEntity) {
+commentMember.get().then((commentEntity) => {
     commentEntity.save();
     commentEntity.remove();
 });
@@ -365,12 +367,12 @@ To deal with errors, you can either use error interceptors, error callbacks on p
 const commentMember = resource.one('articles', 1).one('comments', 2);
 commentMember
     .get()
-    .then(function(commentEntity) { /*  */ })
-    .catch(function(err) {
+    .then((commentEntity) => { /*  */ })
+    .catch((err) => {
         // deal with the error
     });
 
-commentMember.on('error', function(error, config) {
+commentMember.on('error', (error, config) => {
     // deal with the error
 });
 ```
@@ -380,15 +382,15 @@ commentMember.on('error', function(error, config) {
 Any endpoint (collection or member) is an event emitter. It emits `request`, `response` and `error` events. When it emits an event, it is propagated to all its parents. This way you can listen to all errors, requests and response on your restful instance by listening on your root endpoint.
 
 ```js
-api.on('error', function(error, config) {
+api.on('error', (error, config) => {
     // deal with the error
 });
 
-api.on('request', function(config) {
+api.on('request', (config) => {
     // deal with the request
 });
 
-api.on('response', function(config) {
+api.on('response', (config) => {
     // deal with the response
 });
 ```
