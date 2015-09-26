@@ -415,6 +415,10 @@ During development you can run `make watch` to trigger a build at each change.
 
 To build for production (minified files) you must run: `NODE_ENV=production make build`.
 
+### ES5 build
+
+To build the es5 files you must run: `make es5`.
+
 ### Tests
 
 ```sh

@@ -1,6 +1,6 @@
 PATH := ${CURDIR}/node_modules/.bin:${PATH}
 
-.PHONY: build test
+.PHONY: build es5 test
 
 install:
 	npm install
@@ -9,6 +9,9 @@ install:
 
 build:
 	webpack
+
+es5:
+	${CURDIR}/node_modules/.bin/babel --out-dir=dist/es5 --stage=0 src
 
 watch:
 	webpack -d --watch
