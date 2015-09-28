@@ -10,7 +10,7 @@ export default function(fetch) {
 
         return fetch(url, config)
             .then((response) => {
-                return response.json().then((json) => {
+                return (response.status === 204 ? Promise.resolve(null) : response.json()).then((json) => {
                     const headers = {};
 
                     response.headers.forEach((value, name) => {

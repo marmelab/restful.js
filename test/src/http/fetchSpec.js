@@ -14,7 +14,7 @@ describe('Fetch HTTP Backend', () => {
                     cb('here', 'test');
                 },
             },
-            json: () => Promise.resolve({ content: 'Yes' }),
+            json: sinon.stub().returns(Promise.resolve({ content: 'Yes' })),
             status: 200,
         };
         fetch = sinon.stub().returns(Promise.resolve(response));
@@ -97,6 +97,35 @@ describe('Fetch HTTP Backend', () => {
                 statusCode: 200,
             });
 
+            done();
+        })
+        .catch(done);
+    });
+
+    it('should correctly format the response when it succeed and returns 204 as status code', (done) => {
+        response.status = 204;
+        httpBackend({
+            data: {
+                me: 'you',
+            },
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+            params: {
+                asc: 1,
+            },
+            url: '/url',
+        })
+        .then((_response) => {
+            expect(_response).to.deep.equal({
+                data: null,
+                headers: {
+                    test: 'here',
+                },
+                statusCode: 204,
+            });
+
+            expect(response.json.callCount).to.equal(0);
             done();
         })
         .catch(done);

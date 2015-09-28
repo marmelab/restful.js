@@ -15,7 +15,7 @@ exports['default'] = function (fetch) {
         }
 
         return fetch(url, config).then(function (response) {
-            return response.json().then(function (json) {
+            return (response.status === 204 ? Promise.resolve(null) : response.json()).then(function (json) {
                 var headers = {};
 
                 response.headers.forEach(function (value, name) {
