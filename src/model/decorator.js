@@ -14,7 +14,7 @@ export function collection(endpoint) {
     function _bindHttpMethod(method) {
         return (...args)  => {
             const id = args.shift();
-            return endpoint.new(`${endpoint.url()}/${id}`)[method](...args);
+            return member(endpoint.new(`${endpoint.url()}/${id}`))[method](...args);  // eslint-disable-line no-use-before-define
         };
     }
 
