@@ -1,6 +1,6 @@
 {
   "name": "restful.js",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "repository": "https://github.com/marmelab/restful.js",
   "bugs": {
     "url": "https://github.com/marmelab/restful.js/issues"

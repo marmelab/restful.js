@@ -164,14 +164,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	function collection(endpoint) {
 	    function _bindHttpMethod(method) {
 	        return function () {
-	            var _endpoint$new;
+	            var _member;
 
 	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 	                args[_key] = arguments[_key];
 	            }
 
 	            var id = args.shift();
-	            return (_endpoint$new = endpoint['new'](endpoint.url() + '/' + id))[method].apply(_endpoint$new, args);
+	            return (_member = member(endpoint['new'](endpoint.url() + '/' + id)))[method].apply(_member, args); // eslint-disable-line no-use-before-define
 	        };
 	    }
 
