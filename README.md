@@ -2,7 +2,7 @@
 
 A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
-*Note*: All examples written in this README use the es6 specification.
+*Note*: All examples written in this README use the ES6 specification.
 
 ## Installation
 
@@ -13,17 +13,8 @@ bower install restful.js
 npm install restful.js
 ```
 
-Include `restful.min.js` to the HTML, and the `restful` object is now available in the global scope:
-
-Standalone version:
-```html
-<script type="text/javascript" src="/path/to/bower_components/restful.js/dist/restful.min.js"></script>
-```
-
-Pre built with fetch version:
-```html
-<script type="text/javascript" src="/path/to/bower_components/restful.js/dist/restful.fetch.min.js"></script>
-```
+The `dist` folder contains two built versions which you can use to include either restful.js or a standalone version.
+Standalone version already embeds `fetch`.
 
 Alternately, you can use a module loader like [webpack](http://webpack.github.io/).
 
@@ -35,11 +26,10 @@ import restful from 'restful.js';
 
 ### Create a resource targeting your API
 
-Restful.js needs an http backend in order to perform queries. Two http backend are currently available:
+Restful.js needs an HTTP backend in order to perform queries. Two http backend are currently available:
 * [fetch](https://github.com/github/fetch): For using restful.js in a browser.
-* [request](https://github.com/request/request): For using restful.js in a browser.
-
-There are defined as optional dependencies and therefore you must install them with npm if you need them.
+* [request](https://github.com/request/request): For using restful.js in Node.js.
+There are defined as optional dependencies and therefore you must install them either with `npm` or `bower` depending your package manager.
 
 Start by defining the base endpoint for an API, for instance `http://api.example.com` with the good http backend.
 
@@ -66,7 +56,7 @@ For those who prefers a ready-to-go version, pre built version of restful.js wit
 A *collection* is an API endpoint for a list of entities, for instance `http://api.example.com/articles`. Create it using the `all(name)` syntax:
 
 ```js
-var articlesCollection = api.all('articles');  // http://api.example.com/articles
+const articlesCollection = api.all('articles');  // http://api.example.com/articles
 ```
 
 `articlesCollection` is just the description of the collection, the API wasn't fetched yet.
@@ -142,7 +132,7 @@ commentsCollection.get(4).then((response) => {
 ```
 
 ### Response
-A response is made from the HTTP response fetched from the endpoint. It exposes `statusCode()`, `headers()`, and `body()` methods. For a `GET` request, the `body` method will return one or a an array of entities. Therefore you can disable this hydration by calling `body(false)`.
+A response is made from the HTTP response fetched from the endpoint. It exposes `statusCode()`, `headers()`, and `body()` methods. For a `GET` request, the `body` method will return one or an array of entities. Therefore you can disable this hydration by calling `body(false)`.
 
 ### Entity Data
 
@@ -175,8 +165,8 @@ You can also use the entity to continue exploring the API. Entities expose sever
 * `entity.one ( name, id )`: Query a member child of the entity.
 * `entity.all ( name )`: Query a collection child of the entity.
 * `entity.url ()`: Get the entity url.
-* `entity.save ( [, data, [, params [, headers ]]] )`: Save the entity modifications by performing a POST request.
-* `entity.delete ( [, data, [, params [, headers ]]] )`: Remove the entity by performing a DELETE request.
+* `entity.save ( [, data [, params [, headers ]]] )`: Save the entity modifications by performing a POST request.
+* `entity.delete ( [, data [, params [, headers ]]] )`: Remove the entity by performing a DELETE request.
 * `entity.id ()`: Get the id of the entity.
 
 ```js
@@ -208,7 +198,7 @@ const articleMember = api.one('articles', 1);  // http://api.example.com/article
 articleMember.identifier('_id'); // We use _id as id field
 ```
 
-Restful.js uses an inheritance pattern when collections or members are chained. That means that when you configure a collection or a member, it will configure all the collection an members chained afterwards.
+Restful.js uses an inheritance pattern when collections or members are chained. That means that when you configure a collection or a member, it will configure all the collection on members chained afterwards.
 
 ```js
 // configure the api
@@ -232,17 +222,17 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 * `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can alter the whole request.
 * `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can alter the whole response.
 * `custom ( name [, isRelative = true ] )`: Target a child member with a custom url.
-* `delete ( id, [, data, [, params [, headers ]]] )`: Delete a member in a collection. Returns a promise with the response.
+* `delete ( id [, data [, params [, headers ]]] )`: Delete a member in a collection. Returns a promise with the response.
 * `getAll ( [ params [, headers ]] )`: Get a full collection. Returns a promise with an array of entities.
-* `get ( id, [, params [, headers ]] )`: Get a member in a collection. Returns a promise with an entity.
-* `head ( id, [, params [, headers ]] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
+* `get ( id [, params [, headers ]] )`: Get a member in a collection. Returns a promise with an entity.
+* `head ( id [, params [, headers ]] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
 * `headers ()`: Get all headers added to the collection.
 * `on ( event, listener )`: Add an event listener on the collection.
 * `once ( event, listener )`: Add an event listener on the collection which will be triggered only once.
-* `patch ( id, [, data, [, params [, headers ]]] )`: Patch a member in a collection. Returns a promise with the response.
-* `post ( [, data, [, params [, headers ]]] )`: Create a member in a collection. Returns a promise with the response.
-* `put ( id, [, data, [, params [, headers ]]] )`: Update a member in a collection. Returns a promise with the response.
+* `patch ( id [, data [, params [, headers ]]] )`: Patch a member in a collection. Returns a promise with the response.
+* `post ( [ data [, params [, headers ]]] )`: Create a member in a collection. Returns a promise with the response.
+* `put ( id [, data [, params [, headers ]]] )`: Update a member in a collection. Returns a promise with the response.
 * `url ()`: Get the collection url.
 
 ```js
@@ -259,17 +249,17 @@ authorsCollection.get(1).then((authorEntity) => { /*  */ });
 * `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can alter the whole response.
 * `all ( name )`: Target a child collection `name`.
 * `custom ( name [, isRelative = true ] )`: Target a child member with a custom url.
-* `delete ( [, data, [, params [, headers ]]] )`: Delete a member. Returns a promise with the response.
-* `get ( [, params [, headers ]] )`: Get a member. Returns a promise with an entity.
-* `head ( [, params [, headers ]] )`: Perform a HEAD request on a member. Returns a promise with the response.
+* `delete ( [ data [, params [, headers ]]] )`: Delete a member. Returns a promise with the response.
+* `get ( [ params [, headers ]] )`: Get a member. Returns a promise with an entity.
+* `head ( [ params [, headers ]] )`: Perform a HEAD request on a member. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
 * `headers ()`: Get all headers added to the member.
 * `on ( event, listener )`: Add an event listener on the member.
 * `once ( event, listener )`: Add an event listener on the member which will be triggered only once.
 * `one ( name, id )`: Target a child member in a collection `name`.
-* `patch ( [, data, [, params [, headers ]]] )`: Patch a member. Returns a promise with the response.
-* `post ( [, data, [, params [, headers ]]] )`: Create a member. Returns a promise with the response.
-* `put ( [, data, [, params [, headers ]]] )`: Update a member. Returns a promise with the response.
+* `patch ( [ data [, params [, headers ]]] )`: Patch a member. Returns a promise with the response.
+* `post ( [ data [, params [, headers ]]] )`: Create a member. Returns a promise with the response.
+* `put ( [ data [, params [, headers ]]] )`: Update a member. Returns a promise with the response.
 * `url ()`: Get the member url.
 
 ```js
@@ -346,8 +336,8 @@ resource.addErrorInterceptor((error, config) => {
 * `data ()` : Get the JS object unserialized from the response body (which must be in JSON)
 * `id ()`: Get the id of the entity.
 * `one ( name, id )`: Query a member child of the entity.
-* `delete ( [, data, [, params [, headers ]]] )`: Delete the member link to the entity. Returns a promise with the response.
-* `save ( [, data, [, params [, headers ]]] )`: Update the member link to the entity. Returns a promise with the response.
+* `delete ( [, data [, params [, headers ]]] )`: Delete the member link to the entity. Returns a promise with the response.
+* `save ( [, data [, params [, headers ]]] )`: Update the member link to the entity. Returns a promise with the response.
 * `url ()`: Get the entity url.
 
 ```js
@@ -405,19 +395,19 @@ Install dependencies:
 make install
 ```
 
-### Build
+### Development Build
 
-To rebuild the minified JavaScript you must run: `make build`.
+To rebuild the JavaScript you must run: `make build-dev`.
 
 During development you can run `make watch` to trigger a build at each change.
 
 ### Production build
 
-To build for production (minified files) you must run: `NODE_ENV=production make build`.
+To build for production (minified files) you must run: `make build`.
 
 ### ES5 build
 
-To build the es5 files you must run: `make es5`.
+To build the ES5 files you must run: `make es5`.
 
 ### Tests
 

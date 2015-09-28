@@ -4,8 +4,8 @@ var production = process.env.NODE_ENV === 'production';
 
 module.exports = {
     entry: {
-        fetch: './build/restful.fetch.js',
-        standalone: './build/restful.standalone.js',
+        restful: './build/restful.standalone.js',
+        'restful.standalone': './build/restful.fetch.js',
     },
     module: {
         loaders: [{
@@ -24,7 +24,7 @@ module.exports = {
     ] : []),
     output: {
         path: './dist',
-        filename: production ? 'restful.[name].min.js' : 'restful.[name].js',
+        filename: production ? '[name].min.js' : '[name].js',
         library: 'restful',
         libraryTarget: 'umd',
     },

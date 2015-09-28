@@ -8,6 +8,9 @@ install:
 	npm install request
 
 build:
+	NODE_ENV=production webpack
+
+build-dev:
 	webpack
 
 es5:
