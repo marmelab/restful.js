@@ -1,232 +1,109 @@
 import assign from 'object-assign';
-import configurable from 'util/configurable';
+import responseFactory from './response';
+import { fromJS, List, Map } from 'immutable';
+import serialize from '../util/serialize';
 
-export default function endpoint(url, parent) {
-    var config = {
-            _parent: parent,
-            headers: {},
-            fullRequestInterceptors: [],
-            fullResponseInterceptors: [],
-            requestInterceptors: [],
-            responseInterceptors:[],
-        };
+/* eslint-disable new-cap */
+export default function(request) {
+    return function endpointFactory(scope) {
+        scope.on('error', () => true); // Add a default error listener to prevent unwanted exception
+        const endpoint = {}; // Persists reference
 
-    /**
-     * Merge the local full request interceptors and the parent's ones
-     * @private
-     * @return {array} full request interceptors
-     */
-    function _getFullRequestInterceptors() {
-        var current = model,
-            fullRequestInterceptors = [];
+        function _generateRequestConfig(method, data, params, headers) {
+            let config = Map({
+                errorInterceptors: List(scope.get('errorInterceptors')),
+                headers: Map(scope.get('headers')).mergeDeep(Map(headers)),
+                method,
+                params,
+                requestInterceptors: List(scope.get('requestInterceptors')),
+                responseInterceptors: List(scope.get('responseInterceptors')),
+                url: scope.get('url'),
+            });
 
-        while (current) {
-            fullRequestInterceptors = fullRequestInterceptors.concat(current.fullRequestInterceptors());
+            if (data) {
+                if (!config.hasIn(['headers', 'Content-Type'])) {
+                    config = config.setIn(['headers', 'Content-Type'], 'application/json;charset=UTF-8');
+                }
 
-            current = current._parent ? current._parent() : null;
+                config = config.set('data', fromJS(data));
+            }
+
+            scope.emit('request', serialize(config));
+
+            return config;
         }
 
-        return fullRequestInterceptors;
-    }
-
-    /**
-     * Merge the local full response interceptors and the parent's ones
-     * @private
-     * @return {array} full response interceptors
-     */
-    function _getFullResponseInterceptors() {
-        var current = model,
-            fullResponseInterceptors = [];
-
-        while (current) {
-            fullResponseInterceptors = fullResponseInterceptors.concat(current.fullResponseInterceptors());
-
-            current = current._parent ? current._parent() : null;
+        function _onResponse(config, rawResponse) {
+            const response = responseFactory(rawResponse, endpoint);
+            scope.emit('response', response, serialize(config));
+            return response;
         }
 
-        return fullResponseInterceptors;
-    }
-
-    /**
-     * Merge the local request interceptors and the parent's ones
-     * @private
-     * @return {array} request interceptors
-     */
-    function _getRequestInterceptors() {
-        var current = model,
-            requestInterceptors = [];
-
-        while (current) {
-            requestInterceptors = requestInterceptors.concat(current.requestInterceptors());
-
-            current = current._parent ? current._parent() : null;
+        function _onError(config, error) {
+            scope.emit('error', error, serialize(config));
+            throw error;
         }
 
-        return requestInterceptors;
-    }
+        function _httpMethodFactory(method, expectData = true) {
+            if (expectData) {
+                return (data, params = null, headers = null) => {
+                    const config = _generateRequestConfig(method, data, params, headers);
+                    return request(config).then(
+                        (rawResponse) => _onResponse(config, rawResponse),
+                        (rawResponse) => _onError(config, rawResponse)
+                    );
+                };
+            }
 
-    /**
-     * Merge the local response interceptors and the parent's ones
-     * @private
-     * @return {array} response interceptors
-     */
-    function _getResponseInterceptors() {
-        var current = model,
-            responseInterceptors = [];
-
-        while (current) {
-            responseInterceptors = responseInterceptors.concat(current.responseInterceptors());
-
-            current = current._parent ? current._parent() : null;
+            return (params = null, headers = null) => {
+                const config = _generateRequestConfig(method, null,  params, headers);
+                return request(config).then(
+                    (rawResponse) => _onResponse(config, rawResponse),
+                    (error) => _onError(config, error)
+                );
+            };
         }
 
-        return responseInterceptors;
-    }
+        function addInterceptor(type) {
+            return (interceptor) => {
+                scope.push(`${type}Interceptors`, interceptor);
 
-    /**
-     * Merge the local headers and the parent's ones
-     * @private
-     * @return {array} headers
-     */
-    function _getHeaders() {
-        var current = model,
-            headers = {};
-
-        while (current) {
-            assign(headers, current.headers());
-
-            current = current._parent ? current._parent() : null;
+                return endpoint;
+            };
         }
 
-        return headers;
-    }
+        assign(endpoint, {
+            addErrorInterceptor: addInterceptor('error'),
+            addRequestInterceptor: addInterceptor('request'),
+            addResponseInterceptor: addInterceptor('response'),
+            delete: _httpMethodFactory('delete'),
+            identifier: newIdentifier => {
+                if (newIdentifier === undefined) {
+                    return scope.get('config').get('entityIdentifier');
+                }
 
-    function _generateRequestConfig(method, url, params = {}, headers = {}, data = null) {
-        var config = {
-            method: method,
-            url: url,
-            params: params || {},
-            headers: assign({}, _getHeaders(), headers || {}),
-            responseInterceptors: _getResponseInterceptors(),
-            fullResponseInterceptors: _getFullResponseInterceptors(),
-        };
+                scope.assign('config', 'entityIdentifier', newIdentifier);
 
-        if (data) {
-            config.data = data;
-            config.requestInterceptors = _getRequestInterceptors();
-        }
+                return endpoint;
+            },
+            get: _httpMethodFactory('get', false),
+            head: _httpMethodFactory('head', false),
+            header: (key, value) => scope.assign('headers', key, value),
+            headers: () => scope.get('headers'),
+            new: (url) => {
+                const childScope = scope.new();
+                childScope.set('url', url);
 
-        var interceptors = _getFullRequestInterceptors();
-        for (let i in interceptors) {
-            let intercepted = interceptors[i](params, headers, data, method, url);
+                return endpointFactory(childScope);
+            },
+            on: scope.on,
+            once: scope.once,
+            patch: _httpMethodFactory('patch'),
+            post: _httpMethodFactory('post'),
+            put: _httpMethodFactory('put'),
+            url: () => scope.get('url'),
+        });
 
-            if (intercepted.method) {
-                config.method = intercepted.method;
-            }
-
-            if (intercepted.url) {
-                config.url = intercepted.url;
-            }
-
-            if (intercepted.params) {
-                config.params = intercepted.params;
-            }
-
-            if (intercepted.headers) {
-                config.headers = intercepted.headers;
-            }
-
-            if (intercepted.data) {
-                config.data = intercepted.data;
-            }
-        }
-
-        return config;
-    }
-
-    var model = {
-        get(params, headers) {
-            var nextConfig = _generateRequestConfig('get', url, params, headers);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        getAll(params, headers) {
-            var nextConfig = _generateRequestConfig('get', url, params, headers);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        post(data, headers) {
-            headers = headers || {};
-            if (!headers['Content-Type']) {
-                headers['Content-Type'] = 'application/json;charset=UTF-8';
-            }
-            var nextConfig = _generateRequestConfig('post', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        put(data, headers) {
-            headers = headers || {};
-            if (!headers['Content-Type']) {
-                headers['Content-Type'] = 'application/json;charset=UTF-8';
-            }
-            var nextConfig = _generateRequestConfig('put', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        patch(data, headers) {
-            headers = headers || {};
-            if (!headers['Content-Type']) {
-                headers['Content-Type'] = 'application/json;charset=UTF-8';
-            }
-            var nextConfig = _generateRequestConfig('patch', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        delete(data, headers) {
-            var nextConfig = _generateRequestConfig('delete', url, {}, headers, data);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
-        head(headers) {
-            var nextConfig = _generateRequestConfig('head', url, {}, headers);
-
-            return config._parent().request(
-                nextConfig.method,
-                nextConfig
-            );
-        },
-
+        return endpoint;
     };
-
-    model = assign(function() {
-        return config._parent();
-    }, model);
-
-    configurable(model, config);
-
-    return model;
 }

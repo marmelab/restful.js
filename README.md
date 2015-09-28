@@ -2,6 +2,8 @@
 
 A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
+*Note*: All examples written in this README use the ES6 specification.
+
 ## Installation
 
 It is available with bower or npm:
@@ -11,45 +13,50 @@ bower install restful.js
 npm install restful.js
 ```
 
-Include `restful.min.js` to the HTML, and the `restful` object is now available in the global scope:
+The `dist` folder contains two built versions which you can use to include either restful.js or a standalone version.
+Standalone version already embeds `fetch`.
 
-```html
-<script type="text/javascript" src="/path/to/bower_components/restful.js/dist/restful.min.js"></script>
-```
-
-Alternately, you can use [RequireJS](http://requirejs.org/) or [Browserify](http://browserify.org/) to avoid global scoping.
+Alternately, you can use a module loader like [webpack](http://webpack.github.io/).
 
 ```js
-var restful = require('restful.js');
+import restful from 'restful.js';
 ```
 
 ## Usage
 
 ### Create a resource targeting your API
 
-Start by defining the base endpoint for an API, for instance `http://api.example.com`.
+Restful.js needs an HTTP backend in order to perform queries. Two http backend are currently available:
+* [fetch](https://github.com/github/fetch): For using restful.js in a browser.
+* [request](https://github.com/request/request): For using restful.js in Node.js.
+There are defined as optional dependencies and therefore you must install them either with `npm` or `bower` depending your package manager.
 
+Start by defining the base endpoint for an API, for instance `http://api.example.com` with the good http backend.
+
+For a browser build :
 ```js
-var api = restful('api.example.com');
+import whatwg-fetch;
+import restful, { fetchBackend } from 'restful.js';
+
+const api = restful('http://api.example.com', fetchBackend(fetch));
 ```
 
-You can add headers, port, custom protocol, or even a prefix (like a version number):
+For a node build :
+```js
+import request from 'request';
+import restful, { requestBackend } from 'restful.js';
 
-```javascript
-var api = restful('api.example.com')
-    .header('AuthToken', 'test') // set global header
-    .prefixUrl('v1')
-    .protocol('https')
-    .port(8080);
-// resource now targets `https://api.example.com:8080/v1`
+const api = restful('http://api.example.com', requestBackend(request));
 ```
+
+For those who prefers a ready-to-go version, pre built version of restful.js with fetch are available into the `dist` folder.
 
 ### Collections and Members endpoints
 
 A *collection* is an API endpoint for a list of entities, for instance `http://api.example.com/articles`. Create it using the `all(name)` syntax:
 
 ```js
-var articlesCollection = api.all('articles');  // http://api.example.com/articles
+const articlesCollection = api.all('articles');  // http://api.example.com/articles
 ```
 
 `articlesCollection` is just the description of the collection, the API wasn't fetched yet.
@@ -57,7 +64,7 @@ var articlesCollection = api.all('articles');  // http://api.example.com/article
 A *member* is an API endpoint for a single entity, for instance `http://api.example.com/articles/1`. Create it using the `one(name, id)` syntax:
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
 ```
 
 Just like above, `articleMember` is a description, not an entity.
@@ -65,41 +72,44 @@ Just like above, `articleMember` is a description, not an entity.
 You can chain `one()` and `all()` to target the required collection or member:
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+const commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
 ```
 
 #### Custom endpoint URL
 
-In case you need to set a custom endpoint URL, you can use `oneUrl` or `allUrl` methods.
+In case you need to set a custom endpoint URL, you can use `custom` methods.
 
 ```js
-var articleMember = api.oneUrl('articles', 'http://custom.url/article?id=1');  // http://custom.url/article?id=1
+const articleCustom = api.custom('articles/beta');  // http://api.example.com/articles/beta
+
+// you can add an absolute url
+const articleCustom = api.custom('http://custom.url/articles/beta', false);  // http://custom.url/articles/beta
 ```
 
-```js
-var articlesCollection = api.allUrl('articles', 'http://custom.url/article/list');  // http://custom.url/article/list
-```
+A custom endpoint acts like a member, and therefore you can use `one` and `all` to chain other endpoint with it.
 
 #### Entities
 
-Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a Promise ([based on the ES6 Promise specification](https://github.com/jakearchibald/es6-promise)) for response.
+Once you have collections and members endpoints, fetch them to get *entities*. Restful.js exposes `get()` and `getAll()` methods for fetching endpoints. Since these methods are asynchronous, they return a native Promise for response.
+
+If your application does not support native Promise, you can use a [polyfill](https://github.com/jakearchibald/es6-promise).
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-articleMember.get().then(function(response) {
-    var articleEntity = response.body();
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+articleMember.get().then((response) => {
+    const articleEntity = response.body();
 
-    var article = articleEntity.data();
+    const article = articleEntity.data();
     console.log(article.title); // hello, world!
 });
 
-var commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
-commentsCollection.getAll().then(function(response) {
-    var commentEntities = response.body();
+const commentsCollection = articleMember.all('comments');  // http://api.example.com/articles/1/comments
+commentsCollection.getAll().then((response) => {
+    const commentEntities = response.body();
 
-    commentEntities.forEach(function(commentEntity) {
-        var comment = commentEntity.data();
+    commentEntities.forEach((commentEntity) => {
+        const comment = commentEntity.data();
         console.log(comment.body);
     })
 });
@@ -109,42 +119,42 @@ commentsCollection.getAll().then(function(response) {
 
 ```js
 // fetch http://api.example.com/articles/1/comments/4
-var articleMember = api.one('articles', 1);
-var commentMember = articleMember.one('comments', 4);
-commentMember.get().then(function(response) {
+const articleMember = api.one('articles', 1);
+const commentMember = articleMember.one('comments', 4);
+commentMember.get().then((response) => {
     //
 });
-// equivalent to 
-var commentsCollection = articleMember.all('comments');
-commentsCollection.get(4).then(function(response) {
+// equivalent to
+const commentsCollection = articleMember.all('comments');
+commentsCollection.get(4).then((response) => {
     //
 });
 ```
 
 ### Response
-A response is made from the HTTP response fetched from the endpoint. It exposes `status()`, `headers()`, and `body()` methods. For a `GET` request, the `body` method will return one or a an array of entities. Therefore you can disable this hydration by calling `body(false)`.
+A response is made from the HTTP response fetched from the endpoint. It exposes `statusCode()`, `headers()`, and `body()` methods. For a `GET` request, the `body` method will return one or an array of entities. Therefore you can disable this hydration by calling `body(false)`.
 
 ### Entity Data
 
 An entity is made from the HTTP response data fetched from the endpoint. It exposes a `data()` method:
 
 ```js
-var articleCollection = api.all('articles');  // http://api.example.com/articles
+const articleCollection = api.all('articles');  // http://api.example.com/articles
 
 // http://api.example.com/articles/1
-api.one('articles', 1).get().then(function(response) {
-    var articleEntity = response.body();
+api.one('articles', 1).get().then((response) => {
+    const articleEntity = response.body();
 
     // if the server response was { id: 1, title: 'test', body: 'hello' }
-    var article = articleEntity.data();
+    const article = articleEntity.data();
     article.title; // returns `test`
     article.body; // returns `hello`
     // You can also edit it
     article.title = 'test2';
     // Finally you can easily update it or delete it
     articleEntity.save(); // will perform a PUT request
-    articleEntity.remove(); // will perform a DELETE request
-}, function(response) {
+    articleEntity.delete(); // will perform a DELETE request
+}, (response) => {
     // The reponse code is not >= 200 and < 400
     throw new Error('Invalid response');
 });
@@ -152,39 +162,50 @@ api.one('articles', 1).get().then(function(response) {
 
 You can also use the entity to continue exploring the API. Entities expose several other methods to chain calls:
 
-* `entity.one(name, id)`: Query a member child of the entity.
-* `entity.all(name)`: Query a collection child of the entity.
-* `entity.url()`: Get the entity url.
-* `entity.save()`: Save the entity modifications by performing a POST request.
-* `entity.remove()`: Remove the entity by performing a DELETE request.
-* `entity.id()`: Get the id of the entity.
+* `entity.one ( name, id )`: Query a member child of the entity.
+* `entity.all ( name )`: Query a collection child of the entity.
+* `entity.url ()`: Get the entity url.
+* `entity.save ( [, data [, params [, headers ]]] )`: Save the entity modifications by performing a POST request.
+* `entity.delete ( [, data [, params [, headers ]]] )`: Remove the entity by performing a DELETE request.
+* `entity.id ()`: Get the id of the entity.
 
 ```js
-var articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
-var commentMember = articleMember.one('comments', 3);  // http://api.example.com/articles/1/comments/3
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+const commentMember = articleMember.one('comments', 3);  // http://api.example.com/articles/1/comments/3
 commentMember.get()
-    .then(function(response) {
-        var commentEntity = response.body();
+    .then((response) => {
+        const commentEntity = response.body();
 
         // You can also call `all` and `one` on an entity
         return comment.all('authors').getAll(); // http://api.example.com/articles/1/comments/3/authors
-    }).then(function(response) {
-        var authorEntities = response.body();
+    }).then((response) => {
+        const authorEntities = response.body();
 
-        authorEntities.forEach(function(authorEntity) {
-            var author = authorEntity.data();
+        authorEntities.forEach((authorEntity) => {
+            const author = authorEntity.data();
             console.log(author.name);
         });
     });
 ```
 
-Restful.js uses an inheritance pattern when collections or members are chained. That means that when you configure a collection or a member, it will configure all the collection an members chained afterwards.
+`entity.id()` will get the id from its data regarding of the `identifier` of its endpoint. If you are using another name than `id` you can modify it by calling `identifier()` on the endpoint.
+
+```js
+const articleCollection = api.all('articles');  // http://api.example.com/articles
+articleCollection.identifier('_id'); // We use _id as id field
+
+const articleMember = api.one('articles', 1);  // http://api.example.com/articles/1
+articleMember.identifier('_id'); // We use _id as id field
+```
+
+Restful.js uses an inheritance pattern when collections or members are chained. That means that when you configure a collection or a member, it will configure all the collection on members chained afterwards.
 
 ```js
 // configure the api
 api.header('AuthToken', 'test');
+api.identifier('_id');
 
-var articlesCollection = api.all('articles');
+const articlesCollection = api.all('articles');
 articlesCollection.get(1); // will send the `AuthToken` header
 // You can configure articlesCollection, too
 articlesCollection.header('foo', 'bar');
@@ -197,123 +218,132 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 
 ### Collection methods
 
+* `addErrorInterceptor ( interceptor )`: Add an error interceptor. You can alter the whole error.
+* `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can alter the whole request.
+* `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can alter the whole response.
+* `custom ( name [, isRelative = true ] )`: Target a child member with a custom url.
+* `delete ( id [, data [, params [, headers ]]] )`: Delete a member in a collection. Returns a promise with the response.
 * `getAll ( [ params [, headers ]] )`: Get a full collection. Returns a promise with an array of entities.
 * `get ( id [, params [, headers ]] )`: Get a member in a collection. Returns a promise with an entity.
-* `post ( data [, headers ] )`: Create a member in a collection. Returns a promise with the response.
-* `put ( id, data [, headers ] )`: Update a member in a collection. Returns a promise with the response.
-* `delete ( id [, data, headers ] )`: Delete a member in a collection. Returns a promise with the response.
-* `patch ( id, data [, headers ] )`: Patch a member in a collection. Returns a promise with the response.
-* `head ( id, [, headers ] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
-* `url ()`: Get the collection url.
-* `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can only alter data and headers.
-* `addRequestInterceptor ( interceptor )`: Add a request interceptor.
-* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data and headers.
-* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter params, headers, data, method and url.
+* `head ( id [, params [, headers ]] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
+* `headers ()`: Get all headers added to the collection.
+* `on ( event, listener )`: Add an event listener on the collection.
+* `once ( event, listener )`: Add an event listener on the collection which will be triggered only once.
+* `patch ( id [, data [, params [, headers ]]] )`: Patch a member in a collection. Returns a promise with the response.
+* `post ( [ data [, params [, headers ]]] )`: Create a member in a collection. Returns a promise with the response.
+* `put ( id [, data [, params [, headers ]]] )`: Update a member in a collection. Returns a promise with the response.
+* `url ()`: Get the collection url.
 
 ```js
 // http://api.example.com/articles/1/comments/2/authors
-var authorsCollection = api.one('articles', 1).one('comments', 2).all('authors');
-authorsCollection.getAll().then(function(authorEntities) { /*  */ });
-authorsCollection.get(1).then(function(authorEntity) { /*  */ });
+const authorsCollection = api.one('articles', 1).one('comments', 2).all('authors');
+authorsCollection.getAll().then((authorEntities) => { /*  */ });
+authorsCollection.get(1).then((authorEntity) => { /*  */ });
 ```
 
 ### Member methods
 
-* `get ( [ params [, headers ]] )`: Get a member. Returns a promise with an entity.
-* `put ( data [, headers ] )`: Update a member. Returns a promise with the response.
-* `delete ( [ data, headers ] )`: Delete a member. Returns a promise with the response.
-* `patch ( data [, headers ] )`: Patch a member. Returns a promise with the response.
-* `head ( [ headers ] )`: Perform a HEAD request on a member. Returns a promise with the response.
-* `one ( name, id )`: Target a child member in a collection `name`.
+* `addErrorInterceptor ( interceptor )`: Add an error interceptor. You can alter the whole error.
+* `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can alter the whole request.
+* `addResponseInterceptor ( interceptor )`: Add a response interceptor. You can alter the whole response.
 * `all ( name )`: Target a child collection `name`.
-* `url ()`: Get the member url.
-* `addResponseInterceptor ( interceptor )`: Add a response interceptor.
-* `addRequestInterceptor ( interceptor )`: Add a request interceptor. You can only alter data and headers.
-* `addFullResponseInterceptor ( interceptor )`: Add a full response interceptor. You can alter data and headers.
-* `addFullRequestInterceptor ( interceptor )`: Add a full request interceptor. You can alter params, headers, data, method and url.
+* `custom ( name [, isRelative = true ] )`: Target a child member with a custom url.
+* `delete ( [ data [, params [, headers ]]] )`: Delete a member. Returns a promise with the response.
+* `get ( [ params [, headers ]] )`: Get a member. Returns a promise with an entity.
+* `head ( [ params [, headers ]] )`: Perform a HEAD request on a member. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
+* `headers ()`: Get all headers added to the member.
+* `on ( event, listener )`: Add an event listener on the member.
+* `once ( event, listener )`: Add an event listener on the member which will be triggered only once.
+* `one ( name, id )`: Target a child member in a collection `name`.
+* `patch ( [ data [, params [, headers ]]] )`: Patch a member. Returns a promise with the response.
+* `post ( [ data [, params [, headers ]]] )`: Create a member. Returns a promise with the response.
+* `put ( [ data [, params [, headers ]]] )`: Update a member. Returns a promise with the response.
+* `url ()`: Get the member url.
 
 ```js
 // http://api.example.com/articles/1/comments/2
-var commentMember = api.one('articles', 1).one('comments', 2);
-commentMember.get().then(function(commentEntity) { /*  */ });
-commentMember.delete().then(function(data) { /* */ });
+const commentMember = api.one('articles', 1).one('comments', 2);
+commentMember.get().then((commentEntity) => { /*  */ });
+commentMember.delete().then((data) => { /* */ });
 ```
 
 ### Interceptors
 
-A response or request interceptor is a callback which looks like this:
+An error, response or request interceptor is a callback which looks like this:
 
 ```js
-resource.addRequestInterceptor(function(data, headers, method, url) {
-    // to edit the headers, just edit the headers object
-
-    // You always must return the data object
-    return data;
-});
-```
-
-A full request interceptor is a callback which looks like this:
-
-```js
-resource.addFullRequestInterceptor(function(params, headers, data, method, url) {
-    //...
-
+resource.addRequestInterceptor((config) => {
+    const { data, headers, method, params, url } = config;
     // all args had been modified
     return {
-        params: params,
-        headers: headers,
-        data: data,
-        method: method,
-        url: url
+        data,
+        params,
+        headers,
+        method,
+        url,
     };
 
     // just return modified arguments
     return {
-        headers: headers,
-        data: data
+        data,
+        headers,
     };
 });
-```
 
-A full response interceptor is a callback which looks like this:
-
-```js
-resource.addFullResponseInterceptor(function(data, headers, method, url) {
-    // all args had been modified (method and url is read only)
+resource.addResponseInterceptor((response, config) => {
+    const { data, headers, statusCode } = response;
+    // all args had been modified
     return {
-        headers: headers,
-        data: data
+        data,
+        headers,
+        statusCode
     };
 
     // just return modified arguments
     return {
-        headers: headers
+        data,
+        headers,
+    };
+});
+
+resource.addErrorInterceptor((error, config) => {
+    const { message, response } = error;
+    // all args had been modified
+    return {
+        message,
+        response,
+    };
+
+    // just return modified arguments
+    return {
+        message,
     };
 });
 ```
 
 ### Response methods
 
-* `response.status()`: Get the HTTP status code of the response
-* `response.headers()`: Get the HTTP headers of the response
-* `response.body()`: Get the HTTP body of the response. If it is a `GET` request, it will hydrate some entities. To get the raw body call it with `false` as argument.
+* `body ()`: Get the HTTP body of the response. If it is a `GET` request, it will hydrate some entities. To get the raw body call it with `false` as argument.
+* `headers ()`: Get the HTTP headers of the response.
+* `statusCode ()`: Get the HTTP status code of the response.
 
 ### Entity methods
 
-* `entity.data()` : Get the JS object unserialized from the response body (which must be in JSON)
-* `entity.one(name, id)`: Query a member child of the entity.
-* `entity.all(name)`: Query a collection child of the entity.
-* `entity.url()`: Get the entity url.
-* `entity.id()`: Get the id of the entity.
-* `entity.save ( [ headers ] )`: Update the member link to the entity. Returns a promise with the response.
-* `entity.remove ( [ headers ] )`: Delete the member link to the entity. Returns a promise with the response.
+* `all ( name )`: Query a collection child of the entity.
+* `custom ( name [, isRelative = true ] )`: Target a child member with a custom url.
+* `data ()` : Get the JS object unserialized from the response body (which must be in JSON)
+* `id ()`: Get the id of the entity.
+* `one ( name, id )`: Query a member child of the entity.
+* `delete ( [, data [, params [, headers ]]] )`: Delete the member link to the entity. Returns a promise with the response.
+* `save ( [, data [, params [, headers ]]] )`: Update the member link to the entity. Returns a promise with the response.
+* `url ()`: Get the entity url.
 
 ```js
 // http://api.example.com/articles/1/comments/2
-var commentMember = api.one('articles', 1).one('comments', 2);
-commentMember.get().then(function(commentEntity) {
+const commentMember = api.one('articles', 1).one('comments', 2);
+commentMember.get().then((commentEntity) => {
     commentEntity.save();
     commentEntity.remove();
 });
@@ -321,17 +351,41 @@ commentMember.get().then(function(commentEntity) {
 
 ### Error Handling
 
-To deal with errors, you must use the `catch` method on any of the returned promises:
+To deal with errors, you can either use error interceptors, error callbacks on promise or error events.
 
 ```js
-var commentMember = resource.one('articles', 1).one('comments', 2);
+const commentMember = resource.one('articles', 1).one('comments', 2);
 commentMember
     .get()
-    .then(function(commentEntity) { /*  */ })
-    .catch(function(err) {
+    .then((commentEntity) => { /*  */ })
+    .catch((err) => {
         // deal with the error
     });
+
+commentMember.on('error', (error, config) => {
+    // deal with the error
+});
 ```
+
+### Events
+
+Any endpoint (collection or member) is an event emitter. It emits `request`, `response` and `error` events. When it emits an event, it is propagated to all its parents. This way you can listen to all errors, requests and response on your restful instance by listening on your root endpoint.
+
+```js
+api.on('error', (error, config) => {
+    // deal with the error
+});
+
+api.on('request', (config) => {
+    // deal with the request
+});
+
+api.on('response', (config) => {
+    // deal with the response
+});
+```
+
+You can also use `once` method to add a one shot event listener.
 
 ## Development
 
@@ -341,11 +395,19 @@ Install dependencies:
 make install
 ```
 
-### Build
+### Development Build
 
-To rebuild the minified JavaScript you must run: `make build`.
+To rebuild the JavaScript you must run: `make build-dev`.
 
 During development you can run `make watch` to trigger a build at each change.
+
+### Production build
+
+To build for production (minified files) you must run: `make build`.
+
+### ES5 build
+
+To build the ES5 files you must run: `make es5`.
 
 ### Tests
 

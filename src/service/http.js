@@ -1,70 +1,42 @@
 import assign from 'object-assign';
+import { fromJS, List, Iterable } from 'immutable';
+import serialize from '../util/serialize';
 
-function interceptorCallback(interceptors, method, url, isResponseInterceptor) {
-    isResponseInterceptor = isResponseInterceptor !== undefined ? !!isResponseInterceptor : false;
+/* eslint-disable new-cap */
+function reducePromiseList(list, initialValue, params = []) {
+    return list.reduce((promise, nextItem) => {
+        return promise.then(currentValue => {
+            return Promise.resolve(nextItem(serialize(currentValue), ...params))
+                .then((nextValue) => {
+                    if (!Iterable.isIterable(currentValue)) {
+                        return assign({}, currentValue, nextValue);
+                    }
 
-    return function(data, headers) {
-        if (isResponseInterceptor) {
-            try {
-                data = JSON.parse(data);
-            } catch (e) {}
-        }
-
-        for (var i in interceptors) {
-            data = interceptors[i](data, headers, method, url);
-        }
-
-        if (!isResponseInterceptor) {
-            try {
-                data = JSON.stringify(data);
-            } catch (e) {}
-        }
-
-        return data;
-    };
+                    return currentValue.mergeDeep(nextValue);
+                });
+        });
+    }, Promise.resolve(initialValue));
 }
 
-export default function http(httpBackend) {
-    var model = {
-        backend: httpBackend,
+export default function(httpBackend) {
+    return (config) => {
+        const errorInterceptors = List(config.get('errorInterceptors'));
+        const requestInterceptors = List(config.get('requestInterceptors'));
+        const responseInterceptors = List(config.get('responseInterceptors'));
+        const currentConfig = config
+            .delete('errorInterceptors')
+            .delete('requestInterceptors')
+            .delete('responseInterceptors');
 
-        setBackend(httpBackend) {
-            this.backend = httpBackend;
-
-            return assign(function() {
-                return httpBackend;
-            }, this);
-        },
-
-        request(method, config) {
-            if (['post', 'put', 'patch'].indexOf(config.method) !== -1) {
-                config.transformRequest = [interceptorCallback(config.requestInterceptors || [], config.method, config.url)];
-                delete config.requestInterceptors;
-            }
-
-            config.transformResponse = [interceptorCallback(config.responseInterceptors || [], config.method, config.url, true)];
-            delete config.responseInterceptors;
-
-            return this.backend(config).then(function (response) {
-                const interceptors = config.fullResponseInterceptors;
-                for (let i in interceptors) {
-                    let intercepted = interceptors[i](response.data, response.headers, config.method, config.url);
-
-                    if (intercepted.data) {
-                        response.data = intercepted.data;
-                    }
-
-                    if (intercepted.headers) {
-                        response.headers = intercepted.headers;
-                    }
-                }
-
-                return response;
+        return reducePromiseList(requestInterceptors, currentConfig)
+            .then((transformedConfig) => {
+                return httpBackend(serialize(transformedConfig)).then((response) => {
+                    return reducePromiseList(responseInterceptors, fromJS(response), [serialize(transformedConfig)]);
+                });
+            })
+            .then(null, (error) => {
+                return reducePromiseList(errorInterceptors, error, [serialize(currentConfig)])
+                    .then((transformedError) => Promise.reject(transformedError));
             });
-        }
     };
-
-    return assign(function() {
-        return httpBackend;
-    }, model);
 }

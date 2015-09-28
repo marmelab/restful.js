@@ -1,18 +1,23 @@
-.PHONY: build test
+PATH := ${CURDIR}/node_modules/.bin:${PATH}
+
+.PHONY: build es5 test
 
 install:
 	npm install
-	bower install
+	npm install whatwg-fetch
+	npm install request
 
-build: jshint
-	${CURDIR}/node_modules/.bin/webpack --optimize-minimize --output-file=restful.min.js
+build:
+	NODE_ENV=production webpack
+
+build-dev:
+	webpack
+
+es5:
+	${CURDIR}/node_modules/.bin/babel --out-dir=dist/es5 --stage=0 src
 
 watch:
-	${CURDIR}/node_modules/.bin/webpack --watch
+	webpack -d --watch
 
-jshint:
-	./node_modules/jshint/bin/jshint src/**/*.js
-	./node_modules/jshint/bin/jshint test/**/*.js
-
-test: build
-	CHROME_BIN=`which chromium-browser` ${CURDIR}/node_modules/karma/bin/karma start test/karma.conf.js --single-run
+test:
+	NODE_ENV=test mocha --compilers js:babel/register --colors --reporter=spec --timeout=10000 test/{**,**/**,**/**/**}/*.js

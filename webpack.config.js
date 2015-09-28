@@ -1,12 +1,11 @@
+/* eslint-disable no-var */
+var webpack = require('webpack');
+var production = process.env.NODE_ENV === 'production';
+
 module.exports = {
     entry: {
-        restful: './src/restful.js',
-    },
-    resolve:{
-        modulesDirectories: [
-            'node_modules',
-            'src'
-        ]
+        restful: './build/restful.standalone.js',
+        'restful.standalone': './build/restful.fetch.js',
     },
     module: {
         loaders: [{
@@ -15,10 +14,18 @@ module.exports = {
             loader: 'babel-loader',
         }],
     },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        }),
+    ].concat(production ?  [
+        new webpack.optimize.UglifyJsPlugin(),
+        new webpack.optimize.DedupePlugin(),
+    ] : []),
     output: {
         path: './dist',
-        filename: '[name].js',
+        filename: production ? '[name].min.js' : '[name].js',
         library: 'restful',
-        libraryTarget: 'umd'
-    }
+        libraryTarget: 'umd',
+    },
 };
