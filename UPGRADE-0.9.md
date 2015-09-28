@@ -6,6 +6,10 @@ For any change, refer to the README for more details.
 
 Initialization of a restful object has changed.
 
+## Native promise
+
+The polyfill for native promise is no longer included in restful.js, you must include it on your own if needed.
+
 ## Targeting a custom url
 
 All methods `customUrl`, `allUrl` and `oneUrl` are replaced by a `custom` method.
