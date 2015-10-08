@@ -8,7 +8,6 @@ import scope from './model/scope';
 export default function(baseUrl, httpBackend) {
     const rootScope = scope();
     rootScope.assign('config', 'entityIdentifier', 'id');
-    rootScope.set('debug', false);
     if (!baseUrl && typeof(window) !== undefined && window.location) {
         rootScope.set('url', `${window.location.protocol}//${window.location.host}`);
     } else {
