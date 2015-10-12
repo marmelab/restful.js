@@ -1,3 +1,5 @@
+import qs from 'qs';
+
 export default function(fetch) {
     return (config) => {
         const url = config.url;
@@ -8,7 +10,10 @@ export default function(fetch) {
             delete config.data;
         }
 
-        return fetch(url, config)
+        const queryString = qs.stringify(config.params || {}, { arrayFormat: 'brackets' });
+        delete config.params;
+
+        return fetch(!queryString.length ? url : `${url}?${queryString}`, config)
             .then((response) => {
                 return (response.status === 204 ? Promise.resolve(null) : response.json()).then((json) => {
                     const headers = {};
