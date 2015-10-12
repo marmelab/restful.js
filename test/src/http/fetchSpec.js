@@ -36,14 +36,11 @@ describe('Fetch HTTP Backend', () => {
         });
 
         expect(fetch.getCall(0).args).to.deep.equal([
-            '/url',
+            '/url?asc=1',
             {
                 body: '{"me":"you"}',
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
-                },
-                params: {
-                    asc: 1,
                 },
             },
         ]);
@@ -60,15 +57,12 @@ describe('Fetch HTTP Backend', () => {
         });
 
         expect(fetch.getCall(1).args).to.deep.equal([
-            '/url',
+            '/url?asc=1',
             {
                 body: {
                     me: 'you',
                 },
                 headers: {},
-                params: {
-                    asc: 1,
-                },
             },
         ]);
     });
@@ -162,5 +156,54 @@ describe('Fetch HTTP Backend', () => {
             done();
         })
         .catch(done);
+    });
+
+    it('should correctly stringify the query string', () => {
+        httpBackend({
+            data: {
+                me: 'you',
+            },
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+            params: {
+                asc: 1,
+                fields: [
+                    'name',
+                    'firstname',
+                    'email',
+                ],
+            },
+            url: '/url',
+        });
+
+        expect(fetch.getCall(0).args).to.deep.equal([
+            encodeURI('/url?asc=1&fields[]=name&fields[]=firstname&fields[]=email'),
+            {
+                body: '{"me":"you"}',
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                },
+            },
+        ]);
+
+        httpBackend({
+            data: {
+                me: 'you',
+            },
+            headers: {},
+            params: {},
+            url: '/url',
+        });
+
+        expect(fetch.getCall(1).args).to.deep.equal([
+            '/url',
+            {
+                body: {
+                    me: 'you',
+                },
+                headers: {},
+            },
+        ]);
     });
 });
