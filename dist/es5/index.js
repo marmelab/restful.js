@@ -31,7 +31,6 @@ var _modelScope2 = _interopRequireDefault(_modelScope);
 exports['default'] = function (baseUrl, httpBackend) {
     var rootScope = (0, _modelScope2['default'])();
     rootScope.assign('config', 'entityIdentifier', 'id');
-    rootScope.set('debug', false);
     if (!baseUrl && typeof window !== undefined && window.location) {
         rootScope.set('url', window.location.protocol + '//' + window.location.host);
     } else {

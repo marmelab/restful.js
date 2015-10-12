@@ -4,6 +4,12 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _qs = require('qs');
+
+var _qs2 = _interopRequireDefault(_qs);
+
 exports['default'] = function (fetch) {
     return function (config) {
         var url = config.url;
@@ -14,7 +20,10 @@ exports['default'] = function (fetch) {
             delete config.data;
         }
 
-        return fetch(url, config).then(function (response) {
+        var queryString = _qs2['default'].stringify(config.params || {}, { arrayFormat: 'brackets' });
+        delete config.params;
+
+        return fetch(!queryString.length ? url : url + '?' + queryString, config).then(function (response) {
             return (response.status === 204 ? Promise.resolve(null) : response.json()).then(function (json) {
                 var headers = {};
 
