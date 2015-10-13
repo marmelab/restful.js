@@ -1,7 +1,10 @@
 {
   "name": "restful.js",
   "version": "0.9.2",
-  "repository": "https://github.com/marmelab/restful.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marmelab/restful.js"
+  },
   "bugs": {
     "url": "https://github.com/marmelab/restful.js/issues"
   },
@@ -13,13 +16,13 @@
   "author": "Robin Bressan <robin@buddey.net>",
   "license": "MIT",
   "dependencies": {
-    "babel": "~5.8.23",
-    "babel-loader": "~5.3.2",
     "immutable": "~3.7.5",
     "object-assign": "~2.0.0",
     "qs": "~5.2.0"
   },
   "devDependencies": {
+    "babel": "~5.8.23",
+    "babel-loader": "~5.3.2",
     "babel-eslint": "~4.0.10",
     "chai": "~3.2.0",
     "eslint": "~1.5.1",
