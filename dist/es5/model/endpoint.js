@@ -48,8 +48,6 @@ exports['default'] = function (request) {
                 config = config.set('data', (0, _immutable.fromJS)(data));
             }
 
-            scope.emit('request', (0, _utilSerialize2['default'])(config));
-
             return config;
         }
 
@@ -67,13 +65,17 @@ exports['default'] = function (request) {
         function _httpMethodFactory(method) {
             var expectData = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
+            var emitter = function emitter() {
+                scope.emit.apply(scope, arguments);
+            };
+
             if (expectData) {
                 return function (data) {
                     var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
                     var headers = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
                     var config = _generateRequestConfig(method, data, params, headers);
-                    return request(config).then(function (rawResponse) {
+                    return request(config, emitter).then(function (rawResponse) {
                         return _onResponse(config, rawResponse);
                     }, function (rawResponse) {
                         return _onError(config, rawResponse);
@@ -86,7 +88,7 @@ exports['default'] = function (request) {
                 var headers = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
                 var config = _generateRequestConfig(method, null, params, headers);
-                return request(config).then(function (rawResponse) {
+                return request(config, emitter).then(function (rawResponse) {
                     return _onResponse(config, rawResponse);
                 }, function (error) {
                     return _onError(config, error);

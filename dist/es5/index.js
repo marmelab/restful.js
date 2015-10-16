@@ -28,17 +28,31 @@ var _modelScope = require('./model/scope');
 
 var _modelScope2 = _interopRequireDefault(_modelScope);
 
-exports['default'] = function (baseUrl, httpBackend) {
+var instances = [];
+
+function restful(baseUrl, httpBackend) {
     var rootScope = (0, _modelScope2['default'])();
     rootScope.assign('config', 'entityIdentifier', 'id');
-    if (!baseUrl && typeof window !== undefined && window.location) {
+    if (!baseUrl && typeof window !== 'undefined' && window.location) {
         rootScope.set('url', window.location.protocol + '//' + window.location.host);
     } else {
         rootScope.set('url', baseUrl);
     }
 
-    return (0, _modelDecorator.member)((0, _modelEndpoint2['default'])((0, _serviceHttp2['default'])(httpBackend))(rootScope));
+    var rootEndpoint = (0, _modelDecorator.member)((0, _modelEndpoint2['default'])((0, _serviceHttp2['default'])(httpBackend))(rootScope));
+
+    instances.push(rootEndpoint);
+
+    return rootEndpoint;
+}
+
+restful._instances = function () {
+    return instances;
+};
+restful._flush = function () {
+    return instances.length = 0;
 };
 
 exports.fetchBackend = _httpFetch2['default'];
 exports.requestBackend = _httpRequest2['default'];
+exports['default'] = restful;

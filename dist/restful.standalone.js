@@ -114,20 +114,34 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _modelScope2 = _interopRequireDefault(_modelScope);
 
-	exports['default'] = function (baseUrl, httpBackend) {
+	var instances = [];
+
+	function restful(baseUrl, httpBackend) {
 	    var rootScope = (0, _modelScope2['default'])();
 	    rootScope.assign('config', 'entityIdentifier', 'id');
-	    if (!baseUrl && typeof window !== undefined && window.location) {
+	    if (!baseUrl && typeof window !== 'undefined' && window.location) {
 	        rootScope.set('url', window.location.protocol + '//' + window.location.host);
 	    } else {
 	        rootScope.set('url', baseUrl);
 	    }
 
-	    return (0, _modelDecorator.member)((0, _modelEndpoint2['default'])((0, _serviceHttp2['default'])(httpBackend))(rootScope));
+	    var rootEndpoint = (0, _modelDecorator.member)((0, _modelEndpoint2['default'])((0, _serviceHttp2['default'])(httpBackend))(rootScope));
+
+	    instances.push(rootEndpoint);
+
+	    return rootEndpoint;
+	}
+
+	restful._instances = function () {
+	    return instances;
+	};
+	restful._flush = function () {
+	    return instances.length = 0;
 	};
 
 	exports.fetchBackend = _httpFetch2['default'];
 	exports.requestBackend = _httpRequest2['default'];
+	exports['default'] = restful;
 
 /***/ },
 /* 2 */
@@ -286,8 +300,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                config = config.set('data', (0, _immutable.fromJS)(data));
 	            }
 
-	            scope.emit('request', (0, _utilSerialize2['default'])(config));
-
 	            return config;
 	        }
 
@@ -305,13 +317,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        function _httpMethodFactory(method) {
 	            var expectData = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
+	            var emitter = function emitter() {
+	                scope.emit.apply(scope, arguments);
+	            };
+
 	            if (expectData) {
 	                return function (data) {
 	                    var params = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 	                    var headers = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
 	                    var config = _generateRequestConfig(method, data, params, headers);
-	                    return request(config).then(function (rawResponse) {
+	                    return request(config, emitter).then(function (rawResponse) {
 	                        return _onResponse(config, rawResponse);
 	                    }, function (rawResponse) {
 	                        return _onError(config, rawResponse);
@@ -324,7 +340,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var headers = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
 	                var config = _generateRequestConfig(method, null, params, headers);
-	                return request(config).then(function (rawResponse) {
+	                return request(config, emitter).then(function (rawResponse) {
 	                    return _onResponse(config, rawResponse);
 	                }, function (error) {
 	                    return _onError(config, error);
@@ -6123,35 +6139,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _utilSerialize2 = _interopRequireDefault(_utilSerialize);
 
 	/* eslint-disable new-cap */
-	function reducePromiseList(list, initialValue) {
-	    var params = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
+	function reducePromiseList(emitter, list, initialValue) {
+	    var params = arguments.length <= 3 || arguments[3] === undefined ? [] : arguments[3];
 
 	    return list.reduce(function (promise, nextItem) {
 	        return promise.then(function (currentValue) {
+	            emitter.apply(undefined, ['pre', (0, _utilSerialize2['default'])(currentValue)].concat(_toConsumableArray(params), [nextItem.name]));
 	            return Promise.resolve(nextItem.apply(undefined, [(0, _utilSerialize2['default'])(currentValue)].concat(_toConsumableArray(params)))).then(function (nextValue) {
 	                if (!_immutable.Iterable.isIterable(currentValue)) {
 	                    return (0, _objectAssign2['default'])({}, currentValue, nextValue);
 	                }
 
 	                return currentValue.mergeDeep(nextValue);
+	            }).then(function (nextValue) {
+	                emitter.apply(undefined, ['post', (0, _utilSerialize2['default'])(nextValue)].concat(_toConsumableArray(params), [nextItem.name]));
+
+	                return nextValue;
 	            });
 	        });
 	    }, Promise.resolve(initialValue));
 	}
 
 	exports['default'] = function (httpBackend) {
-	    return function (config) {
+	    return function (config, emitter) {
 	        var errorInterceptors = (0, _immutable.List)(config.get('errorInterceptors'));
 	        var requestInterceptors = (0, _immutable.List)(config.get('requestInterceptors'));
 	        var responseInterceptors = (0, _immutable.List)(config.get('responseInterceptors'));
 	        var currentConfig = config['delete']('errorInterceptors')['delete']('requestInterceptors')['delete']('responseInterceptors');
 
-	        return reducePromiseList(requestInterceptors, currentConfig).then(function (transformedConfig) {
+	        function emitterFactory(type) {
+	            return function (event) {
+	                for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	                    args[_key - 1] = arguments[_key];
+	                }
+
+	                emitter.apply(undefined, [type + ':' + event].concat(args));
+	            };
+	        }
+
+	        return reducePromiseList(emitterFactory('request:interceptor'), requestInterceptors, currentConfig).then(function (transformedConfig) {
+	            emitter('request', (0, _utilSerialize2['default'])(transformedConfig));
 	            return httpBackend((0, _utilSerialize2['default'])(transformedConfig)).then(function (response) {
-	                return reducePromiseList(responseInterceptors, (0, _immutable.fromJS)(response), [(0, _utilSerialize2['default'])(transformedConfig)]);
+	                return reducePromiseList(emitterFactory('response:interceptor'), responseInterceptors, (0, _immutable.fromJS)(response), [(0, _utilSerialize2['default'])(transformedConfig)]);
 	            });
 	        }).then(null, function (error) {
-	            return reducePromiseList(errorInterceptors, error, [(0, _utilSerialize2['default'])(currentConfig)]).then(function (transformedError) {
+	            return reducePromiseList(emitterFactory('error:interceptor'), errorInterceptors, error, [(0, _utilSerialize2['default'])(currentConfig)]).then(function (transformedError) {
 	                return Promise.reject(transformedError);
 	            });
 	        });
