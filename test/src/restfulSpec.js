@@ -103,4 +103,17 @@ describe('Restful', () => {
             .then(() => done())
             .catch(done);
     });
+
+    it('shoud append to restful._instances each instance of restful', () => {
+        restful._flush();
+        expect(restful._instances()).to.deep.equal([]);
+
+        const instance1 = restful();
+        const instance2 = restful();
+
+        expect(restful._instances()).to.deep.equal([
+            instance1,
+            instance2,
+        ]);
+    });
 });

@@ -435,23 +435,6 @@ describe('Endpoint model', () => {
         });
     });
 
-    it('should emit a request event when a request is made', () => {
-        const listener = sinon.spy();
-        endpoint.on('request', listener);
-
-        endpoint.get();
-
-        expect(listener.getCall(0).args).to.deep.equal([{
-            errorInterceptors: [],
-            headers: {},
-            method: 'get',
-            params: null,
-            requestInterceptors: [],
-            responseInterceptors: [],
-            url: '/url',
-        }]);
-    });
-
     it('should emit a response event when a response is received', (done) => {
         const listener = sinon.spy();
         endpoint.on('response', listener);

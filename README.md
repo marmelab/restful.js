@@ -385,6 +385,34 @@ api.on('response', (config) => {
 });
 ```
 
+When you use interceptors, endpoints will also emit `request:interceptor:pre`, `request:interceptor:post`, `response:interceptor:pre`, `response:interceptor:post`, `error:interceptor:pre` and `error:interceptor:post`:
+
+```js
+api.on('error:interceptor:pre', (error, config, interceptorName) => {
+    // deal with the error
+});
+
+api.on('error:interceptor:post', (error, config, interceptorName) => {
+    // deal with the error
+});
+
+api.on('request:interceptor:pre', (config, interceptorName) => {
+    // deal with the request
+});
+
+api.on('request:interceptor:post', (config, interceptorName) => {
+    // deal with the request
+});
+
+api.on('response:interceptor:pre', (response, config, interceptorName) => {
+    // deal with the response
+});
+
+api.on('response:interceptor:post', (response, config, interceptorName) => {
+    // deal with the response
+});
+```
+
 You can also use `once` method to add a one shot event listener.
 
 ## Development

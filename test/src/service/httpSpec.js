@@ -5,10 +5,12 @@ import sinon from 'sinon';
 
 /* eslint-disable new-cap */
 describe('HTTP Service', () => {
+    let emitter;
     let http;
     let httpBackend;
 
     beforeEach(() => {
+        emitter = sinon.spy();
         httpBackend = sinon.stub().returns(Promise.resolve({ output: 1 }));
         http = httpService(httpBackend);
     });
@@ -31,7 +33,130 @@ describe('HTTP Service', () => {
             requestInterceptors: [requestInterceptor1, requestInterceptor2, requestInterceptor3],
             responseInterceptors: [responseInterceptor1],
             url: '/url',
-        })).then((response) => {
+        }), emitter).then((response) => {
+            expect(emitter.getCall(0).args).to.deep.equal([
+                'request:interceptor:pre',
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(1).args).to.deep.equal([
+                'request:interceptor:post',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(2).args).to.deep.equal([
+                'request:interceptor:pre',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(3).args).to.deep.equal([
+                'request:interceptor:post',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    params: {
+                        asc: 1,
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(4).args).to.deep.equal([
+                'request:interceptor:pre',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    params: {
+                        asc: 1,
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(5).args).to.deep.equal([
+                'request:interceptor:post',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    params: {
+                        asc: 1,
+                    },
+                    url: '/updated',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(6).args).to.deep.equal([
+                'request',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    params: {
+                        asc: 1,
+                    },
+                    url: '/updated',
+                },
+            ]);
+            expect(emitter.getCall(7).args).to.deep.equal([
+                'response:interceptor:pre',
+                {
+                    output: 1,
+                },
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    params: {
+                        asc: 1,
+                    },
+                    url: '/updated',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(8).args).to.deep.equal([
+                'response:interceptor:post',
+                {
+                    output: 1,
+                    status: 'yes',
+                },
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    params: {
+                        asc: 1,
+                    },
+                    url: '/updated',
+                },
+                'proxy',
+            ]);
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     method: 'get',
@@ -113,7 +238,66 @@ describe('HTTP Service', () => {
             requestInterceptors: [requestInterceptor1, requestInterceptor2],
             responseInterceptors: [],
             url: '/url',
-        })).then(done.bind(done, 'It should throw an error'), (error) => {
+        }), emitter).then(done.bind(done, 'It should throw an error'), (error) => {
+            expect(emitter.getCall(0).args).to.deep.equal([
+                'request:interceptor:pre',
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(1).args).to.deep.equal([
+                'request:interceptor:post',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(2).args).to.deep.equal([
+                'request:interceptor:pre',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(3).args).to.deep.equal([
+                'error:interceptor:pre',
+                new Error('Oops'),
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(4).args).to.deep.equal([
+                'error:interceptor:post',
+                {
+                    status: 'yes',
+                },
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     method: 'get',
@@ -163,7 +347,57 @@ describe('HTTP Service', () => {
             requestInterceptors: [],
             responseInterceptors: [responseInterceptor1],
             url: '/url',
-        })).then(done.bind(done, 'It should throw an error'), (error) => {
+        }), emitter).then(done.bind(done, 'It should throw an error'), (error) => {
+            expect(emitter.getCall(0).args).to.deep.equal([
+                'request',
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+            ]);
+            expect(emitter.getCall(1).args).to.deep.equal([
+                'response:interceptor:pre',
+                {
+                    output: 1,
+                },
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(2).args).to.deep.equal([
+                'error:interceptor:pre',
+                new Error('Oops'),
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(3).args).to.deep.equal([
+                'error:interceptor:post',
+                {
+                    status: 'yes',
+                },
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
             expect(responseInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     output: 1,
@@ -215,7 +449,65 @@ describe('HTTP Service', () => {
             requestInterceptors: [requestInterceptor1],
             responseInterceptors: [],
             url: '/url',
-        })).then(done.bind(done, 'It should throw an error'), (error) => {
+        }), emitter).then(done.bind(done, 'It should throw an error'), (error) => {
+            expect(emitter.getCall(0).args).to.deep.equal([
+                'request:interceptor:pre',
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(1).args).to.deep.equal([
+                'request:interceptor:post',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(2).args).to.deep.equal([
+                'request',
+                {
+                    method: 'put',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+            ]);
+            expect(emitter.getCall(3).args).to.deep.equal([
+                'error:interceptor:pre',
+                new Error('Oops'),
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
+            expect(emitter.getCall(4).args).to.deep.equal([
+                'error:interceptor:post',
+                {
+                    status: 'yes',
+                },
+                {
+                    method: 'get',
+                    form: {
+                        test: 'test',
+                    },
+                    url: '/url',
+                },
+                'proxy',
+            ]);
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
                     method: 'get',
