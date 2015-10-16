@@ -28,8 +28,6 @@ export default function(request) {
                 config = config.set('data', fromJS(data));
             }
 
-            scope.emit('request', serialize(config));
-
             return config;
         }
 
@@ -45,10 +43,14 @@ export default function(request) {
         }
 
         function _httpMethodFactory(method, expectData = true) {
+            const emitter = (...args) => {
+                scope.emit(...args);
+            };
+
             if (expectData) {
                 return (data, params = null, headers = null) => {
                     const config = _generateRequestConfig(method, data, params, headers);
-                    return request(config).then(
+                    return request(config, emitter).then(
                         (rawResponse) => _onResponse(config, rawResponse),
                         (rawResponse) => _onError(config, rawResponse)
                     );
@@ -56,8 +58,8 @@ export default function(request) {
             }
 
             return (params = null, headers = null) => {
-                const config = _generateRequestConfig(method, null,  params, headers);
-                return request(config).then(
+                const config = _generateRequestConfig(method, null, params, headers);
+                return request(config, emitter).then(
                     (rawResponse) => _onResponse(config, rawResponse),
                     (error) => _onError(config, error)
                 );

@@ -3,9 +3,10 @@ import { fromJS, List, Iterable } from 'immutable';
 import serialize from '../util/serialize';
 
 /* eslint-disable new-cap */
-function reducePromiseList(list, initialValue, params = []) {
+function reducePromiseList(emitter, list, initialValue, params = []) {
     return list.reduce((promise, nextItem) => {
         return promise.then(currentValue => {
+            emitter('pre', serialize(currentValue), ...params, nextItem.name);
             return Promise.resolve(nextItem(serialize(currentValue), ...params))
                 .then((nextValue) => {
                     if (!Iterable.isIterable(currentValue)) {
@@ -13,13 +14,18 @@ function reducePromiseList(list, initialValue, params = []) {
                     }
 
                     return currentValue.mergeDeep(nextValue);
+                })
+                .then((nextValue) => {
+                    emitter('post', serialize(nextValue), ...params, nextItem.name);
+
+                    return nextValue;
                 });
         });
     }, Promise.resolve(initialValue));
 }
 
 export default function(httpBackend) {
-    return (config) => {
+    return (config, emitter) => {
         const errorInterceptors = List(config.get('errorInterceptors'));
         const requestInterceptors = List(config.get('requestInterceptors'));
         const responseInterceptors = List(config.get('responseInterceptors'));
@@ -28,14 +34,21 @@ export default function(httpBackend) {
             .delete('requestInterceptors')
             .delete('responseInterceptors');
 
-        return reducePromiseList(requestInterceptors, currentConfig)
+        function emitterFactory(type) {
+            return (event, ...args) => {
+                emitter(`${type}:${event}`, ...args);
+            };
+        }
+
+        return reducePromiseList(emitterFactory('request:interceptor'), requestInterceptors, currentConfig)
             .then((transformedConfig) => {
+                emitter('request', serialize(transformedConfig));
                 return httpBackend(serialize(transformedConfig)).then((response) => {
-                    return reducePromiseList(responseInterceptors, fromJS(response), [serialize(transformedConfig)]);
+                    return reducePromiseList(emitterFactory('response:interceptor'), responseInterceptors, fromJS(response), [serialize(transformedConfig)]);
                 });
             })
             .then(null, (error) => {
-                return reducePromiseList(errorInterceptors, error, [serialize(currentConfig)])
+                return reducePromiseList(emitterFactory('error:interceptor'), errorInterceptors, error, [serialize(currentConfig)])
                     .then((transformedError) => Promise.reject(transformedError));
             });
     };
