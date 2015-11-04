@@ -15,7 +15,10 @@ export default function(fetch) {
 
         return fetch(!queryString.length ? url : `${url}?${queryString}`, config)
             .then((response) => {
-                return (response.status === 204 ? Promise.resolve(null) : response.json()).then((json) => {
+                return response.text().then((text) => {
+                    return JSON.parse(text || '{}');
+                })
+                .then((json) => {
                     const headers = {};
 
                     response.headers.forEach((value, name) => {
