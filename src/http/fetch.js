@@ -17,10 +17,12 @@ export default function(fetch) {
             .then((response) => {
                 return (response.status === 204 ? Promise.resolve(null) : response.json()).then((json) => {
                     const headers = {};
-
-                    response.headers.forEach((value, name) => {
-                        headers[name] = value;
-                    });
+                    
+                    if (response.headers.length > 0) {
+                        response.headers.forEach((value, name) => {
+                            headers[name] = value;
+                        });
+                    }
 
                     const responsePayload = {
                         data: json,
