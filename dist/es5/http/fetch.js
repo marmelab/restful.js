@@ -27,9 +27,11 @@ exports['default'] = function (fetch) {
             return (response.status === 204 ? Promise.resolve(null) : response.json()).then(function (json) {
                 var headers = {};
 
-                response.headers.forEach(function (value, name) {
-                    headers[name] = value;
-                });
+                if (Array.isArray(response.headers)) {
+                    response.headers.forEach(function (value, name) {
+                        headers[name] = value;
+                    });
+                }
 
                 var responsePayload = {
                     data: json,
