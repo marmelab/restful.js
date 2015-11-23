@@ -18,7 +18,7 @@ export default function(fetch) {
                 return (response.status === 204 ? Promise.resolve(null) : response.json()).then((json) => {
                     const headers = {};
                     
-                    if(Array.isArray(response.headers)) {
+                    if (response.headers.length > 0) {
                         response.headers.forEach((value, name) => {
                             headers[name] = value;
                         });
