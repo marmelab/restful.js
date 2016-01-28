@@ -1,7 +1,7 @@
 import articles from '../fixture/articles';
 import comments from '../fixture/comments';
 
-export default function(nock) {
+export default function (nock) {
     const server = nock('http://localhost');
 
     server

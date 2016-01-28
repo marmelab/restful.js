@@ -10,11 +10,10 @@ describe('Fetch HTTP Backend', () => {
     beforeEach(() => {
         response = {
             headers: {
-                forEach: (cb) => {
-                    cb('here', 'test');
-                },
+                keys: sinon.stub().returns(['test']),
+                get: sinon.stub().returns('here'),
             },
-            json: sinon.stub().returns(Promise.resolve({ content: 'Yes' })),
+            text: sinon.stub().returns(Promise.resolve(JSON.stringify({ content: 'Yes' }))),
             status: 200,
         };
         fetch = sinon.stub().returns(Promise.resolve(response));
@@ -88,6 +87,7 @@ describe('Fetch HTTP Backend', () => {
                 headers: {
                     test: 'here',
                 },
+                method: 'get',
                 statusCode: 200,
             });
 
@@ -112,14 +112,17 @@ describe('Fetch HTTP Backend', () => {
         })
         .then((_response) => {
             expect(_response).to.deep.equal({
-                data: null,
+                data: {
+                    content: 'Yes',
+                },
                 headers: {
                     test: 'here',
                 },
+                method: 'get',
                 statusCode: 204,
             });
 
-            expect(response.json.callCount).to.equal(0);
+            expect(response.text.callCount).to.equal(1);
             done();
         })
         .catch(done);
@@ -150,6 +153,7 @@ describe('Fetch HTTP Backend', () => {
                 headers: {
                     test: 'here',
                 },
+                method: 'get',
                 statusCode: 404,
             });
 

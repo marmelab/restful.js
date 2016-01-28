@@ -12,7 +12,7 @@ export function custom(endpoint) {
 
 export function collection(endpoint) {
     function _bindHttpMethod(method) {
-        return (...args)  => {
+        return (...args) => {
             const id = args.shift();
             return member(endpoint.new(`${endpoint.url()}/${id}`))[method](...args);  // eslint-disable-line no-use-before-define
         };
@@ -24,7 +24,6 @@ export function collection(endpoint) {
         getAll: endpoint.get,
         get: _bindHttpMethod('get'),
         head: _bindHttpMethod('head'),
-        one: (name, id) => member(endpoint.new(`${endpoint.url()}/${name}/${id}`)), // eslint-disable-line no-use-before-define
         patch: _bindHttpMethod('patch'),
         put: _bindHttpMethod('put'),
     });
