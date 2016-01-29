@@ -29,7 +29,7 @@ describe('Decorator Model', () => {
             expect(endpoint.new.getCall(0).args).to.deep.equal([
                 '/url/articles/1',
             ]);
-            expect(childMember.fake).to.be.true;
+            expect(childMember.fake).to.equal(true);
             expect(typeof(childMember.all)).to.equal('function');
             expect(typeof(childMember.custom)).to.equal('function');
             expect(typeof(childMember.one)).to.equal('function');
@@ -44,8 +44,7 @@ describe('Decorator Model', () => {
                 '/url/articles',
             ]);
 
-            expect(typeof(articles.one)).to.equal('function');
-            expect(articles.all).to.be.undefined;
+            expect(articles.all).to.equal(undefined);
             expect(typeof(articles.custom)).to.equal('function');
         });
 
@@ -78,23 +77,7 @@ describe('Decorator Model', () => {
         it('should add custom and one methods to an endpoint', () => {
             const collection = decorators.collection(endpoint);
 
-            expect(collection.all).to.be.undefined;
             expect(typeof(collection.custom)).to.equal('function');
-            expect(typeof(collection.one)).to.equal('function');
-        });
-
-        it('should create a new endpoint with correct url when one is called', () => {
-            const collection = decorators.collection(endpoint);
-
-            const childMember = collection.one('articles', 1);
-
-            expect(endpoint.new.getCall(0).args).to.deep.equal([
-                '/url/articles/1',
-            ]);
-            expect(childMember.fake).to.be.true;
-            expect(typeof(childMember.all)).to.equal('function');
-            expect(typeof(childMember.custom)).to.equal('function');
-            expect(typeof(childMember.one)).to.equal('function');
         });
 
         it('should create a new endpoint with correct url when custom is called', () => {

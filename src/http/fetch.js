@@ -1,6 +1,24 @@
 import qs from 'qs';
+import warning from 'warning';
 
-export default function(fetch) {
+function parseBody(response) {
+    return response.text().then(text => {
+        if (!text || !text.length) {
+            warning(response.status === 204, 'You should return a 204 status code with an empty body.');
+            return null;
+        }
+
+        warning(response.status !== 204, 'You should return an empty body with a 204 status code.');
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            return text;
+        }
+    });
+}
+
+export default function (fetch) {
     return (config) => {
         const url = config.url;
         delete config.url;
@@ -15,16 +33,17 @@ export default function(fetch) {
 
         return fetch(!queryString.length ? url : `${url}?${queryString}`, config)
             .then((response) => {
-                return (response.status === 204 ? Promise.resolve(null) : response.json()).then((json) => {
+                return parseBody(response).then((json) => {
                     const headers = {};
-
-                    response.headers.forEach((value, name) => {
-                        headers[name] = value;
-                    });
+                    const keys = response.headers.keys();
+                    for (const key of keys) {
+                        headers[key] = response.headers.get(key);
+                    }
 
                     const responsePayload = {
                         data: json,
                         headers: headers,
+                        method: config.method ? config.method.toLowerCase() : 'get',
                         statusCode: response.status,
                     };
 

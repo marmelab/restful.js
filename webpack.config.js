@@ -18,7 +18,7 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         }),
-    ].concat(production ?  [
+    ].concat(production ? [
         new webpack.optimize.UglifyJsPlugin(),
         new webpack.optimize.DedupePlugin(),
     ] : []),
