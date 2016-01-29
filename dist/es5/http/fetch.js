@@ -10,6 +10,27 @@ var _qs = require('qs');
 
 var _qs2 = _interopRequireDefault(_qs);
 
+var _warning = require('warning');
+
+var _warning2 = _interopRequireDefault(_warning);
+
+function parseBody(response) {
+    return response.text().then(function (text) {
+        if (!text || !text.length) {
+            (0, _warning2['default'])(response.status === 204, 'You should return a 204 status code with an empty body.');
+            return null;
+        }
+
+        (0, _warning2['default'])(response.status !== 204, 'You should return an empty body with a 204 status code.');
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            return text;
+        }
+    });
+}
+
 exports['default'] = function (fetch) {
     return function (config) {
         var url = config.url;
@@ -24,16 +45,38 @@ exports['default'] = function (fetch) {
         delete config.params;
 
         return fetch(!queryString.length ? url : url + '?' + queryString, config).then(function (response) {
-            return (response.status === 204 ? Promise.resolve(null) : response.json()).then(function (json) {
+            return parseBody(response).then(function (json) {
                 var headers = {};
+                var keys = response.headers.keys();
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
 
-                response.headers.forEach(function (value, name) {
-                    headers[name] = value;
-                });
+                try {
+                    for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var key = _step.value;
+
+                        headers[key] = response.headers.get(key);
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator['return']) {
+                            _iterator['return']();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
 
                 var responsePayload = {
                     data: json,
                     headers: headers,
+                    method: config.method ? config.method.toLowerCase() : 'get',
                     statusCode: response.status
                 };
 

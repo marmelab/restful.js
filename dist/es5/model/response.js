@@ -16,6 +16,10 @@ var _utilSerialize = require('../util/serialize');
 
 var _utilSerialize2 = _interopRequireDefault(_utilSerialize);
 
+var _warning = require('warning');
+
+var _warning2 = _interopRequireDefault(_warning);
+
 /* eslint-disable new-cap */
 
 exports['default'] = function (response, decoratedEndpoint) {
@@ -35,9 +39,7 @@ exports['default'] = function (response, decoratedEndpoint) {
             }
 
             if (_immutable.List.isList(data)) {
-                if (decoratedEndpoint.all) {
-                    throw new Error('Unexpected array as response, you should use all method for that');
-                }
+                (0, _warning2['default'])(response.get('method') !== 'get' || !decoratedEndpoint.all, 'Unexpected array as response, you should use all method for that');
 
                 return (0, _utilSerialize2['default'])(data.map(function (datum) {
                     var id = datum.get(identifier);
@@ -45,9 +47,7 @@ exports['default'] = function (response, decoratedEndpoint) {
                 }));
             }
 
-            if (!decoratedEndpoint.all) {
-                throw new Error('Expected array as response, you should use one method for that');
-            }
+            (0, _warning2['default'])(response.get('method') !== 'get' || decoratedEndpoint.all, 'Expected array as response, you should use one method for that');
 
             return (0, _entity2['default'])((0, _utilSerialize2['default'])(data), decoratedEndpoint);
         },

@@ -45,9 +45,6 @@ function collection(endpoint) {
         getAll: endpoint.get,
         get: _bindHttpMethod('get'),
         head: _bindHttpMethod('head'),
-        one: function one(name, id) {
-            return member(endpoint['new'](endpoint.url() + '/' + name + '/' + id));
-        }, // eslint-disable-line no-use-before-define
         patch: _bindHttpMethod('patch'),
         put: _bindHttpMethod('put')
     });
