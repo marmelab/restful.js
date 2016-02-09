@@ -34,10 +34,19 @@ export default function (fetch) {
         return fetch(!queryString.length ? url : `${url}?${queryString}`, config)
             .then((response) => {
                 return parseBody(response).then((json) => {
-                    const headers = {};
-                    const keys = response.headers.keys();
-                    for (const key of keys) {
-                        headers[key] = response.headers.get(key);
+                    let headers = {};
+
+                    if (typeof Headers.prototype.forEach === 'function') {
+                        response.headers.forEach((value, name) => {
+                            headers[name] = value
+                        })
+                    } else if (typeof Headers.prototype.keys === 'function') {
+                        const keys = response.headers.keys();
+                        for (const key of keys) {
+                            headers[key] = response.headers.get(key);
+                        }
+                    } else {
+                        headers = response.headers
                     }
 
                     const responsePayload = {

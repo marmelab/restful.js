@@ -7,6 +7,9 @@ describe('Fetch HTTP Backend', () => {
     let fetch;
     let response;
 
+    global.Headers = () => {}
+    global.Headers.prototype.keys = () => {}
+    
     beforeEach(() => {
         response = {
             headers: {
