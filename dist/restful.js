@@ -5546,30 +5546,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return fetch(!queryString.length ? url : url + '?' + queryString, config).then(function (response) {
 	            return parseBody(response).then(function (json) {
 	                var headers = {};
-	                var keys = response.headers.keys();
-	                var _iteratorNormalCompletion = true;
-	                var _didIteratorError = false;
-	                var _iteratorError = undefined;
 
-	                try {
-	                    for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                        var key = _step.value;
+	                if (typeof Headers.prototype.forEach === 'function') {
+	                    response.headers.forEach(function (value, name) {
+	                        headers[name] = value;
+	                    });
+	                } else if (typeof Headers.prototype.keys === 'function') {
+	                    var keys = response.headers.keys();
+	                    var _iteratorNormalCompletion = true;
+	                    var _didIteratorError = false;
+	                    var _iteratorError = undefined;
 
-	                        headers[key] = response.headers.get(key);
-	                    }
-	                } catch (err) {
-	                    _didIteratorError = true;
-	                    _iteratorError = err;
-	                } finally {
 	                    try {
-	                        if (!_iteratorNormalCompletion && _iterator['return']) {
-	                            _iterator['return']();
+	                        for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                            var key = _step.value;
+
+	                            headers[key] = response.headers.get(key);
 	                        }
+	                    } catch (err) {
+	                        _didIteratorError = true;
+	                        _iteratorError = err;
 	                    } finally {
-	                        if (_didIteratorError) {
-	                            throw _iteratorError;
+	                        try {
+	                            if (!_iteratorNormalCompletion && _iterator['return']) {
+	                                _iterator['return']();
+	                            }
+	                        } finally {
+	                            if (_didIteratorError) {
+	                                throw _iteratorError;
+	                            }
 	                        }
 	                    }
+	                } else {
+	                    headers = response.headers;
 	                }
 
 	                var responsePayload = {
