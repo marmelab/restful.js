@@ -17,7 +17,7 @@ export default function(request) {
                 params,
                 requestInterceptors: List(scope.get('requestInterceptors')),
                 responseInterceptors: List(scope.get('responseInterceptors')),
-                url: scope.get('url'),
+                url: scope.get('url') + (scope.get('suffix') ? ('.' + scope.get('suffix')) : ''),
             });
 
             if (data) {

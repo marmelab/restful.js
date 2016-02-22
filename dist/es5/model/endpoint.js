@@ -37,7 +37,7 @@ exports['default'] = function (request) {
                 params: params,
                 requestInterceptors: (0, _immutable.List)(scope.get('requestInterceptors')),
                 responseInterceptors: (0, _immutable.List)(scope.get('responseInterceptors')),
-                url: scope.get('url')
+                url: scope.get('url') + (scope.get('suffix') ? '.' + scope.get('suffix') : '')
             });
 
             if (data) {
