@@ -12,9 +12,13 @@ function restful(baseUrl, httpBackend) {
     rootScope.assign('config', 'entityIdentifier', 'id');
     if (!baseUrl && typeof(window) !== 'undefined' && window.location) {
         rootScope.set('url', `${window.location.protocol}//${window.location.host}`);
+    } else if(typeof baseUrl === 'object') {
+        rootScope.set('url', baseUrl.baseUrl);
+        rootScope.set('suffix', baseUrl.suffix);
     } else {
         rootScope.set('url', baseUrl);
     }
+
 
     const rootEndpoint = member(endpoint(http(httpBackend))(rootScope));
 
