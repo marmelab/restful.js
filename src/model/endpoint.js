@@ -78,7 +78,7 @@ export default function(request) {
             addErrorInterceptor: addInterceptor('error'),
             addRequestInterceptor: addInterceptor('request'),
             addResponseInterceptor: addInterceptor('response'),
-            delete: _httpMethodFactory('delete'),
+            delete: _httpMethodFactory('DELETE'),
             identifier: newIdentifier => {
                 if (newIdentifier === undefined) {
                     return scope.get('config').get('entityIdentifier');
@@ -88,8 +88,8 @@ export default function(request) {
 
                 return endpoint;
             },
-            get: _httpMethodFactory('get', false),
-            head: _httpMethodFactory('head', false),
+            get: _httpMethodFactory('GET', false),
+            head: _httpMethodFactory('HEAD', false),
             header: (key, value) => scope.assign('headers', key, value),
             headers: () => scope.get('headers'),
             new: (url) => {
@@ -100,9 +100,9 @@ export default function(request) {
             },
             on: scope.on,
             once: scope.once,
-            patch: _httpMethodFactory('patch'),
-            post: _httpMethodFactory('post'),
-            put: _httpMethodFactory('put'),
+            patch: _httpMethodFactory('PATCH'),
+            post: _httpMethodFactory('POST'),
+            put: _httpMethodFactory('PUT'),
             url: () => scope.get('url'),
         });
 

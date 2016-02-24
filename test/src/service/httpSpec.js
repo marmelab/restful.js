@@ -16,7 +16,7 @@ describe('HTTP Service', () => {
     });
 
     it('should execute request interceptors, then call the http backend and execute response interceptors before returning result', (done) => {
-        const requestInterceptor1 = sinon.stub().returns({ method: 'put' });
+        const requestInterceptor1 = sinon.stub().returns({ method: 'PUT' });
         const requestInterceptor2 = sinon.stub().returns({ params: { asc: 1 } });
         const requestInterceptor3 = sinon.stub().returns(new Promise((resolve) => {
             setTimeout(() => {
@@ -26,7 +26,7 @@ describe('HTTP Service', () => {
         const responseInterceptor1 = sinon.stub().returns({ status: 'yes' });
 
         http(Map({
-            method: 'get',
+            method: 'GET',
             form: {
                 test: 'test',
             },
@@ -37,7 +37,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(0).args).to.deep.equal([
                 'request:interceptor:pre',
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -48,7 +48,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(1).args).to.deep.equal([
                 'request:interceptor:post',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -59,7 +59,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(2).args).to.deep.equal([
                 'request:interceptor:pre',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -70,7 +70,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(3).args).to.deep.equal([
                 'request:interceptor:post',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -84,7 +84,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(4).args).to.deep.equal([
                 'request:interceptor:pre',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -98,7 +98,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(5).args).to.deep.equal([
                 'request:interceptor:post',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -112,7 +112,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(6).args).to.deep.equal([
                 'request',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -128,7 +128,7 @@ describe('HTTP Service', () => {
                     output: 1,
                 },
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -146,7 +146,7 @@ describe('HTTP Service', () => {
                     status: 'yes',
                 },
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -159,7 +159,7 @@ describe('HTTP Service', () => {
             ]);
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -168,7 +168,7 @@ describe('HTTP Service', () => {
             ]);
             expect(requestInterceptor2.getCall(0).args).to.deep.equal([
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -177,7 +177,7 @@ describe('HTTP Service', () => {
             ]);
             expect(requestInterceptor3.getCall(0).args).to.deep.equal([
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -189,7 +189,7 @@ describe('HTTP Service', () => {
             ]);
             expect(httpBackend.getCall(0).args).to.deep.equal([
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -204,7 +204,7 @@ describe('HTTP Service', () => {
                     output: 1,
                 },
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -223,7 +223,7 @@ describe('HTTP Service', () => {
     });
 
     it('should execute error interceptors when an error occured in a request interceptor', (done) => {
-        const requestInterceptor1 = sinon.stub().returns({ method: 'put' });
+        const requestInterceptor1 = sinon.stub().returns({ method: 'PUT' });
         const requestInterceptor2 = sinon.stub().returns(new Promise(() => {
             throw new Error('Oops');
         }));
@@ -231,7 +231,7 @@ describe('HTTP Service', () => {
 
         http(Map({
             errorInterceptors: [errorInterceptor1],
-            method: 'get',
+            method: 'GET',
             form: {
                 test: 'test',
             },
@@ -242,7 +242,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(0).args).to.deep.equal([
                 'request:interceptor:pre',
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -253,7 +253,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(1).args).to.deep.equal([
                 'request:interceptor:post',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -264,7 +264,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(2).args).to.deep.equal([
                 'request:interceptor:pre',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -276,7 +276,7 @@ describe('HTTP Service', () => {
                 'error:interceptor:pre',
                 new Error('Oops'),
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -290,7 +290,7 @@ describe('HTTP Service', () => {
                     status: 'yes',
                 },
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -300,7 +300,7 @@ describe('HTTP Service', () => {
             ]);
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -309,7 +309,7 @@ describe('HTTP Service', () => {
             ]);
             expect(requestInterceptor2.getCall(0).args).to.deep.equal([
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -320,7 +320,7 @@ describe('HTTP Service', () => {
             expect(errorInterceptor1.getCall(0).args).to.deep.equal([
                 new Error('Oops'),
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -340,7 +340,7 @@ describe('HTTP Service', () => {
 
         http(Map({
             errorInterceptors: [errorInterceptor1],
-            method: 'get',
+            method: 'GET',
             form: {
                 test: 'test',
             },
@@ -351,7 +351,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(0).args).to.deep.equal([
                 'request',
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -364,7 +364,7 @@ describe('HTTP Service', () => {
                     output: 1,
                 },
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -376,7 +376,7 @@ describe('HTTP Service', () => {
                 'error:interceptor:pre',
                 new Error('Oops'),
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -390,7 +390,7 @@ describe('HTTP Service', () => {
                     status: 'yes',
                 },
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -403,7 +403,7 @@ describe('HTTP Service', () => {
                     output: 1,
                 },
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -412,7 +412,7 @@ describe('HTTP Service', () => {
             ]);
             expect(httpBackend.getCall(0).args).to.deep.equal([
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -422,7 +422,7 @@ describe('HTTP Service', () => {
             expect(errorInterceptor1.getCall(0).args).to.deep.equal([
                 new Error('Oops'),
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -436,13 +436,13 @@ describe('HTTP Service', () => {
 
 
     it('should execute error interceptors when an error occured in httpBackend', (done) => {
-        const requestInterceptor1 = sinon.stub().returns({ method: 'put' });
+        const requestInterceptor1 = sinon.stub().returns({ method: 'PUT' });
         const errorInterceptor1 = sinon.stub().returns({ status: 'yes' });
         httpBackend.returns(Promise.reject(new Error('Oops')));
 
         http(Map({
             errorInterceptors: [errorInterceptor1],
-            method: 'get',
+            method: 'GET',
             form: {
                 test: 'test',
             },
@@ -453,7 +453,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(0).args).to.deep.equal([
                 'request:interceptor:pre',
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -464,7 +464,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(1).args).to.deep.equal([
                 'request:interceptor:post',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -475,7 +475,7 @@ describe('HTTP Service', () => {
             expect(emitter.getCall(2).args).to.deep.equal([
                 'request',
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -486,7 +486,7 @@ describe('HTTP Service', () => {
                 'error:interceptor:pre',
                 new Error('Oops'),
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -500,7 +500,7 @@ describe('HTTP Service', () => {
                     status: 'yes',
                 },
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -510,7 +510,7 @@ describe('HTTP Service', () => {
             ]);
             expect(requestInterceptor1.getCall(0).args).to.deep.equal([
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
@@ -519,7 +519,7 @@ describe('HTTP Service', () => {
             ]);
             expect(httpBackend.getCall(0).args).to.deep.equal([
                 {
-                    method: 'put',
+                    method: 'PUT',
                     form: {
                         test: 'test',
                     },
@@ -529,7 +529,7 @@ describe('HTTP Service', () => {
             expect(errorInterceptor1.getCall(0).args).to.deep.equal([
                 new Error('Oops'),
                 {
-                    method: 'get',
+                    method: 'GET',
                     form: {
                         test: 'test',
                     },
