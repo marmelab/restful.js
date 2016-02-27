@@ -29,7 +29,7 @@ describe('Endpoint model', () => {
             expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -45,7 +45,7 @@ describe('Endpoint model', () => {
                 headers: {
                     Authorization: 'Token xxxx',
                 },
-                method: 'get',
+                method: 'GET',
                 params: {
                     filter: 'asc',
                 },
@@ -72,7 +72,7 @@ describe('Endpoint model', () => {
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
-                method: 'post',
+                method: 'POST',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -100,7 +100,7 @@ describe('Endpoint model', () => {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
                 },
-                method: 'post',
+                method: 'POST',
                 params: {
                     goodbye: 'planet',
                 },
@@ -127,7 +127,7 @@ describe('Endpoint model', () => {
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
-                method: 'put',
+                method: 'PUT',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -155,7 +155,7 @@ describe('Endpoint model', () => {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
                 },
-                method: 'put',
+                method: 'PUT',
                 params: {
                     goodbye: 'planet',
                 },
@@ -182,7 +182,7 @@ describe('Endpoint model', () => {
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
-                method: 'patch',
+                method: 'PATCH',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -210,7 +210,7 @@ describe('Endpoint model', () => {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
                 },
-                method: 'patch',
+                method: 'PATCH',
                 params: {
                     goodbye: 'planet',
                 },
@@ -237,7 +237,7 @@ describe('Endpoint model', () => {
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8',
                 },
-                method: 'delete',
+                method: 'DELETE',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -265,7 +265,7 @@ describe('Endpoint model', () => {
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
                 },
-                method: 'delete',
+                method: 'DELETE',
                 params: {
                     goodbye: 'planet',
                 },
@@ -283,7 +283,7 @@ describe('Endpoint model', () => {
             expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
-                method: 'head',
+                method: 'HEAD',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -299,7 +299,7 @@ describe('Endpoint model', () => {
                 headers: {
                     Authorization: 'Token xxxx',
                 },
-                method: 'head',
+                method: 'HEAD',
                 params: {
                     filter: 'asc',
                 },
@@ -319,7 +319,7 @@ describe('Endpoint model', () => {
             expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [{ hello: 'world' }],
                 responseInterceptors: [],
@@ -335,7 +335,7 @@ describe('Endpoint model', () => {
             expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [{ hello2: 'world2' }],
@@ -351,7 +351,7 @@ describe('Endpoint model', () => {
             expect(request.getCall(0).args[0].toJS()).to.deep.equal({
                 errorInterceptors: [{ hello3: 'world3' }],
                 headers: {},
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -371,7 +371,7 @@ describe('Endpoint model', () => {
                     Authorization: 'xxxx',
                     hello: 'world',
                 },
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -388,7 +388,7 @@ describe('Endpoint model', () => {
                 headers: {
                     Authorization: 'yyyy',
                 },
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -423,7 +423,7 @@ describe('Endpoint model', () => {
                 'Content-Type': 'application/json;charset=UTF-8',
                 hello: 'planet',
             },
-            method: 'post',
+            method: 'POST',
             params: null,
             requestInterceptors: [
                 { alpha: 'beta' },
@@ -446,7 +446,7 @@ describe('Endpoint model', () => {
             expect(listener.getCall(0).args[1]).to.deep.equal({
                 errorInterceptors: [],
                 headers: {},
-                method: 'get',
+                method: 'GET',
                 params: null,
                 requestInterceptors: [],
                 responseInterceptors: [],
@@ -471,7 +471,7 @@ describe('Endpoint model', () => {
                 {
                     errorInterceptors: [],
                     headers: {},
-                    method: 'get',
+                    method: 'GET',
                     params: null,
                     requestInterceptors: [],
                     responseInterceptors: [],
@@ -496,7 +496,7 @@ describe('Endpoint model', () => {
                 {
                     errorInterceptors: [],
                     headers: {},
-                    method: 'get',
+                    method: 'GET',
                     params: null,
                     requestInterceptors: [],
                     responseInterceptors: [],
