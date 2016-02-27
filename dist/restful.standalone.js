@@ -257,7 +257,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            addErrorInterceptor: addInterceptor('error'),
 	            addRequestInterceptor: addInterceptor('request'),
 	            addResponseInterceptor: addInterceptor('response'),
-	            'delete': _httpMethodFactory('delete'),
+	            'delete': _httpMethodFactory('DELETE'),
 	            identifier: function identifier(newIdentifier) {
 	                if (newIdentifier === undefined) {
 	                    return scope.get('config').get('entityIdentifier');
@@ -267,8 +267,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                return endpoint;
 	            },
-	            get: _httpMethodFactory('get', false),
-	            head: _httpMethodFactory('head', false),
+	            get: _httpMethodFactory('GET', false),
+	            head: _httpMethodFactory('HEAD', false),
 	            header: function header(key, value) {
 	                return scope.assign('headers', key, value);
 	            },
@@ -283,9 +283,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            on: scope.on,
 	            once: scope.once,
-	            patch: _httpMethodFactory('patch'),
-	            post: _httpMethodFactory('post'),
-	            put: _httpMethodFactory('put'),
+	            patch: _httpMethodFactory('PATCH'),
+	            post: _httpMethodFactory('POST'),
+	            put: _httpMethodFactory('PUT'),
 	            url: function url() {
 	                return scope.get('url');
 	            }
