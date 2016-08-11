@@ -33,7 +33,7 @@
     "sinon": "1.17.3",
     "webpack": "1.12.12"
   },
-  "optionnalDependencies": {
+  "optionalDependencies": {
     "request": "2.69.0",
     "whatwg-fetch": "0.11.0"
   }
