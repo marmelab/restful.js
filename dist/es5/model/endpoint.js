@@ -137,6 +137,7 @@ exports['default'] = function (request) {
             patch: _httpMethodFactory('PATCH'),
             post: _httpMethodFactory('POST'),
             put: _httpMethodFactory('PUT'),
+            options: _httpMethodFactory('OPTIONS', false),
             url: function url() {
                 return scope.get('url');
             }

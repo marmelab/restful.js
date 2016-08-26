@@ -46,7 +46,8 @@ function collection(endpoint) {
         get: _bindHttpMethod('get'),
         head: _bindHttpMethod('head'),
         patch: _bindHttpMethod('patch'),
-        put: _bindHttpMethod('put')
+        put: _bindHttpMethod('put'),
+        options: endpoint.options
     });
 }
 
