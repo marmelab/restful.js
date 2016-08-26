@@ -134,10 +134,10 @@ commentsCollection.get(4).then((response) => {
 ### Response
 A response is made from the HTTP response fetched from the endpoint. It exposes `statusCode()`, `headers()`, and `body()` methods. For a `GET` request, the `body` method will return one or an array of entities. Therefore you can disable this hydration by calling `body(false)`.
 
-#### Headers 
+#### Headers
 
 For most of cases, `headers` in a response will be a plain object with headers data, but for some browsers, that don't support iteration over [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) object, it will simply be returned as a [Headers object](https://developer.mozilla.org/en-US/docs/Web/API/Headers), so you can use `get` method from it to get required headers.
-    
+
 ### Entity Data
 
 An entity is made from the HTTP response data fetched from the endpoint. It exposes a `data()` method:
@@ -229,6 +229,7 @@ Restful.js exposes similar methods on collections, members and entities. The nam
 * `delete ( id [, data [, params [, headers ]]] )`: Delete a member in a collection. Returns a promise with the response.
 * `getAll ( [ params [, headers ]] )`: Get a full collection. Returns a promise with an array of entities.
 * `get ( id [, params [, headers ]] )`: Get a member in a collection. Returns a promise with an entity.
+* `options ( id [m params [, headers ]] )`: Get member OPTIONS in ca collection. Returns a promise with an entity
 * `head ( id [, params [, headers ]] )`: Perform a HEAD request on a member in a collection. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
 * `headers ()`: Get all headers added to the collection.
@@ -255,6 +256,7 @@ authorsCollection.get(1).then((authorEntity) => { /*  */ });
 * `custom ( name [, isRelative = true ] )`: Target a child member with a custom url.
 * `delete ( [ data [, params [, headers ]]] )`: Delete a member. Returns a promise with the response.
 * `get ( [ params [, headers ]] )`: Get a member. Returns a promise with an entity.
+* `options ( [ params [, headers ]] )`: Get members OPTIONS. Returns a promise with an entity.
 * `head ( [ params [, headers ]] )`: Perform a HEAD request on a member. Returns a promise with the response.
 * `header ( name, value )`: Add a header.
 * `headers ()`: Get all headers added to the member.

@@ -26,6 +26,7 @@ export function collection(endpoint) {
         head: _bindHttpMethod('head'),
         patch: _bindHttpMethod('patch'),
         put: _bindHttpMethod('put'),
+        options: endpoint.options
     });
 }
 
