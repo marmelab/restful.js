@@ -1,5 +1,4 @@
-# restful.js [![Build Status](https://travis-ci.org/marmelab/restful.js.svg?branch=master)](https://travis-ci.org/marmelab/restful.js)
-
+# restful.js [![Build Status](https://travis-ci.org/marmelab/restful.js.svg?branch=master)](https://travis-ci.org/marmelab/restful.js) [![CDNJS](https://img.shields.io/cdnjs/v/restful.js.svg)](https://cdnjs.com/libraries/restful.js/)  
 A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.
 
 *Note*: All examples written in this README use the ES6 specification.
