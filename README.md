@@ -18,7 +18,7 @@ Standalone version already embeds `fetch`.
 Alternately, you can use a module loader like [webpack](http://webpack.github.io/).
 
 ```js
-import restful from 'restful.js';
+import restful from '@pcdummy/restful.js';
 ```
 
 ## Usage

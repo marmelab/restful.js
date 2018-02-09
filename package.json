@@ -10,16 +10,15 @@
   },
   "description": "A pure JS client for interacting with server-side RESTful resources. Think Restangular without Angular.",
   "scripts": {
-    "build": "NODE_ENV=production webpack",
-    "build:dev": "webpack",
+    "build": "rollup -c rollup.config.min.js && rollup -c rollup.config.standalone.min.js",
+    "build:dev": "rollup -c rollup.config.js && rollup -c rollup.config.standalone.js",
     "build:esm5": "babel --out-dir=dist/esm5 --stage=0 src",
     "build:all": "yarn build:dev; yarn build; yarn build:esm5",
-    "test": "NODE_ENV=test mocha --require babel-core/register --colors --reporter=spec --timeout=10000 test/{**,**/**,**/**/**}/*.js",
-    "watch": "yarn webpack -- -d --watch"
+    "test": "NODE_ENV=test mocha --require babel-core/register --colors --reporter=spec --timeout=10000 test/{**,**/**,**/**/**}/*.js"
   },
   "main": "dist/restful.js",
   "module": "dist/esm5/index.js",
-  "es2015": "src/indes.js",
+  "es2015": "src/index.js",
   "author": "René Jochum <rene@jochums.at>",
   "license": "MIT",
   "dependencies": {
@@ -39,9 +38,13 @@
     "eslint-config-airbnb": "16.1.0",
     "mocha": "5.0.0",
     "nock": "9.1.6",
+    "rollup": "^0.55.4",
+    "rollup-plugin-commonjs": "^8.3.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-uglify": "^3.0.0",
     "sinon": "4.2.2",
-    "uglifyjs-webpack-plugin": "^1.1.8",
-    "webpack": "3.10.0"
+    "uglify-es": "^3.3.10"
   },
   "optionalDependencies": {
     "request": "^2.83.0",
