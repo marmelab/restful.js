@@ -1,3 +1,5 @@
+import globals from 'rollup-plugin-node-globals';
+import builtins from 'rollup-plugin-node-builtins';
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
 
@@ -9,6 +11,8 @@ export default {
         name: 'restful.js'
     },
     plugins: [
+        globals(),
+        builtins(),
         nodeResolve({
             // use "module" field for ES6 module if possible
             module: true, // Default: true
@@ -26,7 +30,7 @@ export default {
             // specifies alternative files to load for people bundling
             // for the browser. If that's you, use this option, otherwise
             // pkg.browser will be ignored
-            browser: false,  // Default: false
+            browser: true,  // Default: false
 
             // not all files you want to resolve are .js files
             // extensions: [ '.js', '.json' ],  // Default: ['.js']
