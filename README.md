@@ -9,8 +9,7 @@ A pure JS client for interacting with server-side RESTful resources. Think Resta
 It is available with bower or npm:
 
 ```
-bower install restful.js
-npm install restful.js
+npm install @pcdummy/restful.js
 ```
 
 The `dist` folder contains two built versions which you can use to include either restful.js or a standalone version.
@@ -426,28 +425,27 @@ You can also use `once` method to add a one shot event listener.
 Install dependencies:
 
 ```sh
-make install
+npm install -g yarn
+yarn
 ```
 
 ### Development Build
 
-To rebuild the JavaScript you must run: `make build-dev`.
+To rebuild the JavaScript you must run: `yarn build:dev`.
 
-During development you can run `make watch` to trigger a build at each change.
+During development you can run `yarn watch` to trigger a build at each change.
 
 ### Production build
 
-To build for production (minified files) you must run: `make build`.
+To build for production (minified files) you must run: `yarn build`.
 
 ### ES5 build
 
-To build the ES5 files you must run: `make es5`.
+To build the ES5 files you must run: `yarn build:esm5`.
 
 ### Tests
 
-```sh
-make test
-```
+```yarn test``` (test are FAILING atm.)
 
 ## Contributing
 

@@ -1,5 +1,7 @@
 /* eslint-disable no-var */
+var path = require('path');
 var webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var production = process.env.NODE_ENV === 'production';
 
 module.exports = {
@@ -19,11 +21,10 @@ module.exports = {
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         }),
     ].concat(production ? [
-        new webpack.optimize.UglifyJsPlugin(),
-        new webpack.optimize.DedupePlugin(),
+        new UglifyJSPlugin(),
     ] : []),
     output: {
-        path: './dist',
+        path: path.join(__dirname, "dist"),
         filename: production ? '[name].min.js' : '[name].js',
         library: 'restful',
         libraryTarget: 'umd',
