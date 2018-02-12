@@ -2,24 +2,29 @@ import globals from 'rollup-plugin-node-globals';
 import builtins from 'rollup-plugin-node-builtins';
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
+import babel from 'rollup-plugin-babel';
+import replace from 'rollup-plugin-replace';
 
-export default {
+export default  {
     input: 'build/restful.fetch.js',
     output: {
         file: 'dist/restful.js',
         format: 'umd',
         name: 'restful.js'
     },
+    moduleContext: {
+        [require.resolve('whatwg-fetch')]: 'window'
+    },
     plugins: [
         globals(),
         builtins(),
         nodeResolve({
             // use "module" field for ES6 module if possible
-            module: true, // Default: true
+            module: false, // Default: true
 
             // use "jsnext:main" if possible
             // – see https://github.com/rollup/rollup/wiki/jsnext:main
-            jsnext: true,  // Default: false
+            jsnext: false,  // Default: false
 
             // use "main" field or index.js, even if it's not an ES6 module
             // (needs to be converted from CommonJS to ES6
@@ -41,12 +46,26 @@ export default {
 
             // If true, inspect resolved files to check that they are
             // ES2015 modules
-            modulesOnly: false, // Default: false
+            modulesOnly: false  // Default: false
         }),
         commonjs({
             namedExports: {
-                'node_modules/immutable/dist/immutable.js': [ 'fromJS', 'List', 'Map', 'Iterable' ]
+                'node_modules/immutable/dist/immutable.js': [ 'fromJS', 'List', 'Map', 'Iterable' ],
             }
+        }),
+        babel({
+            exclude: 'node_modules/**',
+            babelrc: false,
+            presets: [
+                ["env", { "modules": false }]
+            ],
+            plugins: [
+                'external-helpers'
+            ],
+        }),
+        replace({
+            exclude: 'node_modules/**',
+            ENV: 'production',
         })
     ]
-};
+}
