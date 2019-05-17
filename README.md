@@ -271,8 +271,8 @@ authorsCollection.get(1).then((authorEntity) => { /*  */ });
 * `once ( event, listener )`: Add an event listener on the member which will be triggered only once.
 * `one ( name, id )`: Target a child member in a collection `name`.
 * `patch ( [ data [, params [, headers ]]] )`: Patch a member. Returns a promise with the response.
-* `post ( [ data [, params [, headers ]]] )`: Create a member. Returns a promise with the response.
-* `put ( [ data [, params [, headers ]]] )`: Update a member. Returns a promise with the response.
+* `post ( [ data [, params [, headers ]]] )`: Update a member. Returns a promise with the response.
+* `put ( [ data [, params [, headers ]]] )`: Create a member. Returns a promise with the response.
 * `url ()`: Get the member url.
 
 ```js
